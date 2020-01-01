@@ -1,0 +1,29 @@
+{
+  "name": "tf2-automatic-gui",
+  "version": "1.0.0",
+  "description": "An interface to easily manage your tf2-automatic bot",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZeusJunior/tf2-automatic-gui.git"
+  },
+  "author": "Zeus_Junior/76561198144346135",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ZeusJunior/tf2-automatic-gui/issues"
+  },
+  "homepage": "https://github.com/ZeusJunior/tf2-automatic-gui#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "ejs": "^3.0.1",
+    "express": "^4.17.1",
+    "fs": "0.0.1-security",
+    "open": "^7.0.0",
+    "path": "^0.12.7",
+    "request": "^2.88.0",
+    "tf2-sku": "^1.1.3"
+  }
+}
