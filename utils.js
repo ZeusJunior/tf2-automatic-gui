@@ -4,57 +4,67 @@ const SKU = require('tf2-sku');
 const request = require('request');
 const fs = require('fs');
 
-exports.addItem = function(search, options) {
+exports.addItem = function(res, search, options) {
+    let itemsAdded = 0;
+    let itemsFailed = 0;
     for (i = 0; i < search.length; i++) {
         setTimeout(function(i) {
-            return new Promise((resolve, reject) => {
-                let sku;
-                if (search[i].includes(';')) { // too lazy
-                    sku = search[i];
-                } else {
-                    sku = getSKU(search[i]);
+            let sku;
+            if (search[i].includes(';')) { // too lazy
+                sku = search[i];
+            } else {
+                sku = getSKU(search[i]);
+            }
+            const item = {
+                sku: '', 
+                enabled: true, 
+                autoprice: true, 
+                max: 1, 
+                min: 0, 
+                intent: 2, 
+                name: "",
+                buy: {},
+                sell: {},
+                time: 0
+            }
+            if (sku == false) {
+                itemsFailed++
+                return false;
+            }
+            item.sku = sku;
+    
+            getInfo(sku).then((info) => {
+                if (!info) {
+                    itemsFailed++ 
+                    return false;
                 }
-                const item = {
-                    sku: '', 
-                    enabled: true, 
-                    autoprice: true, 
-                    max: 1, 
-                    min: 0, 
-                    intent: 2, 
-                    name: "",
-                    buy: {},
-                    sell: {},
-                    time: 0
-                }
-                if (sku == false) {
-                    return resolve(false);
-                }
-                item.sku = sku;
-        
-                getInfo(sku).then((info) => {
-                    if (!info) return resolve(false);
-                    item.name = info.name;
-                    item.buy = info.buy;
-                    item.sell = info.sell;
-                    item.time = info.time;
-        
-                    item.max = options.max;
-                    item.min = options.min;
-                    item.intent = options.intent;
-                    changePricelist('add', item).then((result) => {
-                        if (!result) return resolve(false);
-                        if (result == 'alreadyAdded') return resolve(result);
-                        return resolve(true);
-                    }).catch((err) => {
-                        console.log(err);
-                        return reject(err);
-                    })
+                item.name = info.name;
+                item.buy = info.buy;
+                item.sell = info.sell;
+                item.time = info.time;
+    
+                item.max = options.max;
+                item.min = options.min;
+                item.intent = options.intent;
+                changePricelist('add', item).then((result) => {
+                    if (!result || result == 'alreadyAdded') {
+                        itemsFailed++
+                        return false;
+                    }
+                    itemsAdded++;
+                    if (search.length - 1 == i) {
+                        exports.renderPricelist(res, 'primary', itemsAdded + ' items added, ' + itemsFailed + ' items failed.');
+                    }
+                    return;
                 }).catch((err) => {
                     console.log(err);
-                    return reject(err);
-                });
+                    return;
+                })
+            }).catch((err) => {
+                console.log(err);
+                return;
             });
-        }, 75 * i, i) // ~13 per second
+        }, 75 * i, i); // ~13 per second
     }
 } 
 

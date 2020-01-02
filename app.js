@@ -36,7 +36,7 @@ app.post('/add-item', async (req, res) => {
         }
     })
     // let addItem = 
-    utils.addItem(req.body.input, {
+    utils.addItem(res, req.body.input, {
         intent: req.body.intent,
         min: req.body.min,
         max: req.body.max
@@ -50,7 +50,7 @@ app.post('/add-item', async (req, res) => {
     //     return;
     // }
     // utils.renderPricelist(res, 'success', 'Success! The item was added successfully');
-    res.redirect('back');
+    // res.redirect('/');
 });
 
 app.post('/pricelist', async (req, res) => {
