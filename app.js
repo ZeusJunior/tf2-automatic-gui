@@ -24,28 +24,33 @@ app.get('/', (req, res) => {
 })
 
 app.post('/add-item', async (req, res) => {
-    if (req.body.input.includes('classifieds')) {
-        utils.renderPricelist(res, 'danger', 'Please use the items stats page or full name, not the classifieds link');
-        return;
-    }
-    if (req.body.max - req.body.min < 1) {
-        utils.renderPricelist(res, 'warning', 'The maximum stock must be atleast one higher than the minimum');
-        return;
-    }
-    let addItem = await utils.addItem(req.body.input, {
+    req.body.input = req.body.input.split(/\r?\n/);
+    req.body.input.forEach(function(item, index) {
+        if (item.includes('classifieds')) {
+            utils.renderPricelist(res, 'danger', 'Please use the items stats page or full name, not the classifieds link');
+            return;
+        }
+        if (req.body.max - req.body.min < 1) {
+            utils.renderPricelist(res, 'warning', 'The maximum stock must be atleast one higher than the minimum');
+            return;
+        }
+    })
+    // let addItem = 
+    utils.addItem(req.body.input, {
         intent: req.body.intent,
         min: req.body.min,
         max: req.body.max
     });
-    if (addItem == false) {
-        utils.renderPricelist(res, 'danger', 'Something went wrong. Either the item is not autopriced, no defindex was found, or it was not possible to update your pricelist');
-        return;
-    }
-    if (addItem == 'alreadyAdded') {
-        utils.renderPricelist(res, 'danger', 'This item is already in your pricelist');
-        return;
-    }
-    utils.renderPricelist(res, 'success', 'Success! The item was added successfully');
+    // if (addItem == false) {
+    //     utils.renderPricelist(res, 'danger', 'Something went wrong. Either the item is not autopriced, no defindex was found, or it was not possible to update your pricelist');
+    //     return;
+    // }
+    // if (addItem == 'alreadyAdded') {
+    //     utils.renderPricelist(res, 'danger', 'This item is already in your pricelist');
+    //     return;
+    // }
+    // utils.renderPricelist(res, 'success', 'Success! The item was added successfully');
+    res.redirect('back');
 });
 
 app.post('/pricelist', async (req, res) => {
