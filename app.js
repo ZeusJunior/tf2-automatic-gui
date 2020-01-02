@@ -64,6 +64,10 @@ app.post('/pricelist', async (req, res) => {
     return;
 });
 
+app.post('/clearPricelist', (req, res) => {
+    utils.clearPricelist(res);
+})
+
 app.listen(3000, function() { //listen on port 3000
     console.log("listening on port 3000");
     require("open")("http://localhost:3000/");
