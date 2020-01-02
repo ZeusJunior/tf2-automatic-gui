@@ -6,7 +6,12 @@ const fs = require('fs');
 
 exports.addItem = function(search, options) {
     return new Promise((resolve, reject) => {
-        let sku = getSKU(search);
+        let sku;
+        if (search.includes(';')) { // too lazy
+            sku = search;
+        } else {
+            sku = getSKU(search);
+        }
         const item = {
             sku: '', 
             enabled: true, 
@@ -207,7 +212,6 @@ function changePricelist(action, item) {
                 let pricelist = JSON.parse(data);
                 for (i = 0; i < pricelist.length; i++) {
                     for (j = 0; j < items.length; j++) {
-                        console.log(i);
                         if (pricelist[i].sku == items[j]) {
                             pricelist.splice(pricelist.indexOf(pricelist[i]), 1);
                             itemsremoved++
