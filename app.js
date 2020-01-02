@@ -52,6 +52,13 @@ app.post('/add-item', async (req, res) => {
         });
         return;
     }
+    if (addItem == 'alreadyAdded') {
+        res.render('addItem', {
+            type: 'danger',
+            msg: 'This item is already in your pricelist'
+        });
+        return;
+    }
     res.render('addItem', {
         type: 'success',
         msg: 'Success! The item was added successfully'

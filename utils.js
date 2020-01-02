@@ -32,6 +32,7 @@ exports.addItem = function(search) {
             item.time = info.time;
             changePricelist('add', item).then((result) => {
                 if (!result) return resolve(false);
+                if (result == 'alreadyAdded') return resolve(result);
                 return resolve(true);
             }).catch((err) => {
                 console.log(err);
@@ -143,6 +144,11 @@ function changePricelist(action, item) {
                     return reject(err);
                 }
                 let pricelist = JSON.parse(data);
+                for (i = 0; i < pricelist.length; i++) {
+                    if (pricelist[i].sku == item.sku) {
+                        return resolve('alreadyAdded');
+                    }
+                }
                 pricelist.push(item);
                 fs.writeFile('./config/pricelist.json', JSON.stringify(pricelist, null, 4), function(err) {
                     if (err) {
