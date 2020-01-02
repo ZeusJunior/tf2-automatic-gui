@@ -207,9 +207,9 @@ function changePricelist(action, item) {
                 let pricelist = JSON.parse(data);
                 for (i = 0; i < pricelist.length; i++) {
                     for (j = 0; j < items.length; j++) {
+                        console.log(i);
                         if (pricelist[i].sku == items[j]) {
                             pricelist.splice(pricelist.indexOf(pricelist[i]), 1);
-                            i--;
                             itemsremoved++
                         }
                     }
@@ -225,7 +225,13 @@ function changePricelist(action, item) {
     });
 }
 
-function trunc(number, decimals = 2) {
-    const factor = Math.pow(10, decimals);
-    return Math.floor(number * factor) / factor;
-};
+exports.renderPricelist = function(res, type, msg) {
+    fs.readFile('./config/pricelist.json', function (err, data) {
+        if (err) throw err;
+        res.render('home', {
+            type: type,
+            msg: msg,
+            pricelist: JSON.parse(data)
+        });
+    });
+}

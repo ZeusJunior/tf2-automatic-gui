@@ -8,13 +8,88 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src='/pricelist.js'></script>
 </head>
 <body>
 
 <%- include("partials/navbar") %>
+<br>
 
-<a href="/pricelist">View your full pricelist here</a><br>
-<a href="/add-item">Add an item here</a>
+<% if (msg !== 'none') { %>
+    <div class="alert alert-<%=type%>" role="alert">
+      <%= msg %>
+    </div>
+<% } %>
+
+    <form action="/add-item" method="POST" style="padding-left: 20px;">
+        <div class="form-group">
+          <label for="url">Item URL</label>
+          <input type="text" class="form-control" id="url" name="input" placeholder="Add the backpack.tf stats page or the items name here" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="intent">Intent</label>
+            <select name="intent" class="form-control" id="intent">
+              <option selected="selected" value="2">Bank (buy and sell)</option>
+              <option value="0">Buy</option>
+              <option value="1">Sell</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="minimum">Minimum stock</label>
+            <input type="number" class="form-control" id="minimum" name="min" min="0" value="0" required>
+          </div>
+          <div class="form-group">
+            <label for="maximum">Maximum stock</label>
+            <input type="number" class="form-control" id="maximum" name="max" min="0" value="1" required>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Add</button>
+    </form>
+    
+    <% if (pricelist.length !== 0) { %>
+    <br>
+
+    <form method="POST" action="/pricelist" id="frm" style="padding-left: 20px;">
+        <button class="btn btn-danger" id="removeBtn" type="submit" form="frm" value="Submit">Delete selected</button>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">SKU</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Intent</th>
+                    <th scope="col">Minimum stock</th>
+                    <th scope="col">Maximum stock</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% pricelist.forEach(item => { %>
+                    <tr>
+                        <td>
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="<%= item.sku %>" name='list' value='<%= item.sku %>'>
+                                <label class="custom-control-label" for="<%= item.sku %>"></label><%= item.sku %></label>
+                            </div>
+                        </td>
+                        <td><%= item.name %></td>
+                        <td><%= item.intent == 2 ? "Bank" : item.intent == 1 ? "Sell" : "buy"%></td>
+                        <td><%= item.min %></td>
+                        <td><%= item.max %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th scope="col">SKU</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Intent</th>
+                    <th scope="col">Minimum stock</th>
+                    <th scope="col">Maximum stock</th>
+                </tr>
+            </tfoot>
+        </table>
+    </form>
+<% } %>
 
 </body>
 </html>

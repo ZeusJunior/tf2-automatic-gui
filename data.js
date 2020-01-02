@@ -61,7 +61,7 @@ exports.killstreak = {
 	"Killstreak": 1
 };
 
-module.exports.effects = [
+exports.effects = [
 	"Flying Bits",
 	"Nemesis Burst",
 	"Holy Glow",
@@ -225,7 +225,8 @@ module.exports.effects = [
 	"Festive Spirit",
 	"Magical Spirit"
 ]
-module.exports.effect = {  
+
+exports.effect = {  
 	"Particle 1":1,
 	"Flying Bits":2,
 	"Nemesis Burst":3,

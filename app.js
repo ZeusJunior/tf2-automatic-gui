@@ -20,28 +20,16 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.get('/', (req, res) => {
-    res.render('home');
+    utils.renderPricelist(res, 'primary', 'none');
 })
 
-app.get('/add-item', (req, res) => {
-    res.render('addItem', {
-        type: 'primary',
-        msg: 'none'
-    });
-});
 app.post('/add-item', async (req, res) => {
     if (req.body.input.includes('classifieds')) {
-        res.render('addItem', {
-            type: 'danger',
-            msg: 'Please use the items stats page, not the classifieds link'
-        });
+        utils.renderPricelist(res, 'danger', 'Please use the items stats page or full name, not the classifieds link');
         return;
     }
     if (req.body.max - req.body.min < 1) {
-        res.render('addItem', {
-            type: 'warning',
-            msg: 'The maximum stock must be atleast one higher than the minimum'
-        });
+        utils.renderPricelist(res, 'warning', 'The maximum stock must be atleast one higher than the minimum');
         return;
     }
     let addItem = await utils.addItem(req.body.input, {
@@ -50,57 +38,25 @@ app.post('/add-item', async (req, res) => {
         max: req.body.max
     });
     if (addItem == false) {
-        res.render('addItem', {
-            type: 'danger',
-            msg: 'Something went wrong. Either the item is not autopriced, no defindex was found, or it was not possible to update your pricelist'
-        });
+        utils.renderPricelist(res, 'danger', 'Something went wrong. Either the item is not autopriced, no defindex was found, or it was not possible to update your pricelist');
         return;
     }
     if (addItem == 'alreadyAdded') {
-        res.render('addItem', {
-            type: 'danger',
-            msg: 'This item is already in your pricelist'
-        });
+        utils.renderPricelist(res, 'danger', 'This item is already in your pricelist');
         return;
     }
-    res.render('addItem', {
-        type: 'success',
-        msg: 'Success! The item was added successfully'
-    });
+    utils.renderPricelist(res, 'success', 'Success! The item was added successfully');
 });
 
-app.get('/pricelist', (req, res) => {
-    fs.readFile('./config/pricelist.json', function (err, data) {
-        if (err) throw err;
-        res.render('pricelist', {
-            type: 'primary',
-            msg: 'none',
-            pricelist: JSON.parse(data)
-        });
-    });
-});
 app.post('/pricelist', async (req, res) => {
     const items = req.body.list
     let removed = await utils.removeItems(items);
     if (removed == false) {
-        fs.readFile('./config/pricelist.json', function (err, data) {
-            if (err) throw err;
-            res.render('pricelist', {
-                type: 'danger',
-                msg: 'Somehow not able to remove items!',
-                pricelist: JSON.parse(data)
-            });
-            return;
-        });
+        utils.renderPricelist(res, 'danger', 'Somehow not able to remove items!');
+        return;
     }
-    fs.readFile('./config/pricelist.json', function (err, data) {
-        if (err) throw err;
-        res.render('pricelist', {
-            type: 'success',
-            msg: 'Removed ' + removed + ' items from your pricelist',
-            pricelist: JSON.parse(data)
-        });
-    });
+    utils.renderPricelist(res, 'success', 'Removed ' + removed + ' items from your pricelist');
+    return;
 });
 
 app.listen(3000, function() { //listen on port 3000
