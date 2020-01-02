@@ -8,7 +8,6 @@ const fs = require('fs');
 if (!fs.existsSync('./config/pricelist.json')) {
 	throw new Error('Missing pricelist - Please put your pricelist file in the config folder')
 }
-const pricelist = require('./config/pricelist.json');
 
 app.use(express.static(path.join(__dirname, '/assets')));
 
@@ -30,7 +29,7 @@ app.get('/add-item', (req, res) => {
         msg: 'none'
     });
 });
-app.post('/add-item', (req, res) => {
+app.post('/add-item', async (req, res) => {
     if (req.body.input.includes('classifieds')) {
         res.render('addItem', {
             type: 'danger',
@@ -45,11 +44,11 @@ app.post('/add-item', (req, res) => {
         });
         return;
     }
-    let addItem = utils.addItem(req.body.input);
+    let addItem = await utils.addItem(req.body.input);
     if (addItem == false) {
         res.render('addItem', {
             type: 'danger',
-            msg: 'Something went wrong'
+            msg: 'Something went wrong. Either the item is not autopriced, or it was not possible to update your pricelist'
         });
         return;
     }
@@ -60,9 +59,12 @@ app.post('/add-item', (req, res) => {
 });
 
 app.get('/pricelist', (req, res) => {
-    res.render('pricelist', {
-        pricelist: pricelist
-    });
+    fs.readFile('./config/pricelist.json', function (err, data) {
+        if (err) throw err;
+        res.render('pricelist', {
+            pricelist: JSON.parse(data)
+        });
+    })
 });
 
 app.listen(3000, function() { //listen on port 3000

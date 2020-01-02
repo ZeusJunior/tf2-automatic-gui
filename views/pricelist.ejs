@@ -13,22 +13,35 @@
 
 <%- include("partials/navbar") %>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th scope="col">SKU</th>
-            <th scope="col">Name</th>
-        </tr>
-    </thead>
-    <tbody>
-        <% pricelist.forEach(item => { %>
+<form method="POST" action="">
+    <table class="table">
+        <thead>
             <tr>
-                <td><%= item.sku %></td>
-                <td><%= item.name %></td>
+                <th scope="col">SKU</th>
+                <th scope="col">Name</th>
             </tr>
-        <% }) %>
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            <% pricelist.forEach(item => { %>
+                <tr>
+                    <td>
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="<%= item.sku %>" name='list[]' value='<%= item.sku %>'>
+                            <label class="custom-control-label" for="<%= item.sku %>"></label><%= item.sku %></label>
+                        </div>
+                    </td>
+                    <td><%= item.name %></td>
+                </tr>
+            <% }) %>
+        </tbody>
+        <tfoot>
+            <tr>
+                <th scope="col">SKU</th>
+                <th scope="col">Name</th>
+            </tr>
+        </tfoot>
+    </table>
+</form>
 
 </body>
 </html>

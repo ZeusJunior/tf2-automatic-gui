@@ -5,37 +5,42 @@ const request = require('request');
 const fs = require('fs');
 
 exports.addItem = async function(search) {
-    let sku = getSKU(search);
-    const item = {
-        sku: '', 
-        enabled: true, 
-        autoprice: true, 
-        max: 1, 
-        min: 0, 
-        intent: 2, 
-        name: "",
-        buy: {},
-        sell: {},
-        time: 0
-    }
-    if (sku == false) {
-        return false;
-    }
-    item.sku = sku;
-    getInfo(sku).then((info) => {
-        item.name = info.name;
-        item.buy = info.buy;
-        item.sell = info.sell;
-        item.time = info.time;
-        changePricelist('add', item).then((result) => {
-            return true;
+    return new Promise((resolve, reject) => {
+        let sku = getSKU(search);
+        const item = {
+            sku: '', 
+            enabled: true, 
+            autoprice: true, 
+            max: 1, 
+            min: 0, 
+            intent: 2, 
+            name: "",
+            buy: {},
+            sell: {},
+            time: 0
+        }
+        if (sku == false) {
+            return reject(false);
+        }
+        item.sku = sku;
+
+        getInfo(sku).then((info) => {
+            if (!info) return resolve(false);
+            item.name = info.name;
+            item.buy = info.buy;
+            item.sell = info.sell;
+            item.time = info.time;
+            changePricelist('add', item).then((result) => {
+                if (!result) return resolve(false);
+                return resolve(true);
+            }).catch((err) => {
+                console.log(err);
+                return reject(false);
+            })
         }).catch((err) => {
             console.log(err);
-            return false;
-        })
-    }).catch((err) => {
-        console.log(err);
-        return false;
+            return reject(false);
+        });
     });
 } 
 
@@ -94,7 +99,7 @@ function getDefindex(search) {
     return false;
 }
 
-async function getInfo(sku) {
+function getInfo(sku) {
     return new Promise((resolve, reject) => {
         request({
             method: "GET",
@@ -105,30 +110,30 @@ async function getInfo(sku) {
             }
         }, function(err, response, body) {
             if (err) {
-                reject(err);
+                return reject(err);
             }
             if (body.success == false) {
-                reject(false);
+                return resolve(false);
             }
-            resolve(body);
+            return resolve(body);
         });
     });
 }
 
-async function changePricelist(action, item) {
+function changePricelist(action, item) {
     return new Promise((resolve, reject) => {
         if (action == 'add') {
             fs.readFile('./config/pricelist.json', function(err, data) {
                 if (err) {
-                    reject(err);
+                    return reject(err);
                 }
                 let pricelist = JSON.parse(data);
                 pricelist.push(item);
                 fs.writeFile('./config/pricelist.json', JSON.stringify(pricelist, null, 4), function(err) {
                     if (err) {
-                        reject(err);
+                        return reject(err);
                     }
-                    resolve(true);
+                    return resolve(true);
                 })
             });
         }
