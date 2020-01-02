@@ -37,13 +37,6 @@ app.post('/add-item', async (req, res) => {
         });
         return;
     }
-    if (!req.body.input.includes('backpack.tf/stats')) {
-        res.render('addItem', {
-            type: 'danger',
-            msg: 'It is currently not possible to add items by name, please use the items stats page instead'
-        });
-        return;
-    }
     if (req.body.max - req.body.min < 1) {
         res.render('addItem', {
             type: 'warning',
@@ -59,7 +52,7 @@ app.post('/add-item', async (req, res) => {
     if (addItem == false) {
         res.render('addItem', {
             type: 'danger',
-            msg: 'Something went wrong. Either the item is not autopriced, or it was not possible to update your pricelist'
+            msg: 'Something went wrong. Either the item is not autopriced, no defindex was found, or it was not possible to update your pricelist'
         });
         return;
     }

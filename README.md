@@ -7,5 +7,5 @@ When done, put your pricelist file back where you got it with your bot
 
 
 ### TODO
-Accept name inputs, currently only accepts bptf stats pages  
 Change all intents to sell / buy or dual
+Make skins work maybe?

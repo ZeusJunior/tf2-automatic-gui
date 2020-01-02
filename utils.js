@@ -20,7 +20,7 @@ exports.addItem = function(search, options) {
             time: 0
         }
         if (sku == false) {
-            return reject(err);
+            return resolve(false);
         }
         item.sku = sku;
 
@@ -97,15 +97,47 @@ function getSKU (search) {
         }
         let defindex = getDefindex(name)
         if (defindex === false) {
-            return 'no defindex found';
+            return false;
         }
         item.defindex = defindex;
-        item.quality = data.qualities[search[1]];
+        item.quality = data.quality[search[1]];
         item.craftable = search[4] === 'Craftable' ? true : false;
         return SKU.fromObject(item);
     }
     // handle item name inputs
-
+    let name = search;
+    if (name.includes('Non-Craftable')) {
+        name = name.replace('Non-Craftable ', "");
+        item.craftable = false;
+    }
+    for (i = 0; i < data.qualities.length; i++) {
+        if (name.includes(data.qualities[i])) {
+            name = name.replace(data.qualities[i] + ' ', "");
+            item.quality = data.quality[data.qualities[i]];
+        }
+    }
+    for (i = 0; i < data.effects.length; i++) {
+        if (name.includes(data.effects[i])) {
+            name = name.replace(data.effects[i] + ' ', "");
+            item.effect = data.effect[data.effects[i]];
+        }
+    }
+    for (i = 0; i < data.killstreaks.length; i++) {
+        if (name.includes(data.killstreaks[i])) {
+            name = name.replace(data.killstreaks[i] + ' ', "");
+            item.killstreak = data.killstreak[data.killstreaks[i]];
+        }
+    }
+    if (name.includes('Australium')) {
+        name = name.replace('Australium ', "");
+        item.australium = true;
+    }
+    let defindex = getDefindex(name)
+    if (defindex === false) {
+        return false;
+    }
+    item.defindex = defindex;
+    return SKU.fromObject(item);
 }
 
 function getDefindex(search) {
