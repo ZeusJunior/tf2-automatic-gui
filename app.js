@@ -44,7 +44,18 @@ app.post('/add-item', async (req, res) => {
         });
         return;
     }
-    let addItem = await utils.addItem(req.body.input);
+    if (req.body.max - req.body.min < 1) {
+        res.render('addItem', {
+            type: 'warning',
+            msg: 'The maximum stock must be atleast one higher than the minimum'
+        });
+        return;
+    }
+    let addItem = await utils.addItem(req.body.input, {
+        intent: req.body.intent,
+        min: req.body.min,
+        max: req.body.max
+    });
     if (addItem == false) {
         res.render('addItem', {
             type: 'danger',

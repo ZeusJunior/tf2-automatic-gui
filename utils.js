@@ -4,7 +4,7 @@ const SKU = require('tf2-sku');
 const request = require('request');
 const fs = require('fs');
 
-exports.addItem = function(search) {
+exports.addItem = function(search, options) {
     return new Promise((resolve, reject) => {
         let sku = getSKU(search);
         const item = {
@@ -30,6 +30,10 @@ exports.addItem = function(search) {
             item.buy = info.buy;
             item.sell = info.sell;
             item.time = info.time;
+
+            item.max = options.max;
+            item.min = options.min;
+            item.intent = options.intent;
             changePricelist('add', item).then((result) => {
                 if (!result) return resolve(false);
                 if (result == 'alreadyAdded') return resolve(result);
