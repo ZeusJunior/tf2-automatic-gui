@@ -62,9 +62,34 @@ app.get('/pricelist', (req, res) => {
     fs.readFile('./config/pricelist.json', function (err, data) {
         if (err) throw err;
         res.render('pricelist', {
+            type: 'primary',
+            msg: 'none',
             pricelist: JSON.parse(data)
         });
-    })
+    });
+});
+app.post('/pricelist', async (req, res) => {
+    const items = req.body.list
+    let removed = await utils.removeItems(items);
+    if (removed == false) {
+        fs.readFile('./config/pricelist.json', function (err, data) {
+            if (err) throw err;
+            res.render('pricelist', {
+                type: 'danger',
+                msg: 'Somehow not able to remove items!',
+                pricelist: JSON.parse(data)
+            });
+            return;
+        });
+    }
+    fs.readFile('./config/pricelist.json', function (err, data) {
+        if (err) throw err;
+        res.render('pricelist', {
+            type: 'success',
+            msg: 'Removed ' + removed + ' items from your pricelist',
+            pricelist: JSON.parse(data)
+        });
+    });
 });
 
 app.listen(3000, function() { //listen on port 3000

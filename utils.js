@@ -4,7 +4,7 @@ const SKU = require('tf2-sku');
 const request = require('request');
 const fs = require('fs');
 
-exports.addItem = async function(search) {
+exports.addItem = function(search) {
     return new Promise((resolve, reject) => {
         let sku = getSKU(search);
         const item = {
@@ -20,7 +20,7 @@ exports.addItem = async function(search) {
             time: 0
         }
         if (sku == false) {
-            return reject(false);
+            return reject(err);
         }
         item.sku = sku;
 
@@ -35,14 +35,29 @@ exports.addItem = async function(search) {
                 return resolve(true);
             }).catch((err) => {
                 console.log(err);
-                return reject(false);
+                return reject(err);
             })
         }).catch((err) => {
             console.log(err);
-            return reject(false);
+            return reject(err);
         });
     });
 } 
+
+exports.removeItems = function(items) {
+    return new Promise((resolve, reject) => {
+        if (items.length == 0) {
+            return resolve(false)
+        }
+        changePricelist('remove', items).then((result) => {
+            if (!result) return resolve(false);
+            return resolve(result);
+        }).catch((err) => {
+            console.log(err);
+            return reject(err);
+        })
+    })
+}
 
 function getSKU (search) { 
     const item = {
@@ -134,13 +149,38 @@ function changePricelist(action, item) {
                         return reject(err);
                     }
                     return resolve(true);
-                })
+                });
             });
         }
         if (action == 'remove') {
-            // Something
+            if (!Array.isArray(item)) {
+                item = [item];
+            }
+            let items = item;
+            let itemsremoved = 0;
+            fs.readFile('./config/pricelist.json', function(err, data) {
+                if (err) {
+                    return reject(err);
+                }
+                let pricelist = JSON.parse(data);
+                for (i = 0; i < pricelist.length; i++) {
+                    for (j = 0; j < items.length; j++) {
+                        if (pricelist[i].sku == items[j]) {
+                            pricelist.splice(pricelist.indexOf(pricelist[i]), 1);
+                            i--;
+                            itemsremoved++
+                        }
+                    }
+                }
+                fs.writeFile('./config/pricelist.json', JSON.stringify(pricelist, null, 4), function(err) {
+                    if (err) {
+                        return reject(err);
+                    }
+                    return resolve(itemsremoved);
+                });
+            });
         }
-    })
+    });
 }
 
 function trunc(number, decimals = 2) {

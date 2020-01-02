@@ -8,12 +8,22 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src='/pricelist.js'></script>
 </head>
 <body>
 
 <%- include("partials/navbar") %>
+<br>
 
-<form method="POST" action="">
+<% if (msg !== 'none') { %>
+    <div class="alert alert-<%=type%>" role="alert">
+      <%= msg %>
+    </div>
+<% } %>
+
+<button class="btn btn-danger" type="submit" form="frm" value="Submit">Delete selected</button>
+
+<form method="POST" action="" id="frm">
     <table class="table">
         <thead>
             <tr>
@@ -26,7 +36,7 @@
                 <tr>
                     <td>
                         <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="<%= item.sku %>" name='list[]' value='<%= item.sku %>'>
+                            <input type="checkbox" class="custom-control-input" id="<%= item.sku %>" name='list' value='<%= item.sku %>'>
                             <label class="custom-control-label" for="<%= item.sku %>"></label><%= item.sku %></label>
                         </div>
                     </td>
