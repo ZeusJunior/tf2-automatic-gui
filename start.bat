@@ -1,3 +1,3 @@
 @ECHO OFF
-node OLDapp.js 
+node app.js 
 pause
