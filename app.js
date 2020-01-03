@@ -60,7 +60,7 @@ app.post('/pricelist', async (req, res) => {
         utils.renderPricelist(res, 'danger', 'Somehow not able to remove items!');
         return;
     }
-    utils.renderPricelist(res, 'success', 'Removed ' + removed + ' items from your pricelist');
+    utils.renderPricelist(res, 'success', 'Removed ' + removed + (removed == 1 ? ' item' : ' items') + ' from your pricelist');
     return;
 });
 

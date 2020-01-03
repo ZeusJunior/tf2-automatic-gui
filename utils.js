@@ -35,7 +35,10 @@ exports.addItem = function(res, search, options) {
     
             getInfo(sku).then((info) => {
                 if (!info) {
-                    itemsFailed++ 
+                    itemsFailed++;
+                    if (search.length - 1 == i) {
+                        exports.renderPricelist(res, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed.');
+                    }
                     return false;
                 }
                 item.name = info.name;
@@ -53,7 +56,7 @@ exports.addItem = function(res, search, options) {
                     }
                     itemsAdded++;
                     if (search.length - 1 == i) {
-                        exports.renderPricelist(res, 'primary', itemsAdded + ' items added, ' + itemsFailed + ' items failed.');
+                        exports.renderPricelist(res, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed.');
                     }
                     return;
                 }).catch((err) => {
