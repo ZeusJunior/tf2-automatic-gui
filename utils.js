@@ -52,6 +52,9 @@ exports.addItem = function(res, search, options) {
                 changePricelist('add', item).then((result) => {
                     if (!result || result == 'alreadyAdded') {
                         itemsFailed++
+                        if (search.length - 1 == i) {
+                            exports.renderPricelist(res, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed.');
+                        }
                         return false;
                     }
                     itemsAdded++;
@@ -103,6 +106,7 @@ function getSKU (search) {
         search = search.substring(search.indexOf("stats")).split('/');
 
         let name = decodeURI(search[2]);
+        item.quality = data.quality[decodeURI(search[1])]; // Decode, has %20 if decorated / dual quality
 
         for (i = 0; i < data.killstreaks.length; i++) {
             if (name.includes(data.killstreaks[i])) {
@@ -117,13 +121,31 @@ function getSKU (search) {
         if (search[1] === 'Unusual') {
             item.effect = parseInt(search[5]);
         }
-        let defindex = getDefindex(name)
+        if (item.quality == 15) {
+            for (i = 0; i < data.skins.length; i++) {
+                if (name.includes(data.skins[i])) {
+                    name = name.replace(data.skins[i] + ' ', "");
+                    name = name.replace('| ', '') // Remove | in the bptf link
+                    item.paintkit = data.skin[data.skins[i]];
+                    for (i = 0; i < data.wears.length; i++) {
+                        if (name.includes(data.wears[i])) {
+                            name = name.replace(' ' + data.wears[i], "");
+                            item.wear = data.wear[data.wears[i]];
+                        }
+                    }
+                    if (item.effect) { // override decorated quality if it is unusual
+                        item.quality = 5;
+                    }
+                }
+            }
+        }
+        let defindex = getDefindex(name);
         if (defindex === false) {
             return false;
         }
         item.defindex = defindex;
-        item.quality = data.quality[search[1]];
         item.craftable = search[4] === 'Craftable' ? true : false;
+        console.log(SKU.fromObject(item));
         return SKU.fromObject(item);
     }
     // handle item name inputs
@@ -144,6 +166,22 @@ function getSKU (search) {
             item.effect = data.effect[data.effects[i]];
         }
     }
+    for (i = 0; i < data.skins.length; i++) {
+        if (name.includes(data.skins[i])) {
+            name = name.replace(data.skins[i] + ' ', "");
+            item.paintkit = data.skin[data.skins[i]];
+            for (i = 0; i < data.wears.length; i++) {
+                if (name.includes(data.wears[i])) {
+                    name = name.replace(' ' + data.wears[i], "");
+                    item.wear = data.wear[data.wears[i]];
+                }
+            }
+            if (item.effect) { // override decorated quality if it is unusual
+                item.quality = 5;
+            }
+            item.quality = 15; // default just decorated
+        }
+    }
     for (i = 0; i < data.killstreaks.length; i++) {
         if (name.includes(data.killstreaks[i])) {
             name = name.replace(data.killstreaks[i] + ' ', "");
@@ -159,6 +197,7 @@ function getSKU (search) {
         return false;
     }
     item.defindex = defindex;
+    console.log(SKU.fromObject(item));
     return SKU.fromObject(item);
 }
 
