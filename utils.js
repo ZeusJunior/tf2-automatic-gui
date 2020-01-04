@@ -150,7 +150,7 @@ function getSKU (search) {
         }
         let defindex;
         if (name.includes("War Paint")) {
-            defindex = 16102;
+            defindex = 16102; // Ok i know they have different defindexes but they get automatically corrected. Bless Nick.
         } else {
             defindex = getDefindex(name);
         }
@@ -218,7 +218,7 @@ function getSKU (search) {
     }
     let defindex;
     if (name.includes("War Paint")) {
-        defindex = 16102;
+        defindex = 16102; // Ok i know they have different defindexes but they get automatically corrected. Bless Nick.
     } else {
         defindex = getDefindex(name);
     }
