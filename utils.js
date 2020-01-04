@@ -148,7 +148,12 @@ function getSKU (search) {
                 }
             }
         }
-        let defindex = getDefindex(name);
+        let defindex;
+        if (name.includes("War Paint")) {
+            defindex = 16102;
+        } else {
+            defindex = getDefindex(name);
+        }
         if (defindex === false) {
             return false;
         }
@@ -211,7 +216,12 @@ function getSKU (search) {
         name = name.replace('Australium ', "");
         item.australium = true;
     }
-    let defindex = getDefindex(name)
+    let defindex;
+    if (name.includes("War Paint")) {
+        defindex = 16102;
+    } else {
+        defindex = getDefindex(name);
+    }
     if (defindex === false) {
         return false;
     }
