@@ -106,7 +106,16 @@ function getSKU (search) {
         search = search.substring(search.indexOf("stats")).split('/');
 
         let name = decodeURI(search[2]);
-        item.quality = data.quality[decodeURI(search[1])]; // Decode, has %20 if decorated / dual quality
+        let quality = decodeURI(search[1]); // Decode, has %20 if decorated / dual quality
+        if (quality == "Strange Unusual") {
+            item.quality = 5;
+            item.quality2 = 11;
+        } else if (quality == "Strange Haunted") {
+            item.quality = 13;
+            item.quality2 = 11;
+        } else {
+            item.quality = data.quality[search[1]];
+        }
 
         for (i = 0; i < data.killstreaks.length; i++) {
             if (name.includes(data.killstreaks[i])) {
@@ -118,21 +127,21 @@ function getSKU (search) {
             name = name.replace('Australium ', "");
             item.australium = true;
         }
-        if (search[1] === 'Unusual') {
+        if (item.quality == 5) {
             item.effect = parseInt(search[5]);
         }
-        if (item.quality == 15) {
+        for (i = 0; i < data.wears.length; i++) {
+            if (name.includes(data.wears[i])) {
+                name = name.replace(' ' + data.wears[i], "");
+                item.wear = data.wear[data.wears[i]];
+            }
+        }
+        if (item.wear) { // Is a skin, any quality
             for (i = 0; i < data.skins.length; i++) {
                 if (name.includes(data.skins[i])) {
                     name = name.replace(data.skins[i] + ' ', "");
                     name = name.replace('| ', '') // Remove | in the bptf link
                     item.paintkit = data.skin[data.skins[i]];
-                    for (i = 0; i < data.wears.length; i++) {
-                        if (name.includes(data.wears[i])) {
-                            name = name.replace(' ' + data.wears[i], "");
-                            item.wear = data.wear[data.wears[i]];
-                        }
-                    }
                     if (item.effect) { // override decorated quality if it is unusual
                         item.quality = 5;
                     }
@@ -154,16 +163,26 @@ function getSKU (search) {
         name = name.replace('Non-Craftable ', "");
         item.craftable = false;
     }
-    for (i = 0; i < data.qualities.length; i++) {
-        if (name.includes(data.qualities[i])) {
-            name = name.replace(data.qualities[i] + ' ', "");
-            item.quality = data.quality[data.qualities[i]];
+    if (name.includes("Strange Haunted")) {
+        item.quality = 13;
+        item.quality2 = 11;
+    } else {
+        for (i = 0; i < data.qualities.length; i++) {
+            if (name.includes(data.qualities[i])) {
+                name = name.replace(data.qualities[i] + ' ', "");
+                item.quality = data.quality[data.qualities[i]];
+            }
         }
     }
     for (i = 0; i < data.effects.length; i++) {
         if (name.includes(data.effects[i])) {
             name = name.replace(data.effects[i] + ' ', "");
             item.effect = data.effect[data.effects[i]];
+            // Has an effect, check if its strange. If so, set strange elevated
+            if (item.quality == 11) {
+                item.quality = 5;
+                item.quality2 = 11;
+            }
         }
     }
     for (i = 0; i < data.skins.length; i++) {
@@ -176,7 +195,7 @@ function getSKU (search) {
                     item.wear = data.wear[data.wears[i]];
                 }
             }
-            if (item.effect) { // override decorated quality if it is unusual
+            if (item.effect) { // override decorated quality if it is unusual. Elevated is already set when setting effect
                 item.quality = 5;
             }
             item.quality = 15; // default just decorated
