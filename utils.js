@@ -29,9 +29,11 @@ exports.addItem = function(res, search, options) {
             }
             if (sku == false) {
                 itemsFailed++
+                if (search.length - 1 == i) {
+                    exports.renderPricelist(res, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed.');
+                }
                 return false;
             }
-            item.sku = sku;
     
             getInfo(sku).then((info) => {
                 if (!info) {
@@ -41,6 +43,7 @@ exports.addItem = function(res, search, options) {
                     }
                     return false;
                 }
+                item.sku = info.sku;
                 item.name = info.name;
                 item.buy = info.buy;
                 item.sell = info.sell;
@@ -159,7 +162,6 @@ function getSKU (search) {
         }
         item.defindex = defindex;
         item.craftable = search[4] === 'Craftable' ? true : false;
-        console.log(SKU.fromObject(item));
         return SKU.fromObject(item);
     }
     // handle item name inputs
@@ -226,7 +228,6 @@ function getSKU (search) {
         return false;
     }
     item.defindex = defindex;
-    console.log(SKU.fromObject(item));
     return SKU.fromObject(item);
 }
 
