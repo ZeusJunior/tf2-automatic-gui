@@ -3,10 +3,16 @@ const data = require('./data.js');
 const SKU = require('tf2-sku');
 const request = require('request');
 const fs = require('fs');
+const config = require('./config/config.json');
+
+if (!config.pricesApiToken || config.pricesApiToken == "getThisFromNickInTheDiscordServer") {
+    throw new Error("You're missing the prices.tf api token. Join the discord here https://discord.tf2automatic.com/ and request one from Nick");
+}
 
 exports.addItem = function(res, search, options) {
     let itemsAdded = 0;
     let itemsFailed = 0;
+    let items = [];
     for (i = 0; i < search.length; i++) {
         setTimeout(function(i) {
             let sku;
@@ -32,16 +38,16 @@ exports.addItem = function(res, search, options) {
                 if (search.length - 1 == i) {
                     exports.renderPricelist(res, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed.');
                 }
-                return false;
+                return;
             }
-    
+
             getInfo(sku).then((info) => {
                 if (!info) {
                     itemsFailed++;
-                    if (search.length - 1 == i) {
+                    if (search.length - 1 == i && itemsAdded === 0) {
                         exports.renderPricelist(res, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed.');
                     }
-                    return false;
+                    return;
                 }
                 item.sku = info.sku;
                 item.name = info.name;
@@ -52,23 +58,16 @@ exports.addItem = function(res, search, options) {
                 item.max = options.max;
                 item.min = options.min;
                 item.intent = options.intent;
-                changePricelist('add', item).then((result) => {
-                    if (!result || result == 'alreadyAdded') {
-                        itemsFailed++
-                        if (search.length - 1 == i) {
-                            exports.renderPricelist(res, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed.');
-                        }
-                        return false;
-                    }
-                    itemsAdded++;
-                    if (search.length - 1 == i) {
-                        exports.renderPricelist(res, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed.');
-                    }
-                    return;
-                }).catch((err) => {
-                    console.log(err);
-                    return;
-                })
+                items.push(item);
+                itemsAdded++;
+                if (search.length - 1 == i) {
+                    changePricelist('add', items).then((result) => {
+                        exports.renderPricelist(res, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed' + (result > 0 ? ',' + (result == 1 ? ' item' : ' items') + ' were already added.' : '.'));
+                    }).catch((err) => {
+                        console.log(err);
+                        return;
+                    })
+                }
             }).catch((err) => {
                 console.log(err);
                 return;
@@ -81,6 +80,9 @@ exports.removeItems = function(items) {
     return new Promise((resolve, reject) => {
         if (items.length == 0) {
             return resolve(false)
+        }
+        if (!Array.isArray(items)) {
+            items = [items];
         }
         changePricelist('remove', items).then((result) => {
             if (!result) return resolve(false);
@@ -250,6 +252,9 @@ function getInfo(sku) {
             uri: "https://api.prices.tf/items/" + sku,
             qs: {
                 src: 'bptf'
+            },
+            headers: {
+                'Authorization': 'Token ' + config.pricesApiToken
             }
         }, function(err, response, body) {
             if (err) {
@@ -263,33 +268,36 @@ function getInfo(sku) {
     });
 }
 
-function changePricelist(action, item) {
+function changePricelist(action, items) {
     return new Promise((resolve, reject) => {
         if (action == 'add') {
+            let alreadyAdded = 0;
             fs.readFile('./config/pricelist.json', function(err, data) {
                 if (err) {
                     return reject(err);
                 }
                 let pricelist = JSON.parse(data);
-                for (i = 0; i < pricelist.length; i++) {
-                    if (pricelist[i].sku == item.sku) {
-                        return resolve('alreadyAdded');
+                itemsloop:
+                for (j = 0; j < items.length; j++) {
+                    for (i = 0; i < pricelist.length; i++) {
+                        if (pricelist[i].sku == items[j].sku) {
+                            alreadyAdded++
+                            continue itemsloop;
+                        }
+                    }
+                    pricelist.push(items[i]);
+                    if (items.length - 1 == j) {
+                        fs.writeFile('./config/pricelist.json', JSON.stringify(pricelist, null, 4), function(err) {
+                            if (err) {
+                                return reject(err);
+                            }
+                            return resolve(alreadyAdded);
+                        });
                     }
                 }
-                pricelist.push(item);
-                fs.writeFile('./config/pricelist.json', JSON.stringify(pricelist, null, 4), function(err) {
-                    if (err) {
-                        return reject(err);
-                    }
-                    return resolve(true);
-                });
             });
         }
         if (action == 'remove') {
-            if (!Array.isArray(item)) {
-                item = [item];
-            }
-            let items = item;
             let itemsremoved = 0;
             fs.readFile('./config/pricelist.json', function(err, data) {
                 if (err) {
