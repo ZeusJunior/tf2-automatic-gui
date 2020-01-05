@@ -37,9 +37,9 @@ app.post('/add-item', async (req, res) => {
     })
     
     utils.addItem(res, req.body.input, {
-        intent: req.body.intent,
-        min: req.body.min,
-        max: req.body.max
+        intent: parseInt(req.body.intent),
+        min: parseInt(req.body.min),
+        max: parseInt(req.body.max)
     });
 });
 

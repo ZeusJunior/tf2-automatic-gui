@@ -62,7 +62,10 @@ exports.addItem = function(res, search, options) {
                 itemsAdded++;
                 if (search.length - 1 == i) {
                     changePricelist('add', items).then((result) => {
-                        exports.renderPricelist(res, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed' + (result > 0 ? ',' + (result == 1 ? ' item' : ' items') + ' were already added.' : '.'));
+                        if (result > 0) {
+                            itemsAdded -= result;
+                        }
+                        exports.renderPricelist(res, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed' + (result > 0 ? ', ' + result + (result == 1 ? ' item was' : ' items were') + ' already in your pricelist.' : '.'));
                     }).catch((err) => {
                         console.log(err);
                         return;
@@ -261,6 +264,9 @@ function getInfo(sku) {
                 return reject(err);
             }
             if (body.success == false) {
+                if (body.message == 'Unauthorized') {
+                    throw new Error("Your prices.tf api token is incorrect. Join the discord here https://discord.tf2automatic.com/ and request one from Nick");
+                }
                 return resolve(false);
             }
             return resolve(body);
@@ -282,6 +288,14 @@ function changePricelist(action, items) {
                     for (i = 0; i < pricelist.length; i++) {
                         if (pricelist[i].sku == items[j].sku) {
                             alreadyAdded++
+                            if (items.length - 1 == j) {
+                                fs.writeFile('./config/pricelist.json', JSON.stringify(pricelist, null, 4), function(err) {
+                                    if (err) {
+                                        return reject(err);
+                                    }
+                                    return resolve(alreadyAdded);
+                                });
+                            }
                             continue itemsloop;
                         }
                     }
