@@ -219,7 +219,7 @@ function getSKU (search) {
             item.killstreak = data.killstreak[data.killstreaks[i]];
         }
     }
-    if (name.includes('Australium')) {
+    if (name.includes('Australium') && item.quality === 11) {
         name = name.replace('Australium ', "");
         item.australium = true;
     }
@@ -267,6 +267,9 @@ function getInfo(sku) {
                 if (body.message == 'Unauthorized') {
                     throw new Error("Your prices.tf api token is incorrect. Join the discord here https://discord.tf2automatic.com/ and request one from Nick");
                 }
+                return resolve(false);
+            }
+            if (body.buy == null || body.sell == null) {
                 return resolve(false);
             }
             return resolve(body);
