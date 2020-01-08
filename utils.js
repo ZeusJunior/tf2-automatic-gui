@@ -302,7 +302,7 @@ function changePricelist(action, items) {
                             continue itemsloop;
                         }
                     }
-                    pricelist.push(items[i]);
+                    pricelist.push(items[j]);
                     if (items.length - 1 == j) {
                         fs.writeFile('./config/pricelist.json', JSON.stringify(pricelist, null, 4), function(err) {
                             if (err) {
