@@ -118,7 +118,7 @@ exports.removeItems = function(items) {
     })
 }
 
-function getSKU (search) { 
+function getSKU (search) {
     const item = {
         defindex: '', 
         quality: 6, 
@@ -261,7 +261,7 @@ function getDefindex(search) {
     const items = Schema.schema.items;
     for (let i = 0; i < items.length; i++) {
         let name = items[i].item_name;
-        if (name === search) {
+        if (name === search || name === search.replace('The ', "")) {
             return items[i].defindex;
         }
     }
