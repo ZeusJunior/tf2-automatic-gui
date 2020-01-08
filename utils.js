@@ -10,6 +10,12 @@ if (!config.pricesApiToken || config.pricesApiToken == "getThisFromNickInTheDisc
 }
 
 exports.addItem = function(res, search, options) {
+    for(i = 0; i < search.length; i++) {
+        if(search[i] === "") {
+            search.splice(i, 1);
+            i--;
+        }
+    }
     let itemsAdded = 0;
     let itemsFailed = 0;
     let items = [];
