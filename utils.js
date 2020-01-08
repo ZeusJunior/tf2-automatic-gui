@@ -19,6 +19,7 @@ exports.addItem = function(res, search, options) {
     let itemsAdded = 0;
     let itemsFailed = 0;
     let items = [];
+    let failedItems = [];
     for (i = 0; i < search.length; i++) {
         setTimeout(function(i) {
             let sku;
@@ -48,18 +49,32 @@ exports.addItem = function(res, search, options) {
             }
 
             getInfo(sku).then((info) => {
-                if (!info) {
+                if (!info.success) {
                     itemsFailed++;
-                    if (search.length - 1 == i && itemsAdded === 0) {
-                        exports.renderPricelist(res, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed.');
+                    failedItems.push(info.item);
+                    if (search.length - 1 == i) {
+                        if (itemsAdded !== 0) {
+                            changePricelist('add', items).then((result) => {
+                                if (result > 0) {
+                                    itemsAdded -= result;
+                                }
+                                exports.renderPricelist(res, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed' + (result > 0 ? ', ' + result + (result == 1 ? ' item was' : ' items were') + ' already in your pricelist.' : '.'), failedItems);
+                                return;
+                            }).catch((err) => {
+                                console.log(err);
+                                return;
+                            })
+                        } else {
+                            exports.renderPricelist(res, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed.', failedItems);
+                        }
                     }
                     return;
                 }
-                item.sku = info.sku;
-                item.name = info.name;
-                item.buy = info.buy;
-                item.sell = info.sell;
-                item.time = info.time;
+                item.sku = info.item.sku;
+                item.name = info.item.name;
+                item.buy = info.item.buy;
+                item.sell = info.item.sell;
+                item.time = info.item.time;
     
                 item.max = options.max;
                 item.min = options.min;
@@ -273,12 +288,12 @@ function getInfo(sku) {
                 if (body.message == 'Unauthorized') {
                     throw new Error("Your prices.tf api token is incorrect. Join the discord here https://discord.tf2automatic.com/ and request one from Nick");
                 }
-                return resolve(false);
+                return resolve({success: false, item: sku});
             }
             if (body.buy == null || body.sell == null) {
-                return resolve(false);
+                return resolve({success: false, item: sku});
             }
-            return resolve(body);
+            return resolve({success: true, item: body});
         });
     });
 }
@@ -346,13 +361,14 @@ function changePricelist(action, items) {
     });
 }
 
-exports.renderPricelist = function(res, type, msg) {
+exports.renderPricelist = function(res, type, msg, failedItems = "none") {
     fs.readFile('./config/pricelist.json', function (err, data) {
         if (err) throw err;
         res.render('home', {
             type: type,
             msg: msg,
-            pricelist: JSON.parse(data)
+            pricelist: JSON.parse(data),
+            failedItems: failedItems
         });
     });
 }
