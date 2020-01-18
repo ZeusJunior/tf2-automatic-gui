@@ -46,7 +46,7 @@
     <form action="/add-item" method="POST" style="padding-left: 20px;">
         <div class="form-group">
           <label for="url">Items</label>
-          <textarea rows="5" class="form-control" id="url" name="input" placeholder="Add the backpack.tf stats page, sku, or the items name. Seperate multiple inputs by a new line. Multiple inputs will work at 13/second" required></textarea>
+          <textarea rows="5" class="form-control" id="url" name="input" placeholder="Add the backpack.tf stats page, sku, or the items name. Seperate multiple inputs by a new line. See console for speed" required></textarea>
         </div>
         <div class="form-row">
           <div class="form-group">
@@ -69,7 +69,7 @@
         <button type="submit" class="btn btn-primary">Add</button>
     </form>
 
-    <% if (failedItems !== 'none') { %>
+    <% if (failedItems.length > 0) { %>
       <br>
       <% failedItems = failedItems.join(" - "); %>
       <div class="form-group" style="padding-left: 20px;">

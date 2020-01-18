@@ -2,6 +2,14 @@ const Schema = require('./schema.json');
 const data = require('./data.js');
 const SKU = require('tf2-sku');
 const request = require('request');
+const Bottleneck = require('bottleneck');
+const limiter = new Bottleneck({
+    reservoir: 1000,
+    reservoirRefreshAmount: 1000,
+    reservoirRefreshInterval: 5 * 60 * 1000, // 5 minutes
+    maxConcurrent: 1,
+    minTime: 75
+});
 const fs = require('fs');
 const config = require('./config/config.json');
 
@@ -9,65 +17,49 @@ if (!config.pricesApiToken || config.pricesApiToken == "getThisFromNickInTheDisc
     throw new Error("You're missing the prices.tf api token. Join the discord here https://discord.tf2automatic.com/ and request one from Nick");
 }
 
+let itemsAdded = 0;
+let itemsFailed = 0;
+let items = [];
+let failedItems = [];
+let scopedRes;
 exports.addItem = function(res, search, options) {
+    scopedRes = res;
     for(i = 0; i < search.length; i++) {
         if(search[i] === "") {
             search.splice(i, 1);
             i--;
         }
     }
-    let itemsAdded = 0;
-    let itemsFailed = 0;
-    let items = [];
-    let failedItems = [];
     for (i = 0; i < search.length; i++) {
-        setTimeout(function(i) {
-            let sku;
-            if (search[i].includes(';')) { // too lazy
-                sku = search[i];
-            } else {
-                sku = getSKU(search[i]);
-            }
-            const item = {
-                sku: '', 
-                enabled: true, 
-                autoprice: true, 
-                max: 1, 
-                min: 0, 
-                intent: 2, 
-                name: "",
-                buy: {},
-                sell: {},
-                time: 0
-            }
-            if (sku == false) {
-                itemsFailed++
-                if (search.length - 1 == i) {
-                    exports.renderPricelist(res, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed.');
-                }
-                return;
-            }
+        let sku;
+        if (search[i].includes(';')) { // too lazy
+            sku = search[i];
+        } else {
+            sku = getSKU(search[i]);
+        }
+        const item = {
+            sku: '', 
+            enabled: true, 
+            autoprice: true, 
+            max: 1, 
+            min: 0, 
+            intent: 2, 
+            name: "",
+            buy: {},
+            sell: {},
+            time: 0
+        }
+        if (sku == false) {
+            itemsFailed++
+            return;
+        }
 
-            getInfo(sku).then((info) => {
+        limiter.schedule(() => getInfo(sku))
+            .then((info) => {
+                console.log('Currently handling:', sku);
                 if (!info.success) {
                     itemsFailed++;
                     failedItems.push(info.item);
-                    if (search.length - 1 == i) {
-                        if (itemsAdded !== 0) {
-                            changePricelist('add', items).then((result) => {
-                                if (result > 0) {
-                                    itemsAdded -= result;
-                                }
-                                exports.renderPricelist(res, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed' + (result > 0 ? ', ' + result + (result == 1 ? ' item was' : ' items were') + ' already in your pricelist.' : '.'), failedItems);
-                                return;
-                            }).catch((err) => {
-                                console.log(err);
-                                return;
-                            })
-                        } else {
-                            exports.renderPricelist(res, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed.', failedItems);
-                        }
-                    }
                     return;
                 }
                 item.sku = info.item.sku;
@@ -75,28 +67,17 @@ exports.addItem = function(res, search, options) {
                 item.buy = info.item.buy;
                 item.sell = info.item.sell;
                 item.time = info.item.time;
-    
+
                 item.max = options.max;
                 item.min = options.min;
                 item.intent = options.intent;
                 items.push(item);
                 itemsAdded++;
-                if (search.length - 1 == i) {
-                    changePricelist('add', items).then((result) => {
-                        if (result > 0) {
-                            itemsAdded -= result;
-                        }
-                        exports.renderPricelist(res, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed' + (result > 0 ? ', ' + result + (result == 1 ? ' item was' : ' items were') + ' already in your pricelist.' : '.'));
-                    }).catch((err) => {
-                        console.log(err);
-                        return;
-                    })
-                }
-            }).catch((err) => {
+            })
+            .catch((err) => {
                 console.log(err);
                 return;
-            });
-        }, 75 * i, i); // ~13 per second
+            })
     }
 }
 
@@ -361,7 +342,7 @@ function changePricelist(action, items) {
     });
 }
 
-exports.renderPricelist = function(res, type, msg, failedItems = "none") {
+exports.renderPricelist = function(res, type, msg, failedItems = []) {
     fs.readFile('./config/pricelist.json', function (err, data) {
         if (err) throw err;
         res.render('home', {
@@ -383,3 +364,40 @@ exports.clearPricelist = function(res) {
         exports.renderPricelist(res, 'success', 'Pricelist has been cleared');
     });
 }
+
+limiter.on("error", function (error) {
+    // idc lol
+    console.log("Error with the api limiter:", error);
+});
+
+limiter.on("depleted", function (empty) {
+    console.log("Hit api limits, waiting before continuing...");
+});
+
+limiter.on("empty", function () {
+    console.log("Queue empty, writing to file...");
+    if (itemsAdded > 0) {
+        changePricelist('add', items).then((result) => {
+            if (result > 0) {
+                itemsAdded -= result;
+            }
+            exports.renderPricelist(scopedRes, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed' + (result > 0 ? ', ' + result + (result == 1 ? ' item was' : ' items were') + ' already in your pricelist.' : '.'), failedItems);
+            itemsAdded = 0;
+            itemsFailed = 0;
+            items = [];
+            failedItems = [];
+            scopedRes = null; 
+            return;
+        }).catch((err) => {
+            console.log(err);
+            return;
+        });
+    } else {
+        exports.renderPricelist(scopedRes, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed.', failedItems);
+        itemsAdded = 0;
+        itemsFailed = 0;
+        items = [];
+        failedItems = [];
+        scopedRes = null;    
+    }
+});
