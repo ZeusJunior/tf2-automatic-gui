@@ -22,7 +22,7 @@ let itemsFailed = 0;
 let items = [];
 let failedItems = [];
 let scopedRes;
-exports.addItem = function(res, search, options) {
+exports.addItem = async function(res, search, options) {
     scopedRes = res;
     for(i = 0; i < search.length; i++) {
         if(search[i] === "") {
@@ -35,7 +35,7 @@ exports.addItem = function(res, search, options) {
         if (search[i].includes(';')) { // too lazy
             sku = search[i];
         } else {
-            sku = getSKU(search[i]);
+            sku = await getSKU(search[i]);
         }
         const item = {
             sku: '', 
@@ -73,6 +73,7 @@ exports.addItem = function(res, search, options) {
                 item.intent = options.intent;
                 items.push(item);
                 itemsAdded++;
+                return;
             })
             .catch((err) => {
                 console.log(err);
@@ -112,51 +113,119 @@ function getSKU (search) {
         paintkit: null, 
         quality2: null 
     };
-    if (search.includes('backpack.tf/stats')) { // input is a stats page URL
-        search = search.substring(search.indexOf("stats")).split('/');
+    return new Promise((resolve, reject) => {
+        if (search.includes('backpack.tf/stats')) { // input is a stats page URL
+            search = search.substring(search.indexOf("stats")).split('/');
 
-        let name = decodeURI(search[2]);
-        let quality = decodeURI(search[1]); // Decode, has %20 if decorated / dual quality
-        if (quality == "Strange Unusual") {
-            item.quality = 5;
-            item.quality2 = 11;
-        } else if (quality == "Strange Haunted") {
+            let name = decodeURI(search[2]);
+            let quality = decodeURI(search[1]); // Decode, has %20 if decorated / dual quality
+            if (quality == "Strange Unusual") {
+                item.quality = 5;
+                item.quality2 = 11;
+            } else if (quality == "Strange Haunted") {
+                item.quality = 13;
+                item.quality2 = 11;
+            } else {
+                item.quality = data.quality[search[1]];
+            }
+
+            for (i = 0; i < data.killstreaks.length; i++) {
+                if (name.includes(data.killstreaks[i])) {
+                    name = name.replace(data.killstreaks[i] + ' ', "");
+                    item.killstreak = data.killstreak[data.killstreaks[i]];
+                }
+            }
+            if (name.includes('Australium') && search[1] === 'Strange') {
+                name = name.replace('Australium ', "");
+                item.australium = true;
+            }
+            if (item.quality == 5) {
+                item.effect = parseInt(search[5]);
+            }
+            for (i = 0; i < data.wears.length; i++) {
+                if (name.includes(data.wears[i])) {
+                    name = name.replace(' ' + data.wears[i], "");
+                    item.wear = data.wear[data.wears[i]];
+                }
+            }
+            if (item.wear) { // Is a skin, any quality
+                for (i = 0; i < data.skins.length; i++) {
+                    if (name.includes(data.skins[i])) {
+                        name = name.replace(data.skins[i] + ' ', "");
+                        name = name.replace('| ', '') // Remove | in the bptf link
+                        item.paintkit = data.skin[data.skins[i]];
+                        if (item.effect) { // override decorated quality if it is unusual
+                            item.quality = 5;
+                        }
+                    }
+                }
+            }
+            let defindex;
+            if (name.includes("War Paint")) {
+                defindex = 16102; // Ok i know they have different defindexes but they get automatically corrected. Bless Nick.
+            } else {
+                defindex = getDefindex(name);
+            }
+            if (defindex === false) {
+                resolve(false);
+            }
+            item.defindex = defindex;
+            item.craftable = search[4] === 'Craftable' ? true : false;
+            resolve(SKU.fromObject(item));
+        }
+        // handle item name inputs
+        let name = search;
+        if (name.includes('Non-Craftable')) {
+            name = name.replace('Non-Craftable ', "");
+            item.craftable = false;
+        }
+        if (name.includes("Strange Haunted")) {
             item.quality = 13;
             item.quality2 = 11;
         } else {
-            item.quality = data.quality[search[1]];
+            for (i = 0; i < data.qualities.length; i++) {
+                if (name.includes(data.qualities[i])) {
+                    name = name.replace(data.qualities[i] + ' ', "");
+                    item.quality = data.quality[data.qualities[i]];
+                }
+            }
         }
-
+        for (i = 0; i < data.effects.length; i++) {
+            if (name.includes(data.effects[i])) {
+                name = name.replace(data.effects[i] + ' ', "");
+                item.effect = data.effect[data.effects[i]];
+                // Has an effect, check if its strange. If so, set strange elevated
+                if (item.quality == 11) {
+                    item.quality = 5;
+                    item.quality2 = 11;
+                }
+            }
+        }
+        for (i = 0; i < data.skins.length; i++) {
+            if (name.includes(data.skins[i])) {
+                name = name.replace(data.skins[i] + ' ', "");
+                item.paintkit = data.skin[data.skins[i]];
+                for (i = 0; i < data.wears.length; i++) {
+                    if (name.includes(data.wears[i])) {
+                        name = name.replace(' ' + data.wears[i], "");
+                        item.wear = data.wear[data.wears[i]];
+                    }
+                }
+                if (item.effect) { // override decorated quality if it is unusual. Elevated is already set when setting effect
+                    item.quality = 5;
+                }
+                item.quality = 15; // default just decorated
+            }
+        }
         for (i = 0; i < data.killstreaks.length; i++) {
             if (name.includes(data.killstreaks[i])) {
                 name = name.replace(data.killstreaks[i] + ' ', "");
                 item.killstreak = data.killstreak[data.killstreaks[i]];
             }
         }
-        if (name.includes('Australium') && search[1] === 'Strange') {
+        if (name.includes('Australium') && item.quality === 11) {
             name = name.replace('Australium ', "");
             item.australium = true;
-        }
-        if (item.quality == 5) {
-            item.effect = parseInt(search[5]);
-        }
-        for (i = 0; i < data.wears.length; i++) {
-            if (name.includes(data.wears[i])) {
-                name = name.replace(' ' + data.wears[i], "");
-                item.wear = data.wear[data.wears[i]];
-            }
-        }
-        if (item.wear) { // Is a skin, any quality
-            for (i = 0; i < data.skins.length; i++) {
-                if (name.includes(data.skins[i])) {
-                    name = name.replace(data.skins[i] + ' ', "");
-                    name = name.replace('| ', '') // Remove | in the bptf link
-                    item.paintkit = data.skin[data.skins[i]];
-                    if (item.effect) { // override decorated quality if it is unusual
-                        item.quality = 5;
-                    }
-                }
-            }
         }
         let defindex;
         if (name.includes("War Paint")) {
@@ -165,77 +234,11 @@ function getSKU (search) {
             defindex = getDefindex(name);
         }
         if (defindex === false) {
-            return false;
+            resolve(false);
         }
         item.defindex = defindex;
-        item.craftable = search[4] === 'Craftable' ? true : false;
-        return SKU.fromObject(item);
-    }
-    // handle item name inputs
-    let name = search;
-    if (name.includes('Non-Craftable')) {
-        name = name.replace('Non-Craftable ', "");
-        item.craftable = false;
-    }
-    if (name.includes("Strange Haunted")) {
-        item.quality = 13;
-        item.quality2 = 11;
-    } else {
-        for (i = 0; i < data.qualities.length; i++) {
-            if (name.includes(data.qualities[i])) {
-                name = name.replace(data.qualities[i] + ' ', "");
-                item.quality = data.quality[data.qualities[i]];
-            }
-        }
-    }
-    for (i = 0; i < data.effects.length; i++) {
-        if (name.includes(data.effects[i])) {
-            name = name.replace(data.effects[i] + ' ', "");
-            item.effect = data.effect[data.effects[i]];
-            // Has an effect, check if its strange. If so, set strange elevated
-            if (item.quality == 11) {
-                item.quality = 5;
-                item.quality2 = 11;
-            }
-        }
-    }
-    for (i = 0; i < data.skins.length; i++) {
-        if (name.includes(data.skins[i])) {
-            name = name.replace(data.skins[i] + ' ', "");
-            item.paintkit = data.skin[data.skins[i]];
-            for (i = 0; i < data.wears.length; i++) {
-                if (name.includes(data.wears[i])) {
-                    name = name.replace(' ' + data.wears[i], "");
-                    item.wear = data.wear[data.wears[i]];
-                }
-            }
-            if (item.effect) { // override decorated quality if it is unusual. Elevated is already set when setting effect
-                item.quality = 5;
-            }
-            item.quality = 15; // default just decorated
-        }
-    }
-    for (i = 0; i < data.killstreaks.length; i++) {
-        if (name.includes(data.killstreaks[i])) {
-            name = name.replace(data.killstreaks[i] + ' ', "");
-            item.killstreak = data.killstreak[data.killstreaks[i]];
-        }
-    }
-    if (name.includes('Australium') && item.quality === 11) {
-        name = name.replace('Australium ', "");
-        item.australium = true;
-    }
-    let defindex;
-    if (name.includes("War Paint")) {
-        defindex = 16102; // Ok i know they have different defindexes but they get automatically corrected. Bless Nick.
-    } else {
-        defindex = getDefindex(name);
-    }
-    if (defindex === false) {
-        return false;
-    }
-    item.defindex = defindex;
-    return SKU.fromObject(item);
+        resolve(SKU.fromObject(item));
+    });
 }
 
 function getDefindex(search) {
