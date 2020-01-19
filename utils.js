@@ -405,29 +405,32 @@ limiter.on("depleted", function (empty) {
 });
 
 limiter.on("empty", function () {
-    console.log("Queue empty, writing to file...");
-    if (itemsAdded > 0) {
-        changePricelist('add', items).then((result) => {
-            if (result > 0) {
-                itemsAdded -= result;
-            }
-            exports.renderPricelist(scopedRes, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed' + (result > 0 ? ', ' + result + (result == 1 ? ' item was' : ' items were') + ' already in your pricelist.' : '.'), failedItems);
+    // Called just a bit too early, so wait a second
+    setTimeout(() => {
+        console.log("Queue empty, writing to file...");
+        if (itemsAdded > 0) {
+            changePricelist('add', items).then((result) => {
+                if (result > 0) {
+                    itemsAdded -= result;
+                }
+                exports.renderPricelist(scopedRes, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed' + (result > 0 ? ', ' + result + (result == 1 ? ' item was' : ' items were') + ' already in your pricelist.' : '.'), failedItems);
+                itemsAdded = 0;
+                itemsFailed = 0;
+                items = [];
+                failedItems = [];
+                scopedRes = null; 
+                return;
+            }).catch((err) => {
+                console.log(err);
+                return;
+            });
+        } else {
+            exports.renderPricelist(scopedRes, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed.', failedItems);
             itemsAdded = 0;
             itemsFailed = 0;
             items = [];
             failedItems = [];
-            scopedRes = null; 
-            return;
-        }).catch((err) => {
-            console.log(err);
-            return;
-        });
-    } else {
-        exports.renderPricelist(scopedRes, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed.', failedItems);
-        itemsAdded = 0;
-        itemsFailed = 0;
-        items = [];
-        failedItems = [];
-        scopedRes = null;    
-    }
+            scopedRes = null;    
+        }
+    }, 1000)
 });
