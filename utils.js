@@ -40,7 +40,7 @@ exports.addItem = async function(res, search, options) {
         let sku = skus[i]
         if (sku == false) {
             itemsFailed++
-            return;
+            continue;
         }
 
         const item = {
