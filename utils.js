@@ -1,84 +1,94 @@
-const Schema = require('./schema.json');
+const Schema = require('./schema.js');
 const data = require('./data.js');
 const SKU = require('tf2-sku');
 const request = require('request');
-const Bottleneck = require('bottleneck');
-const limiter = new Bottleneck({
-    reservoir: 1000,
-    reservoirRefreshAmount: 1000,
-    reservoirRefreshInterval: 5 * 60 * 1000, // 5 minutes
-    maxConcurrent: 1,
-    minTime: 75
-});
 const fs = require('fs');
 const config = require('./config/config.json');
 
-if (!config.pricesApiToken || config.pricesApiToken == "getThisFromNickInTheDiscordServer") {
-    throw new Error("You're missing the prices.tf api token. Join the discord here https://discord.tf2automatic.com/ and request one from Nick");
-}
-
-let itemsAdded = 0;
-let itemsFailed = 0;
-let items = [];
-let failedItems = [];
-let scopedRes;
 exports.addItem = async function(res, search, options) {
-    scopedRes = res;
+    let itemsAdded = 0;
+    let items = [];
+    let itemsFailed = 0;
+    let failedItems = [];
+
     for(i = 0; i < search.length; i++) {
         if(search[i] === "") {
             search.splice(i, 1);
             i--;
         }
     }
+
+    // You can .filter before .map but not .map before .filter, SAD
     const promises = search.map(async searchItem => {
         const sku = await getSKU(searchItem);
         return sku
     });
-
     const skus = await Promise.all(promises);
-    for (i = 0; i < skus.length; i++) {
-        let sku = skus[i]
-        if (sku == false) {
-            itemsFailed++
-            continue;
+    getAllPriced().then((allPrices) => {
+        if (!allPrices) {
+            exports.renderPricelist(res, 'danger', 'Error occured trying to get all prices. See the console for more information');
+            return;
         }
-
-        const item = {
-            sku: sku, 
-            enabled: true, 
-            autoprice: true, 
-            max: options.max, 
-            min: options.min, 
-            intent: options.intent, 
-            name: "",
-            buy: {},
-            sell: {},
-            time: 0
+        console.log('Got all prices, continuing...');
+        var start = new Date();
+        for (i = 0; i < skus.length; i++) {
+            if (skus[i] === false) {
+                skus.splice(skus.indexOf(skus[i]), 1);
+                i--
+            }
         }
-
-        limiter.schedule(() => getInfo(sku))
-            .then((info) => {
-                console.log('Currently handling:', sku);
-                if (!info.success) {
-                    itemsFailed++;
-                    failedItems.push(info.item);
-                    return;
+        for (i = 0, list = allPrices.length; i < list; i++) { // Dont recalculate length every time, it wont change
+            if (skus.indexOf(allPrices[i].sku) > -1) {
+                //console.log("Currently handling: " + skus[skus.indexOf(allPrices[i].sku)]);
+                const item = {
+                    sku: allPrices[i].sku, 
+                    enabled: true, 
+                    autoprice: true, 
+                    max: options.max, 
+                    min: options.min, 
+                    intent: options.intent, 
+                    name: "",
+                    buy: {},
+                    sell: {},
+                    time: 0
                 }
-                item.sku = info.item.sku;
-                item.name = info.item.name;
-                item.buy = info.item.buy;
-                item.sell = info.item.sell;
-                item.time = info.item.time;
+                item.name = allPrices[i].name;
+                item.buy = allPrices[i].buy;
+                item.sell = allPrices[i].sell;
+                item.time = allPrices[i].time;
 
                 items.push(item);
+                skus.splice(skus.indexOf(allPrices[i].sku), 1);
                 itemsAdded++;
-                return;
-            })
-            .catch((err) => {
-                console.log(err);
-                return;
-            })
-    }
+            }
+
+            if (i == allPrices.length - 1) { // Done looping
+                var end = new Date() - start;
+                console.info('Execution time: %dms', end);
+                itemsFailed = skus.length; // items that succeeded get removed from skus 
+                failedItems = skus; // so all thats left in skus is failed items
+                if (itemsAdded > 0) {
+                    changePricelist('add', items).then((result) => {
+                        if (result > 0) {
+                            itemsAdded -= result;
+                        }
+                        exports.renderPricelist(res, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed' + (result > 0 ? ', ' + result + (result == 1 ? ' item was' : ' items were') + ' already in your pricelist.' : '.'), failedItems);
+                        return;
+                    }).catch((err) => {
+                        console.log(err);
+                        return;
+                    });
+                } else {
+                    exports.renderPricelist(res, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed.', failedItems);   
+                }
+
+            }
+        }
+    }).catch((err) => {
+        console.log(err);
+        exports.renderPricelist(res, 'danger', 'Error occured trying to get all prices. See the console for more information');
+        return;
+    })
 }
 
 exports.removeItems = function(items) {
@@ -101,7 +111,7 @@ exports.removeItems = function(items) {
 
 function getSKU (search) {
     if (search.includes(';')) { // too lazy
-        return search;
+        return SKU.fromObject(Schema.fixItem(SKU.fromString(search)))
     }
     const item = {
         defindex: '', 
@@ -115,12 +125,12 @@ function getSKU (search) {
         paintkit: null, 
         quality2: null 
     };
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         if (search.includes('backpack.tf/stats')) { // input is a stats page URL
-            search = search.substring(search.indexOf("stats")).split('/');
+            searchParts = search.substring(search.indexOf("stats")).split('/');
 
-            let name = decodeURI(search[2]);
-            let quality = decodeURI(search[1]); // Decode, has %20 if decorated / dual quality
+            let name = decodeURI(searchParts[2]);
+            let quality = decodeURI(searchParts[1]); // Decode, has %20 if decorated / dual quality
             if (quality == "Strange Unusual") {
                 item.quality = 5;
                 item.quality2 = 11;
@@ -128,7 +138,7 @@ function getSKU (search) {
                 item.quality = 13;
                 item.quality2 = 11;
             } else {
-                item.quality = data.quality[search[1]];
+                item.quality = data.quality[searchParts[1]];
             }
 
             for (i = 0; i < data.killstreaks.length; i++) {
@@ -139,13 +149,13 @@ function getSKU (search) {
                 }
             }
 
-            if (name.includes('Australium') && search[1] === 'Strange') {
+            if (name.includes('Australium') && searchParts[1] === 'Strange') {
                 name = name.replace('Australium ', "");
                 item.australium = true;
             }
 
             if (item.quality == 5) {
-                item.effect = parseInt(search[5]);
+                item.effect = parseInt(searchParts[5]);
             }
 
             for (i = 0; i < data.wears.length; i++) {
@@ -174,19 +184,21 @@ function getSKU (search) {
             if (name.includes("War Paint")) {
                 defindex = 16102; // Ok i know they have different defindexes but they get automatically corrected. Bless Nick.
             } else {
-                defindex = getDefindex(name);
+                defindex = await getDefindex(name);
             }
 
             if (defindex === false) {
-                resolve(false);
+                console.log("Couldn't get defindex for item: " + search)
+                return resolve(false);
             }
 
             item.defindex = defindex;
-            item.craftable = search[4] === 'Craftable' ? true : false;
-            resolve(SKU.fromObject(item));
+            item.craftable = searchParts[4] === 'Craftable' ? true : false;
+            return resolve(SKU.fromObject(Schema.fixItem(item)));
         }
         // handle item name inputs
         let name = search;
+
         for (i = 0; i < data.effects.length; i++) {
             if (name.includes(data.effects[i])) {
                 name = name.replace(data.effects[i] + ' ', "");
@@ -256,56 +268,30 @@ function getSKU (search) {
         if (name.includes("War Paint")) {
             defindex = 16102; // Ok i know they have different defindexes but they get automatically corrected. Bless Nick.
         } else {
-            defindex = getDefindex(name);
+            defindex = await getDefindex(name);
         }
 
         if (defindex === false) {
-            resolve(false);
+            console.log("Couldn't get defindex for item: " + search)
+            return resolve(false);
         }
 
         item.defindex = defindex;
-        resolve(SKU.fromObject(item));
+        return resolve(SKU.fromObject(Schema.fixItem(item)));
     });
 }
 
-function getDefindex(search) {
-    const items = Schema.schema.items;
-    for (let i = 0; i < items.length; i++) {
-        let name = items[i].item_name;
-        if (name === search || name === search.replace('The ', "")) {
-            return items[i].defindex;
+async function getDefindex(search) {
+    let schema = await Schema.getTheFuckinSchemaVariableIHateMyLife();
+    return new Promise((resolve, reject) => { // This is so god damn shit omg
+        const items = schema.raw.schema.items;
+        for (let i = 0; i < items.length; i++) {
+            let name = items[i].item_name;
+            if (name === search || name === search.replace('The ', "")) {
+                return resolve(items[i].defindex);
+            }
         }
-    }
-    return false;
-}
-
-function getInfo(sku) {
-    return new Promise((resolve, reject) => {
-        request({
-            method: "GET",
-            json: true,
-            uri: "https://api.prices.tf/items/" + sku,
-            qs: {
-                src: 'bptf'
-            },
-            headers: {
-                'Authorization': 'Token ' + config.pricesApiToken
-            }
-        }, function(err, response, body) {
-            if (err) {
-                return reject(err);
-            }
-            if (body.success == false) {
-                if (body.message == 'Unauthorized') {
-                    throw new Error("Your prices.tf api token is incorrect. Join the discord here https://discord.tf2automatic.com/ and request one from Nick");
-                }
-                return resolve({success: false, item: sku});
-            }
-            if (body.buy == null || body.sell == null) {
-                return resolve({success: false, item: sku});
-            }
-            return resolve({success: true, item: body});
-        });
+        return resolve(false);
     });
 }
 
@@ -395,42 +381,37 @@ exports.clearPricelist = function(res) {
     });
 }
 
-limiter.on("error", function (error) {
-    // idc lol
-    console.log("Error with the api limiter:", error);
-});
-
-limiter.on("depleted", function (empty) {
-    console.log("Hit api limits, waiting before continuing...");
-});
-
-limiter.on("empty", function () {
-    // Called just a bit too early, so wait a second
-    setTimeout(() => {
-        console.log("Queue empty, writing to file...");
-        if (itemsAdded > 0) {
-            changePricelist('add', items).then((result) => {
-                if (result > 0) {
-                    itemsAdded -= result;
-                }
-                exports.renderPricelist(scopedRes, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed' + (result > 0 ? ', ' + result + (result == 1 ? ' item was' : ' items were') + ' already in your pricelist.' : '.'), failedItems);
-                itemsAdded = 0;
-                itemsFailed = 0;
-                items = [];
-                failedItems = [];
-                scopedRes = null; 
-                return;
-            }).catch((err) => {
-                console.log(err);
-                return;
-            });
-        } else {
-            exports.renderPricelist(scopedRes, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed.', failedItems);
-            itemsAdded = 0;
-            itemsFailed = 0;
-            items = [];
-            failedItems = [];
-            scopedRes = null;    
+function getAllPriced () {
+    console.log('Getting all prices...');
+    var start = new Date();
+    return new Promise((resolve, reject) => {
+        let options = {
+            method: "GET",
+            json: true,
+            uri: "https://api.prices.tf/items",
+            qs: {
+                src: 'bptf'
+            }
         }
-    }, 1000)
-});
+        if (config.pricesApiToken) {
+            options.headers = {
+                'Authorization': 'Token ' + config.pricesApiToken
+            }
+        }
+        request(options, function(err, response, body) {
+            if (err) {
+                return reject(err);
+            }
+            if (body.success == false) {
+                if (body.message == 'Unauthorized') {
+                    throw new Error("Your prices.tf api token is incorrect. Join the discord here https://discord.tf2automatic.com/ and request one from Nick. Or leave it blank in the config.");
+                }
+                return resolve(false);
+            }
+            var end = new Date() - start;
+            console.info('Execution time: %dms', end);
+
+            return resolve(body.items);
+        });
+    });
+}

@@ -4,6 +4,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const utils = require('./utils.js');
 const fs = require('fs');
+const Schema = require('./schema.js');
 
 if (!fs.existsSync('./config/pricelist.json')) {
 	throw new Error('Missing pricelist - Please put your pricelist file in the config folder')
@@ -26,12 +27,13 @@ app.get('/', (req, res) => {
 app.post('/add-item', async (req, res) => {
     req.body.input = req.body.input.split(/\r?\n/);
     req.body.input.forEach(function(item, index) {
-        if (item.includes('classifieds')) {
-            utils.renderPricelist(res, 'danger', 'Please use the items stats page or full name, not the classifieds link');
-            return;
-        }
         if (req.body.max - req.body.min < 1) {
             utils.renderPricelist(res, 'warning', 'The maximum stock must be atleast one higher than the minimum');
+            return;
+        }
+
+        if (item.includes('classifieds')) {
+            utils.renderPricelist(res, 'danger', 'Please use the items stats page or full name, not the classifieds link');
             return;
         }
     })
@@ -58,7 +60,19 @@ app.post('/clearPricelist', (req, res) => {
     utils.clearPricelist(res);
 })
 
-app.listen(3000, function() { //listen on port 3000
-    console.log("listening on port 3000");
-    require("open")("http://localhost:3000/");
-});
+if (fs.existsSync('./config/schema.json')) {
+    Schema.getSchema(function(err, schema) { // For setting the schema in schema.js
+        app.listen(3000, function() { //listen on port 3000
+            console.log("listening on port 3000");
+            require("open")("http://localhost:3000/");
+        });
+    })
+} else {
+    Schema.getSchemaFromApi(function(err, schema) {
+        fs.writeFileSync('./config/schema.json', JSON.stringify(schema));
+        app.listen(3000, function() { //listen on port 3000
+            console.log("listening on port 3000");
+            require("open")("http://localhost:3000/");
+        });
+    })
+}
