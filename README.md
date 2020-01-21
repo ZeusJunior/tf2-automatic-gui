@@ -1,7 +1,6 @@
 ### How do things?
 Run install by doubleclicking install.bat  
-Put your pricelist file in the config folder  
-In the config folder, open `config.json` and add the prices.tf api token you got from asking Nicklason in the [Discord server](https://discord.tf2automatic.com/)  
+Put your pricelist file in the config folder   
 Run start  
 
 When done, put your pricelist file back where you got it with your bot
