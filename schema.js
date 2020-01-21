@@ -39,9 +39,9 @@ exports.fixItem = function (item) {
     }
 
     if (schemaItem.name.indexOf(schemaItem.item_class.toUpperCase()) !== -1) {
-        for (let i = 0; i < schema.schema.raw.schema.items.length; i++) {
-            if (schema.schema.raw.schema.items[i].item_class === schemaItem.item_class && schema.schema.raw.schema.items[i].name.startsWith('Upgradeable ')) {
-                item.defindex = schema.schema.raw.schema.items[i].defindex;
+        for (let i = 0; i < schema.raw.schema.items.length; i++) {
+            if (schema.raw.schema.items[i].item_class === schemaItem.item_class && schema.raw.schema.items[i].name.startsWith('Upgradeable ')) {
+                item.defindex = schema.raw.schema.items[i].defindex;
             }
         }
     }
@@ -55,16 +55,16 @@ exports.fixItem = function (item) {
     const isPromo = _isPromo(schemaItem);
 
     if (isPromo && item.quality != 1) {
-        for (let i = 0; i < schema.schema.raw.schema.items.length; i++) {
-            if (!_isPromo(schema.schema.raw.schema.items[i]) && schema.schema.raw.schema.items[i].item_name == schemaItem.item_name) {
+        for (let i = 0; i < schema.raw.schema.items.length; i++) {
+            if (!_isPromo(schema.raw.schema.items[i]) && schema.raw.schema.items[i].item_name == schemaItem.item_name) {
                 // This is the non-promo version, use that defindex instead
-                item.defindex = schema.schema.raw.schema.items[i].defindex;
+                item.defindex = schema.raw.schema.items[i].defindex;
             }
         }
     } else if (!isPromo && item.quality == 1) {
-        for (let i = 0; i < schema.schema.raw.schema.items.length; i++) {
-            if (_isPromo(schema.schema.raw.schema.items[i]) && schema.schema.raw.schema.items[i].item_name == schemaItem.item_name) {
-                item.defindex = schema.schema.raw.schema.items[i].defindex;
+        for (let i = 0; i < schema.raw.schema.items.length; i++) {
+            if (_isPromo(schema.raw.schema.items[i]) && schema.raw.schema.items[i].item_name == schemaItem.item_name) {
+                item.defindex = schema.raw.schema.items[i].defindex;
             }
         }
     }
@@ -83,7 +83,7 @@ exports.fixItem = function (item) {
         }
 
         if (series === null) {
-            const itemsGameItem = schema.schema.raw.items_game.items[item.defindex];
+            const itemsGameItem = schema.raw.items_game.items[item.defindex];
 
             if (itemsGameItem.static_attrs !== undefined && itemsGameItem.static_attrs['set supply crate series'] !== undefined) {
                 if (isObject(itemsGameItem.static_attrs['set supply crate series'])) {
@@ -113,15 +113,15 @@ exports.fixItem = function (item) {
     }
 
     if (item.paintkit !== null) {
-        const hasCorrectPaintkitAttribute = schema.schema.raw.items_game.items[item.defindex].static_attrs !== undefined && schemschemaaManager.schema.raw.items_game.items[item.defindex].static_attrs['paintkit_proto_def_index'] == item.paintkit;
+        const hasCorrectPaintkitAttribute = schema.raw.items_game.items[item.defindex].static_attrs !== undefined && schema.raw.items_game.items[item.defindex].static_attrs['paintkit_proto_def_index'] == item.paintkit;
 
         if (schemaItem.item_quality != 15 || !hasCorrectPaintkitAttribute) {
-            for (const defindex in schema.schema.raw.items_game.items) {
-                if (!Object.prototype.hasOwnProperty.call(schema.schema.raw.items_game.items, defindex)) {
+            for (const defindex in schema.raw.items_game.items) {
+                if (!Object.prototype.hasOwnProperty.call(schema.raw.items_game.items, defindex)) {
                     continue;
                 }
 
-                const itemsGameItem = schema.schema.raw.items_game.items[defindex];
+                const itemsGameItem = schema.raw.items_game.items[defindex];
                 if (itemsGameItem.prefab === undefined || !itemsGameItem.prefab.startsWith('paintkit')) {
                     continue;
                 }
