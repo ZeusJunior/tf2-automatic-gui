@@ -1,4 +1,4 @@
-// Modified version of https://github.com/Nicklason/tf2-automatic/blob/master/app/utils/item/fixItem.js
+// Modified version of https://github.com/Nicklason/tf2-automatic/blob/master/src/app/utils/item/fixItem.js
 // To not use a steam api key, and a few other things
 
 const Schema = require('tf2-schema');
