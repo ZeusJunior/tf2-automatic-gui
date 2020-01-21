@@ -84,6 +84,7 @@
     <form method="POST" action="/pricelist" id="frm" style="padding-left: 20px;">
         <button class="btn btn-danger" id="removeBtn" type="submit" form="frm" value="Submit">Delete selected</button>
         <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#areYouSure">Delete all items</button>
+        <p><%= pricelist.length %> Item(s)</p>
         <table class="table">
             <thead>
                 <tr>
