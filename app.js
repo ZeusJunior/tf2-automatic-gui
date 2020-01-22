@@ -1,3 +1,4 @@
+console.log("tf2-automatic-gui v" + require('./package.json').version + " is starting...")
 const path = require('path');
 const express = require('express');
 const app = express();

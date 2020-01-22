@@ -10,6 +10,7 @@ exports.addItem = async function(res, search, options) {
     let items = [];
     let itemsFailed = 0;
     let failedItems = [];
+    let skus = [];
 
     for(i = 0; i < search.length; i++) {
         if(search[i] === "") {
@@ -18,28 +19,41 @@ exports.addItem = async function(res, search, options) {
         }
     }
 
-    // You can .filter before .map but not .map before .filter, SAD
-    const promises = search.map(async searchItem => {
-        const sku = await getSKU(searchItem);
-        return sku
-    });
-    const skus = await Promise.all(promises);
-    getAllPriced().then((allPrices) => {
+    getAllPriced().then(async (allPrices) => { // Why, you ask? For the glory of satan of course!
         if (!allPrices) {
             exports.renderPricelist(res, 'danger', 'Error occured trying to get all prices. See the console for more information');
             return;
         }
+
         console.log('Got all prices, continuing...');
+
+        // First check for item names like normal, for items like "Cool Breeze", "Hot Dogger", "Vintage Tyrolean" and whatever
+        // Get those skus, and remove them from the search list so it doesn't try again
+        for (i = 0, list = allPrices.length; i < list; i++) {
+            if (search.indexOf(allPrices[i].name) > -1) {
+                skus.push(allPrices[i].sku);
+                search.splice(search.indexOf(allPrices[i].name), 1);
+            }
+        }
+        // You can .filter before .map but not .map before .filter, SAD
+        const promises = search.map(async searchItem => {
+            const sku = await getSKU(searchItem);
+            return sku
+        });
+        const generatedSkus = await Promise.all(promises);
+        skus = skus.concat(generatedSkus);
+
         var start = new Date();
         for (i = 0; i < skus.length; i++) {
             if (skus[i] === false) {
                 skus.splice(skus.indexOf(skus[i]), 1);
+                itemsFailed++
                 i--
             }
         }
+        
         for (i = 0, list = allPrices.length; i < list; i++) { // Dont recalculate length every time, it wont change
             if (skus.indexOf(allPrices[i].sku) > -1) {
-                //console.log("Currently handling: " + skus[skus.indexOf(allPrices[i].sku)]);
                 const item = {
                     sku: allPrices[i].sku, 
                     enabled: true, 
@@ -65,7 +79,7 @@ exports.addItem = async function(res, search, options) {
             if (i == allPrices.length - 1) { // Done looping
                 var end = new Date() - start;
                 console.info('Execution time: %dms', end);
-                itemsFailed = skus.length; // items that succeeded get removed from skus 
+                itemsFailed += skus.length; // items that succeeded get removed from skus 
                 failedItems = skus; // so all thats left in skus is failed items
                 if (itemsAdded > 0) {
                     changePricelist('add', items).then((result) => {
@@ -188,7 +202,7 @@ function getSKU (search) {
             }
 
             if (defindex === false) {
-                console.log("Couldn't get defindex for item: " + search)
+                console.log("Item is not priced and couldn't get defindex: " + search)
                 return resolve(false);
             }
 
@@ -272,7 +286,7 @@ function getSKU (search) {
         }
 
         if (defindex === false) {
-            console.log("Couldn't get defindex for item: " + search)
+            console.log("Item is not priced and couldn't get defindex: " + search)
             return resolve(false);
         }
 
