@@ -13,6 +13,12 @@ exports.addItem = async function(res, search, options) {
     let skus = [];
 
     for(i = 0; i < search.length; i++) {
+        if(search[i].indexOf("Part") > -1) {
+            search[i] = search[i].split(" with ").shift();
+        }
+        if(search[i].indexOf(" painted ") > -1) {
+            search[i] = search[i].split(" painted ").shift();
+        }
         if(search[i] === "") {
             search.splice(i, 1);
             i--;
