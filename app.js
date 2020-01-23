@@ -48,6 +48,28 @@ app.post('/add-items', async (req, res) => {
     });
 });
 
+app.post('/changeItem', (req, res) => {
+    if (req.body.max - req.body.min < 1) {
+        utils.renderPricelist(res, 'warning', 'The maximum stock must be atleast one higher than the minimum');
+        return;
+    }
+    
+    utils.changeSingleItem(res, {
+        sku: req.body.sku,
+        sell: {
+            keys: req.body.sellkeys,
+            metal: req.body.sellmetal
+        },
+        buy: {
+            keys: req.body.buykeys,
+            metal: req.body.buymetal
+        },
+        intent: parseInt(req.body.intent),
+        min: parseInt(req.body.min),
+        max: parseInt(req.body.max)
+    });
+});
+
 // Remove selected items from pricelist
 app.post('/pricelist', async (req, res) => {
     const items = req.body.list

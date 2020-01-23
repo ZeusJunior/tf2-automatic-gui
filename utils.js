@@ -118,6 +118,10 @@ exports.addItems = async function(res, search, options) {
     })
 }
 
+exports.changeSingleItem = function (res, item) {
+    // stuff
+}
+
 // Remove one or multiple items
 exports.removeItems = function(items) {
     return new Promise((resolve, reject) => {
