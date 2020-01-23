@@ -29,6 +29,7 @@ $(document).ready(function() {
             $('#priceModal').find("#buykeys").val(info.data('buy_keys'));
             $('#priceModal').find("#buymetal").val(info.data('buy_metal'));
             $("#priceintentdiv select").val(info.data('intent'));
+            $("#autopricediv select").val(info.data('autoprice').toString());
             $('#priceModal').find("#priceminimum").val(info.data('min'));
             $('#priceModal').find("#pricemaximum").val(info.data('max'));
             $('#priceModal').modal('show');  

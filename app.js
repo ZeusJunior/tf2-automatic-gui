@@ -70,14 +70,24 @@ app.post('/changeItem', (req, res) => {
     let sellvalues = new tf2Currencies({keys: req.body.sellkeys, metal: req.body.sellmetal.replace(',', '.')}).toJSON();
     let buyvalues = new tf2Currencies({keys: req.body.buykeys, metal: req.body.buymetal.replace(',', '.')}).toJSON();
 
-    utils.changeSingleItem(res, {
+    let item = {
         sku: req.body.sku,
         sell: sellvalues,
         buy: buyvalues,
         intent: parseInt(req.body.intent),
         min: parseInt(req.body.min),
         max: parseInt(req.body.max)
-    });
+    }
+
+    let autoprice = req.body.autoprice == 'true';
+    item.autoprice = autoprice;
+    if (autoprice) {
+        item.time = 0;
+    } else {
+        item.time = new Date().getTime();
+    }
+    
+    utils.changeSingleItem(res, item);
 });
 
 // Remove selected items from pricelist

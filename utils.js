@@ -135,6 +135,8 @@ exports.changeSingleItem = function (res, item) {
                 pricelist[i].intent = item.intent;
                 pricelist[i].min = item.min;
                 pricelist[i].max = item.max;
+                pricelist[i].autoprice = item.autoprice;
+                pricelist[i].time = item.time;
                 break;
             }
         }
