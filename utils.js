@@ -119,7 +119,35 @@ exports.addItems = async function(res, search, options) {
 }
 
 exports.changeSingleItem = function (res, item) {
-    // stuff
+    fs.readFile('./config/pricelist.json', function(err, data) {
+        if (err) {
+            console.log(err);
+            exports.renderPricelist(res, 'danger', 'Error occured trying to change the item. See the console for more information');
+            return;
+        }
+        
+        let pricelist = JSON.parse(data);
+        for (i = 0; i < pricelist.length; i++) {
+            if (item.sku === pricelist[i].sku) {
+                pricelist[i].buy = item.buy;
+                pricelist[i].sell = item.sell;
+                pricelist[i].intent = item.intent;
+                pricelist[i].min = item.min;
+                pricelist[i].max = item.max;
+                break;
+            }
+        }
+
+        fs.writeFile('./config/pricelist.json', JSON.stringify(pricelist, null, 4), function(err, data) {
+            if (err) {
+                console.log(err);
+                exports.renderPricelist(res, 'danger', 'Error occured trying to change the item. See the console for more information');
+                return;
+            }
+
+            exports.renderPricelist(res, 'success', item.sku + ' has been changed');
+        });
+    });
 }
 
 // Remove one or multiple items

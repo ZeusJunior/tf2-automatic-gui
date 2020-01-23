@@ -3,9 +3,11 @@ const path = require('path');
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const utils = require('./utils.js');
 const fs = require('fs');
+const tf2Currencies = require('tf2-currencies');
+
 const Schema = require('./schema.js');
+const utils = require('./utils.js');
 
 if (!fs.existsSync('./config/pricelist.json')) {
 	throw new Error('Missing pricelist - Please put your pricelist file in the config folder')
@@ -54,16 +56,13 @@ app.post('/changeItem', (req, res) => {
         return;
     }
     
+    let sellvalues = new tf2Currencies({keys: req.body.sellkeys, metal: req.body.sellmetal.replace(',', '.')}).toJSON();
+    let buyvalues = new tf2Currencies({keys: req.body.buykeys, metal: req.body.buymetal.replace(',', '.')}).toJSON();
+
     utils.changeSingleItem(res, {
         sku: req.body.sku,
-        sell: {
-            keys: req.body.sellkeys,
-            metal: req.body.sellmetal
-        },
-        buy: {
-            keys: req.body.buykeys,
-            metal: req.body.buymetal
-        },
+        sell: sellvalues,
+        buy: buyvalues,
         intent: parseInt(req.body.intent),
         min: parseInt(req.body.min),
         max: parseInt(req.body.max)
