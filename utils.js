@@ -154,7 +154,7 @@ exports.changeSingleItem = function (res, item) {
 // Remove one or multiple items
 exports.removeItems = function(items) {
     return new Promise((resolve, reject) => {
-        if (items.length == 0) {
+        if (!items || items.length == 0) {
             return resolve(false)
         }
         if (!Array.isArray(items)) {
