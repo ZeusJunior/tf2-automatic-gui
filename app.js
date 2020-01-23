@@ -51,8 +51,19 @@ app.post('/add-items', async (req, res) => {
 });
 
 app.post('/changeItem', (req, res) => {
-    if (req.body.max - req.body.min < 1) {
+    if (req.body.max <= req.body.min) {
         utils.renderPricelist(res, 'warning', 'The maximum stock must be atleast one higher than the minimum');
+        return;
+    }
+
+    // lower sell keys
+    if (req.body.sellkeys < req.body.buykeys) {
+        utils.renderPricelist(res, 'warning', 'The buy price must be higher than the sell price');
+        return;
+    }
+    // Same amount of keys, lower or equal sell metal
+    if (req.body.sellkeys === req.body.buykeys && req.body.sellmetal <= req.body.buymetal) {
+        utils.renderPricelist(res, 'warning', 'The buy price must be higher than the sell price');
         return;
     }
     
