@@ -164,6 +164,8 @@
           <th scope="col">SKU</th>
           <th scope="col">Name</th>
           <th scope="col">Intent</th>
+          <th scope="col">Buy price</th>
+          <th scope="col">Sell price</th>
           <th scope="col">Minimum stock</th>
           <th scope="col">Maximum stock</th>
         </tr>
@@ -179,6 +181,8 @@
             </td>
             <td><%= item.name %></td>
             <td><%= item.intent == 2 ? "Bank" : item.intent == 1 ? "Sell" : "buy"%></td>
+            <td><%= item.buy.keys %> keys, <%= item.buy.metal %> metal</td>
+            <td><%= item.sell.keys %> keys, <%= item.sell.metal %> metal</td>
             <td><%= item.min %></td>
             <td><%= item.max %></td>
           </tr>
@@ -189,6 +193,8 @@
             <th scope="col">SKU</th>
             <th scope="col">Name</th>
             <th scope="col">Intent</th>
+            <th scope="col">Buy price</th>
+            <th scope="col">Sell price</th>
             <th scope="col">Minimum stock</th>
             <th scope="col">Maximum stock</th>
           </tr>

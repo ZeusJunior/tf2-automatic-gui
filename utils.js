@@ -126,6 +126,7 @@ exports.changeSingleItem = function (res, item) {
             return;
         }
         
+        // Get pricelist, change some stuff and save
         let pricelist = JSON.parse(data);
         for (i = 0; i < pricelist.length; i++) {
             if (item.sku === pricelist[i].sku) {
