@@ -5,13 +5,15 @@ const request = require('request');
 const fs = require('fs');
 const config = require('./config/config.json');
 
-exports.addItem = async function(res, search, options) {
+// Add the list of items
+exports.addItems = async function(res, search, options) {
     let itemsAdded = 0;
     let items = [];
     let itemsFailed = 0;
     let failedItems = [];
     let skus = [];
 
+    // Remove parts / paint text for bptf markdown input and remove empty entries (blank enters)
     for(i = 0; i < search.length; i++) {
         if(search[i].indexOf("Part") > -1) {
             search[i] = search[i].split(" with ").shift();
@@ -41,15 +43,19 @@ exports.addItem = async function(res, search, options) {
                 search.splice(search.indexOf(allPrices[i].name), 1);
             }
         }
+
         // You can .filter before .map but not .map before .filter, SAD
         const promises = search.map(async searchItem => {
             const sku = await getSKU(searchItem);
             return sku
         });
+
         const generatedSkus = await Promise.all(promises);
-        skus = skus.concat(generatedSkus);
+        // Add the item skus that weren't already handled to the skus array
+        skus = skus.concat(generatedSkus); 
 
         var start = new Date();
+        // Remove items where it failed to generate a sku
         for (i = 0; i < skus.length; i++) {
             if (skus[i] === false) {
                 skus.splice(skus.indexOf(skus[i]), 1);
@@ -77,6 +83,7 @@ exports.addItem = async function(res, search, options) {
                 item.sell = allPrices[i].sell;
                 item.time = allPrices[i].time;
 
+                // Add item to items array, these will be used to update the pricelist and remove from skus array
                 items.push(item);
                 skus.splice(skus.indexOf(allPrices[i].sku), 1);
                 itemsAdded++;
@@ -111,6 +118,7 @@ exports.addItem = async function(res, search, options) {
     })
 }
 
+// Remove one or multiple items
 exports.removeItems = function(items) {
     return new Promise((resolve, reject) => {
         if (items.length == 0) {
@@ -133,6 +141,7 @@ function getSKU (search) {
     if (search.includes(';')) { // too lazy
         return SKU.fromObject(Schema.fixItem(SKU.fromString(search)))
     }
+
     const item = {
         defindex: '', 
         quality: 6, 
@@ -145,12 +154,13 @@ function getSKU (search) {
         paintkit: null, 
         quality2: null 
     };
+
     return new Promise(async (resolve, reject) => {
         if (search.includes('backpack.tf/stats')) { // input is a stats page URL
             searchParts = search.substring(search.indexOf("stats")).split('/');
 
             let name = decodeURI(searchParts[2]);
-            let quality = decodeURI(searchParts[1]); // Decode, has %20 if decorated / dual quality
+            let quality = decodeURI(searchParts[1]); // Decode this too, has %20 if decorated / collector's or dual quality
             if (quality == "Strange Unusual") {
                 item.quality = 5;
                 item.quality2 = 11;
@@ -200,6 +210,7 @@ function getSKU (search) {
                 }
             }
 
+            // I would use a shorthand for this but idk if that actually works with await
             let defindex;
             if (name.includes("War Paint")) {
                 defindex = 16102; // Ok i know they have different defindexes but they get automatically corrected. Bless Nick.
@@ -216,6 +227,7 @@ function getSKU (search) {
             item.craftable = searchParts[4] === 'Craftable' ? true : false;
             return resolve(SKU.fromObject(Schema.fixItem(item)));
         }
+        
         // handle item name inputs
         let name = search;
 
@@ -262,11 +274,8 @@ function getSKU (search) {
                     }
                 }
 
-                if (item.effect) { // override decorated quality if it is unusual. Elevated is already set when setting effect
-                    item.quality = 5;
-                }
-
-                item.quality = 15; // default just decorated
+                // override decorated quality if it is unusual. Elevated is already set when setting effect. Default just decorated
+                item.quality = item.effect ? 5 : 15;
                 break;
             }
         }
@@ -284,6 +293,7 @@ function getSKU (search) {
             item.australium = true;
         }
 
+        // I would use a shorthand for this but idk if that actually works with await
         let defindex;
         if (name.includes("War Paint")) {
             defindex = 16102; // Ok i know they have different defindexes but they get automatically corrected. Bless Nick.
@@ -311,6 +321,7 @@ async function getDefindex(search) {
                 return resolve(items[i].defindex);
             }
         }
+
         return resolve(false);
     });
 }
@@ -323,8 +334,10 @@ function changePricelist(action, items) {
                 if (err) {
                     return reject(err);
                 }
+
                 let pricelist = JSON.parse(data);
                 itemsloop:
+                // for each item, check if they're already in the pricelist *while changing it too* to avoid having 2 of the same
                 for (j = 0; j < items.length; j++) {
                     for (i = 0; i < pricelist.length; i++) {
                         if (pricelist[i].sku == items[j].sku) {
@@ -334,30 +347,38 @@ function changePricelist(action, items) {
                                     if (err) {
                                         return reject(err);
                                     }
+
                                     return resolve(alreadyAdded);
                                 });
                             }
+
                             continue itemsloop;
                         }
                     }
+                    
+                    // Not already added, so add
                     pricelist.push(items[j]);
                     if (items.length - 1 == j) {
                         fs.writeFile('./config/pricelist.json', JSON.stringify(pricelist, null, 4), function(err) {
                             if (err) {
                                 return reject(err);
                             }
+
                             return resolve(alreadyAdded);
                         });
                     }
                 }
             });
         }
+
+        // Dont think this one needs much explaining
         if (action == 'remove') {
             let itemsremoved = 0;
             fs.readFile('./config/pricelist.json', function(err, data) {
                 if (err) {
                     return reject(err);
                 }
+
                 let pricelist = JSON.parse(data);
                 for (i = 0; i < pricelist.length; i++) {
                     for (j = 0; j < items.length; j++) {
@@ -367,10 +388,12 @@ function changePricelist(action, items) {
                         }
                     }
                 }
+
                 fs.writeFile('./config/pricelist.json', JSON.stringify(pricelist, null, 4), function(err) {
                     if (err) {
                         return reject(err);
                     }
+
                     return resolve(itemsremoved);
                 });
             });
@@ -378,6 +401,7 @@ function changePricelist(action, items) {
     });
 }
 
+// Render the pricelist with some info
 exports.renderPricelist = function(res, type, msg, failedItems = []) {
     fs.readFile('./config/pricelist.json', function (err, data) {
         if (err) throw err;
@@ -390,6 +414,7 @@ exports.renderPricelist = function(res, type, msg, failedItems = []) {
     });
 }
 
+// Summon satan
 exports.clearPricelist = function(res) {
     fs.writeFile('./config/pricelist.json', '[]', function(err) {
         if (err) {
@@ -401,6 +426,7 @@ exports.clearPricelist = function(res) {
     });
 }
 
+// Get all currently priced items on pricestf
 function getAllPriced () {
     console.log('Getting all prices...');
     var start = new Date();

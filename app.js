@@ -11,8 +11,8 @@ if (!fs.existsSync('./config/pricelist.json')) {
 	throw new Error('Missing pricelist - Please put your pricelist file in the config folder')
 }
 
+// Set image/css/js whatever path
 app.use(express.static(path.join(__dirname, '/assets')));
-
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
@@ -21,11 +21,13 @@ app.use(bodyParser.urlencoded({
     extended: false
 }));
 
+// Routes
 app.get('/', (req, res) => {
     utils.renderPricelist(res, 'primary', 'none');
 })
 
-app.post('/add-item', async (req, res) => {
+// Add a list of items to the pricelist
+app.post('/add-items', async (req, res) => {
     req.body.input = req.body.input.split(/\r?\n/);
     req.body.input.forEach(function(item, index) {
         if (req.body.max - req.body.min < 1) {
@@ -39,13 +41,14 @@ app.post('/add-item', async (req, res) => {
         }
     })
     
-    utils.addItem(res, req.body.input, {
+    utils.addItems(res, req.body.input, {
         intent: parseInt(req.body.intent),
         min: parseInt(req.body.min),
         max: parseInt(req.body.max)
     });
 });
 
+// Remove selected items from pricelist
 app.post('/pricelist', async (req, res) => {
     const items = req.body.list
     let removed = await utils.removeItems(items);
@@ -57,10 +60,12 @@ app.post('/pricelist', async (req, res) => {
     return;
 });
 
+// Burn the pricelist with fire
 app.post('/clearPricelist', (req, res) => {
     utils.clearPricelist(res);
 })
 
+// Startup
 if (fs.existsSync('./config/schema.json')) {
     Schema.getSchema(function(err, schema) { // For setting the schema in schema.js
         app.listen(3000, function() { //listen on port 3000

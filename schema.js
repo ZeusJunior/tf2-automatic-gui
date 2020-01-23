@@ -10,6 +10,7 @@ exports.getSchema = function(callback) {
         if (err) {
             throw new Error("Couldn't read schema: " + err);
         }
+
         schema = JSON.parse(Schema);
         callback(null, JSON.parse(Schema))
     })
@@ -26,6 +27,7 @@ exports.getSchemaFromApi = function(callback) {
         if (err) {
             throw new Error("Couldn't get schema from pricestf: " + err);
         }
+        
         schema = JSON.parse(body);
         callback(null, JSON.parse(body));
     })
