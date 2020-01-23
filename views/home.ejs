@@ -1,49 +1,50 @@
 <!DOCTYPE HTML>
 <html lang="en">
 <head lang="en">
-    <meta charset="UTF-8">
-    <title>Unofficial tf2-automatic GUI</title>
-    <link rel="stylesheet" type="text/css" href="/style.css">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
-    <script src='/pricelist.js'></script>
+  <meta charset="UTF-8">
+  <title>Unofficial tf2-automatic GUI</title>
+  <link rel="stylesheet" type="text/css" href="/style.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+  <script src='/pricelist.js'></script>
 </head>
 <body>
 
-<%- include("partials/navbar") %>
-<br>
+  <%- include("partials/navbar") %>
+  <br>
 
-<% if (msg !== 'none') { %>
+  <% if (msg !== 'none') { %>
     <div class="alert alert-<%=type%>" role="alert">
       <%= msg %>
     </div>
-<% } %>
+  <% } %>
 
-<div class="modal fade" id="areYouSure" tabindex="-1" role="dialog" aria-labelledby="removeModalLabel" aria-hidden="true">
+  <!-- REMOVE ALL MODAL -->
+  <div class="modal fade" id="areYouSure" tabindex="-1" role="dialog" aria-labelledby="removeModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="removeModalLabel">Are you sure?</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-                Do you want to delete all items from your pricelist?
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
-              <form action="/clearPricelist" method="POST">
-                <button type="submit" class="btn btn-primary">Yes, delete everything</button>
-              </form>
-            </div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="removeModalLabel">Are you sure?</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
+        <div class="modal-body">
+            Do you want to delete all items from your pricelist?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+          <form action="/clearPricelist" method="POST">
+            <button type="submit" class="btn btn-primary">Yes, delete everything</button>
+          </form>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
 
   <!-- PRICE MODAL -->
   <div class="modal fade bd-example-modal-lg" id="priceModal" tabindex="-1" role="dialog" aria-labelledby="priceModalLabel" aria-hidden="true">
@@ -114,31 +115,32 @@
     </div>
   </div>
 
-    <form action="/add-item" method="POST" style="padding-left: 20px;">
-        <div class="form-group">
-          <label for="url">Items</label>
-          <textarea rows="5" class="form-control" id="url" name="input" placeholder="Add the backpack.tf stats page, sku, or the items name. Seperate multiple inputs by a new line. See console for speed" required></textarea>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="intent">Intent</label>
-            <select name="intent" class="form-control" id="intent">
-              <option selected="selected" value="2">Bank (buy and sell)</option>
-              <option value="0">Buy</option>
-              <option value="1">Sell</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="minimum">Minimum stock</label>
-            <input type="number" class="form-control" id="minimum" name="min" min="0" value="0" required>
-          </div>
-          <div class="form-group">
-            <label for="maximum">Maximum stock</label>
-            <input type="number" class="form-control" id="maximum" name="max" min="0" value="1" required>
-          </div>
-        </div>
-        <button type="submit" class="btn btn-primary">Add</button>
-    </form>
+  <!-- REMOVE ALL MODAL -->
+  <form action="/add-item" method="POST" style="padding-left: 20px;">
+    <div class="form-group">
+      <label for="url">Items</label>
+      <textarea rows="5" class="form-control" id="url" name="input" placeholder="Add the backpack.tf stats page, sku, or the items name. Seperate multiple inputs by a new line. See console for speed" required></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="intent">Intent</label>
+        <select name="intent" class="form-control" id="intent">
+          <option selected="selected" value="2">Bank (buy and sell)</option>
+          <option value="0">Buy</option>
+          <option value="1">Sell</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="minimum">Minimum stock</label>
+        <input type="number" class="form-control" id="minimum" name="min" min="0" value="0" required>
+      </div>
+      <div class="form-group">
+        <label for="maximum">Maximum stock</label>
+        <input type="number" class="form-control" id="maximum" name="max" min="0" value="1" required>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Add</button>
+  </form>
 
     <% if (failedItems.length > 0) { %>
       <br>
@@ -152,47 +154,47 @@
     <% if (pricelist.length !== 0) { %>
     <br>
 
-    <form method="POST" action="/pricelist" id="frm" style="padding-left: 20px;">
-        <button class="btn btn-danger" id="removeBtn" type="submit" form="frm" value="Submit">Delete selected</button>
-        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#areYouSure">Delete all items</button>
-        <br><br>
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th scope="col">SKU</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Intent</th>
-                    <th scope="col">Minimum stock</th>
-                    <th scope="col">Maximum stock</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% pricelist.forEach(item => { %>
-                    <tr data-name="<%= item.name %>"  data-sku="<%= item.sku %>" data-intent="<%= item.intent %>" data-min="<%= item.min %>" data-max="<%= item.max %>" data-buy_keys="<%= item.buy.keys %>" data-buy_metal="<%= item.buy.metal %>" data-sell_keys="<%= item.sell.keys %>" data-sell_metal="<%= item.sell.metal %>">
-                        <td>
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="<%= item.sku %>" name='list' value='<%= item.sku %>'>
-                                <label class="custom-control-label" for="<%= item.sku %>"></label><%= item.sku %></label>
-                            </div>
-                        </td>
-                        <td><%= item.name %></td>
-                        <td><%= item.intent == 2 ? "Bank" : item.intent == 1 ? "Sell" : "buy"%></td>
-                        <td><%= item.min %></td>
-                        <td><%= item.max %></td>
-                    </tr>
-                <% }) %>
-            </tbody>
-            <tfoot>
-                <tr>
-                    <th scope="col">SKU</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Intent</th>
-                    <th scope="col">Minimum stock</th>
-                    <th scope="col">Maximum stock</th>
-                </tr>
-            </tfoot>
-        </table>
-    </form>
+  <form method="POST" action="/pricelist" id="frm" style="padding-left: 20px;">
+    <button class="btn btn-danger" id="removeBtn" type="submit" form="frm" value="Submit">Delete selected</button>
+    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#areYouSure">Delete all items</button>
+    <br><br>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th scope="col">SKU</th>
+          <th scope="col">Name</th>
+          <th scope="col">Intent</th>
+          <th scope="col">Minimum stock</th>
+          <th scope="col">Maximum stock</th>
+        </tr>
+      </thead>
+        <tbody>
+        <% pricelist.forEach(item => { %>
+          <tr data-name="<%= item.name %>"  data-sku="<%= item.sku %>" data-intent="<%= item.intent %>" data-min="<%= item.min %>" data-max="<%= item.max %>" data-buy_keys="<%= item.buy.keys %>" data-buy_metal="<%= item.buy.metal %>" data-sell_keys="<%= item.sell.keys %>" data-sell_metal="<%= item.sell.metal %>">
+            <td>
+              <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="<%= item.sku %>" name='list' value='<%= item.sku %>'>
+                <label class="custom-control-label" for="<%= item.sku %>"></label><%= item.sku %></label>
+              </div>
+            </td>
+            <td><%= item.name %></td>
+            <td><%= item.intent == 2 ? "Bank" : item.intent == 1 ? "Sell" : "buy"%></td>
+            <td><%= item.min %></td>
+            <td><%= item.max %></td>
+          </tr>
+        <% }) %>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th scope="col">SKU</th>
+            <th scope="col">Name</th>
+            <th scope="col">Intent</th>
+            <th scope="col">Minimum stock</th>
+            <th scope="col">Maximum stock</th>
+          </tr>
+        </tfoot>
+    </table>
+  </form>
 <% } %>
 
 </body>
