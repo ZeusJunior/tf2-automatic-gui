@@ -6,5 +6,5 @@ Run start
 When done, put your pricelist file back where you got it with your bot
 
 ### TODO
-Manually price / edit items  
-If no price is found, request one and try again
+If no price is found, request one and try again  
+Make some guide with examples or whatever
