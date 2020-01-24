@@ -17,7 +17,7 @@ exports.qualities = [
 ]
 
 exports.quality = {
-    "Normal":0,
+	"Normal":0,
 	"Genuine":1,
 	"Vintage":3,
 	"rarity3":4,
