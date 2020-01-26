@@ -25,7 +25,17 @@ app.use(bodyParser.urlencoded({
 
 // Routes
 app.get('/', (req, res) => {
-    utils.renderPricelist(res, 'primary', 'none');
+    let removed = parseInt(req.query.removed);
+    if (removed) {
+        if (removed == 0) {
+            utils.renderPricelist(res, "danger", "Somehow not able to remove items!");
+            return;
+        }
+        utils.renderPricelist(res, "success", "Removed " + removed + (removed == 1 ? " item" : " items") + " from your pricelist");
+        return;
+    }
+
+    utils.renderPricelist(res, "primary", "none");
 })
 
 // Add a list of items to the pricelist
@@ -92,13 +102,19 @@ app.post('/changeItem', (req, res) => {
 
 // Remove selected items from pricelist
 app.post('/pricelist', async (req, res) => {
-    const items = req.body.list
+    const items = req.body.list;
     let removed = await utils.removeItems(items);
+    // SEND DATA WITH RES.JSON AND USE THAT TO REDIRECT IN QS IN CLIENTJS
     if (removed == false) {
-        utils.renderPricelist(res, 'danger', 'Somehow not able to remove items!');
+        res.json({
+            removed: 0
+        });
         return;
     }
-    utils.renderPricelist(res, 'success', 'Removed ' + removed + (removed == 1 ? ' item' : ' items') + ' from your pricelist');
+
+    res.json({
+        removed: removed
+    });
     return;
 });
 

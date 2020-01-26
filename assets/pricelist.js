@@ -10,7 +10,7 @@ $(document).ready(function() {
         });
     })
 
-    $("table").DataTable();
+    var datatable = $("table").DataTable();
     $('.dataTables_length').addClass('bs-select');
 
     $('.table > tbody').on('mouseenter', 'tr', function(event) {
@@ -35,4 +35,22 @@ $(document).ready(function() {
             $('#priceModal').modal('show');  
         }
     });
+
+    // Handle delete request of selected items
+    $('#frm').on('submit', function(e){
+        // Prevent actual form submission
+        e.preventDefault();
+        var data = datatable.$('input').serializeArray();
+  
+        // Submit form data
+        $.ajax({
+            method: "POST",
+            url: '/pricelist',
+            data: data,
+            success: function(response) {
+                // Redirect and get qs in route
+                window.location.href = 'http://localhost:3000/?removed=' + response.removed;
+            }
+        });
+     });
 });
