@@ -3,7 +3,6 @@ const data = require('./data.js');
 const SKU = require('tf2-sku');
 const request = require('request');
 const fs = require('fs');
-const config = require('./config/config.json');
 
 // Add the list of items
 exports.addItems = async function(res, search, options) {
@@ -474,9 +473,12 @@ function getAllPriced () {
                 src: 'bptf'
             }
         }
-        if (config.pricesApiToken) {
-            options.headers = {
-                'Authorization': 'Token ' + config.pricesApiToken
+        if (fs.existsSync('/config/config.json')) {
+            const config = require('./config/config.json');
+            if (config.pricesApiToken) {
+                options.headers = {
+                    'Authorization': 'Token ' + config.pricesApiToken
+                }
             }
         }
         request(options, function(err, response, body) {
