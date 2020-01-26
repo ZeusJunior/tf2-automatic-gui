@@ -1,4 +1,4 @@
-console.log("tf2-automatic-gui v" + require('./package.json').version + " is starting...")
+console.log("tf2-automatic-gui v" + require('../package.json').version + " is starting...")
 const path = require('path');
 const express = require('express');
 const app = express();
@@ -7,7 +7,7 @@ const fs = require('fs');
 const tf2Currencies = require('tf2-currencies');
 
 const Schema = require('./schema.js');
-const utils = require('./utils.js');
+const utils = require('./utils');
 
 if (!fs.existsSync('./config/pricelist.json')) {
 	throw new Error('Missing pricelist - ' +
@@ -15,8 +15,8 @@ if (!fs.existsSync('./config/pricelist.json')) {
 }
 
 // Set image/css/js whatever path
-app.use(express.static(path.join(__dirname, '/assets')));
-app.set('views', path.join(__dirname, 'views'));
+app.use(express.static(path.join(__dirname, '../assets')));
+app.set('views', path.join(__dirname, '../views'));
 app.set('view engine', 'ejs');
 
 app.use(bodyParser.json());
