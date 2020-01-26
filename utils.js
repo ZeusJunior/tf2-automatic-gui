@@ -65,6 +65,10 @@ exports.addItems = async function(res, search, options) {
         
         for (i = 0, list = allPrices.length; i < list; i++) { // Dont recalculate length every time, it wont change
             if (skus.indexOf(allPrices[i].sku) > -1) {
+                if (allPrices[i].buy === null || allPrices[i].sell === null) {
+                    continue;
+                }
+                
                 const item = {
                     sku: allPrices[i].sku, 
                     enabled: true, 
