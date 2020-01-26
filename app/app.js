@@ -67,19 +67,19 @@ app.post('/changeItem', (req, res) => {
 		return;
 	}
 
+	const sellvalues = new TF2Currencies({keys: req.body.sellkeys, metal: req.body.sellmetal.replace(',', '.')}).toJSON();
+	const buyvalues = new TF2Currencies({keys: req.body.buykeys, metal: req.body.buymetal.replace(',', '.')}).toJSON();
+
 	// lower sell keys
-	if (req.body.sellkeys < req.body.buykeys) {
-		utils.renderPricelist(res, 'warning', 'The buy price must be higher than the sell price');
+	if (sellvalues.keys < buyvalues.keys) {
+		utils.renderPricelist(res, 'warning', 'The sell price must be higher than the buy price');
 		return;
 	}
 	// Same amount of keys, lower or equal sell metal
-	if (req.body.sellkeys === req.body.buykeys && req.body.sellmetal <= req.body.buymetal) {
-		utils.renderPricelist(res, 'warning', 'The buy price must be higher than the sell price');
+	if (sellvalues.keys === buyvalues.keys && sellvalues.metal <= buyvalues.metal) {
+		utils.renderPricelist(res, 'warning', 'The sell price must be higher than the buy price');
 		return;
 	}
-	
-	const sellvalues = new TF2Currencies({keys: req.body.sellkeys, metal: req.body.sellmetal.replace(',', '.')}).toJSON();
-	const buyvalues = new TF2Currencies({keys: req.body.buykeys, metal: req.body.buymetal.replace(',', '.')}).toJSON();
 
 	const item = {
 		sku: req.body.sku,
