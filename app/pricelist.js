@@ -155,7 +155,12 @@ exports.changeSingleItem = function(res, item) {
 	});
 };
 
-// Remove one or multiple items
+
+/**
+ * Remove one or multiple items
+ * @param {Object|Object[]} items
+ * @return {Promise<number|boolean>}
+ */
 exports.removeItems = function(items) {
 	return new Promise((resolve, reject) => {
 		if (!items || items.length == 0) {

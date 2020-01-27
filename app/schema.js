@@ -16,20 +16,22 @@ exports.getSchema = function(callback) {
 	});
 };
 
-exports.getSchemaFromApi = function(callback) {
+exports.fetchSchema = function(callback) {
 	request({
 		uri: 'https://api.prices.tf/schema',
 		method: 'GET',
 		qs: {
 			appid: 440
-		}
+		},
+		json: true
 	}, function(err, response, body) {
 		if (err) {
 			throw new Error('Couldn\'t get schema from pricestf: ' + err);
 		}
 		
-		schema = JSON.parse(body);
-		callback(null, JSON.parse(body));
+		fs.writeFileSync('./config/schema.json', JSON.stringify(schema));
+
+		callback(null, json);
 	});
 };
 
