@@ -2,7 +2,7 @@ const Schema = require('./schema.js');
 const data = require('./data.js');
 const SKU = require('tf2-sku');
 const request = require('request');
-const fs = require('fs');
+const fs = require('fs-extra');
 
 // Add the list of items
 exports.addItems = async function(res, search, options) {
@@ -45,8 +45,7 @@ exports.addItems = async function(res, search, options) {
 
 		// You can .filter before .map but not .map before .filter, SAD
 		const promises = search.map(async(searchItem) => {
-			const sku = await getSKU(searchItem);
-			return sku;
+			return getSKU(searchItem);
 		});
 
 		const generatedSkus = await Promise.all(promises);

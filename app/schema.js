@@ -1,7 +1,7 @@
 // Modified version of https://github.com/Nicklason/tf2-automatic/blob/master/src/app/utils/item/fixItem.js
 // To not use a steam api key, and a few other things
 
-const fs = require('fs');
+const fs = require('fs-extra');
 const request = require('request');
 let schema;
 

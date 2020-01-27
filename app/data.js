@@ -1,3 +1,4 @@
+// Make a node module for this that can be used for any related project
 exports.qualities = [
 	'Normal',
 	'Genuine',
