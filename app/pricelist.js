@@ -160,14 +160,15 @@ exports.removeItems = function(items) {
 		if (!items || items.length == 0) {
 			return resolve(false);
 		}
+
 		if (!Array.isArray(items)) {
 			items = [items];
 		}
+
 		removeItemsFromPricelist(items).then((result) => {
 			if (!result) return resolve(false);
 			return resolve(result);
 		}).catch((err) => {
-			console.log(err);
 			return reject(err);
 		});
 	});
@@ -365,6 +366,7 @@ function removeItemsFromPricelist (items) {
 					}
 				}
 			}
+			return pricelist;
 		}).then((pricelist) => {
 			fs.writeJSON('./config/pricelist.json', pricelist).then(() => {
 				return resolve(itemsremoved);

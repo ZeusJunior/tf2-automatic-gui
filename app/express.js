@@ -100,11 +100,15 @@ app.post('/changeItem', (req, res) => {
 // Remove selected items from pricelist
 app.post('/pricelist', async(req, res) => {
 	const items = req.body.list;
-	const removed = await pricelist.removeItems(items);
-	const amountRemoved = removed === false ? 0 : removed;
+	
+	pricelist.removeItems(items).then((removed) => {
+		const amountRemoved = removed === false ? 0 : removed;
 
-	res.json({
-		removed: amountRemoved
+		res.json({
+			removed: amountRemoved
+		});
+	}).catch((err) => {
+		throw err;
 	});
 });
 
