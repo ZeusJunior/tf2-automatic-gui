@@ -42,10 +42,25 @@ app.post('/add-items', async(req, res) => {
 		}
 	});
 	
-	pricelist.addItems(res, req.body.input, {
+	resolve({
+		itemsAdded: itemsAdded,
+		itemsFailed: itemsFailed,
+		alreadyAdded: result,
+		failedItems: failedItems
+	});
+
+	pricelist.addItems(req.body.input, {
 		intent: parseInt(req.body.intent),
 		min: parseInt(req.body.min),
 		max: parseInt(req.body.max)
+	}).then((result) => {
+		let msg = '';
+		result.itemsAdded ? msg += result.itemsAdded + (result.itemsAdded == 1 ? ' item' : ' items') + ' added' : '';
+		result.itemsFailed ? msg += ', ' + result.itemsFailed + (result.itemsFailed == 1 ? ' item' : ' items') + ' failed' : '';
+		result.alreadyAdded ? msg += ', ' + result.alreadyAdded + (result.alreadyAdded == 1 ? ' item was' : ' items were') + ' already in your pricelist.' : '.';
+		pricelist.renderPricelist(res, msg, result.failedItems);
+	}).catch((err) => {
+		throw err;
 	});
 });
 

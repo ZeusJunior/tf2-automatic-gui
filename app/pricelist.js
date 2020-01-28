@@ -5,7 +5,7 @@ const request = require('request');
 const fs = require('fs-extra');
 
 // Add the list of items
-exports.addItems = async function(res, search, options) {
+exports.addItems = async function(search, options) {
 	let itemsAdded = 0;
 	const items = [];
 	let itemsFailed = 0;
@@ -27,11 +27,6 @@ exports.addItems = async function(res, search, options) {
 	}
 
 	getAllPriced().then(async(allPrices) => { // Why, you ask? For the glory of satan of course!
-		if (!allPrices) {
-			exports.renderPricelist(res, 'danger', 'Error occured trying to get all prices. See the console for more information');
-			return;
-		}
-
 		console.log('Got all prices, continuing...');
 
 		// First check for item names like normal, for items like "Cool Breeze", "Hot Dogger", "Vintage Tyrolean" and whatever
@@ -44,7 +39,7 @@ exports.addItems = async function(res, search, options) {
 		}
 
 		// You can .filter before .map but not .map before .filter, SAD
-		const promises = search.map(async(searchItem) => {
+		const promises = search.map((searchItem) => {
 			return getSKU(searchItem);
 		});
 
@@ -96,26 +91,32 @@ exports.addItems = async function(res, search, options) {
 				console.info('Execution time: %dms', end);
 				itemsFailed += skus.length; // items that succeeded get removed from skus 
 				failedItems = skus; // so all thats left in skus is failed items
-				if (itemsAdded > 0) {
-					changePricelist('add', items).then((result) => {
-						if (result > 0) {
-							itemsAdded -= result;
-						}
-						exports.renderPricelist(res, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed' + (result > 0 ? ', ' + result + (result == 1 ? ' item was' : ' items were') + ' already in your pricelist.' : '.'), failedItems);
-						return;
-					}).catch((err) => {
-						console.log(err);
-						return;
-					});
-				} else {
-					exports.renderPricelist(res, 'primary', itemsAdded + (itemsAdded == 1 ? ' item' : ' items') + ' added, ' + itemsFailed + (itemsFailed == 1 ? ' item' : ' items') + ' failed.', failedItems);
-				}
+				
+				return new Promise((resolve, reject) => {
+					if (itemsAdded > 0) {
+						changePricelist('add', items).then((result) => {
+							if (result > 0) {
+								itemsAdded -= result;
+							}
+							return resolve({
+								itemsAdded: itemsAdded,
+								itemsFailed: itemsFailed,
+								alreadyAdded: result,
+								failedItems: failedItems
+							});
+						}).catch((err) => {
+							return reject(err);
+						});
+					} else {
+						return resolve({
+							itemsAdded: itemsAdded,
+							itemsFailed: itemsFailed,
+							failedItems: failedItems
+						});
+					}
+				});
 			}
 		}
-	}).catch((err) => {
-		console.log(err);
-		exports.renderPricelist(res, 'danger', 'Error occured trying to get all prices. See the console for more information');
-		return;
 	});
 };
 
@@ -457,7 +458,7 @@ function getAllPriced () {
 				if (body.message == 'Unauthorized') {
 					throw new Error('Your prices.tf api token is incorrect. Join the discord here https://discord.tf2automatic.com/ and request one from Nick. Or leave it blank in the config.');
 				}
-				return resolve(false);
+				throw new Error('Couldn\'t get all prices from pricestf: ' + body);
 			}
 			const end = new Date() - start;
 			console.info('Execution time: %dms', end);
