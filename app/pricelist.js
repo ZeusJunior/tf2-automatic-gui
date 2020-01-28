@@ -94,7 +94,7 @@ exports.addItems = async function(search, options) {
 					failedItems = skus; // so all thats left in skus is failed items
 
 					if (itemsAdded > 0) {
-						changePricelist('add', items).then((result) => {
+						addItemsToPricelist(items).then((result) => {
 							if (result > 0) {
 								itemsAdded -= result;
 							}
@@ -122,14 +122,8 @@ exports.addItems = async function(search, options) {
 
 exports.changeSingleItem = function(item) {
 	return new Promise((resolve, reject) => {
-		// TODO: Chain .then's with fs-extra readJson or something later
-		fs.readFile('./config/pricelist.json', function(err, data) {
-			if (err) {
-				return reject(err);
-			}
-			
+		fs.readJSON('./config/pricelist.json').then((pricelist) => {
 			// Get pricelist, change some stuff and save
-			const pricelist = JSON.parse(data);
 			for (i = 0; i < pricelist.length; i++) {
 				if (item.sku === pricelist[i].sku) {
 					pricelist[i].buy = item.buy;
@@ -142,14 +136,15 @@ exports.changeSingleItem = function(item) {
 					break;
 				}
 			}
-	
-			fs.writeFile('./config/pricelist.json', JSON.stringify(pricelist, null, 4), function(err, data) {
-				if (err) {
-					return reject(err);
-				}
-
+			return pricelist;
+		}).then((pricelist) => {
+			fs.writeJSON('./config/pricelist.json', pricelist).then(() => {
 				return resolve(true);
+			}).catch((err) => {
+				return reject(err);
 			});
+		}).catch((err) => {
+			return reject(err);
 		});
 	});
 };
@@ -168,7 +163,7 @@ exports.removeItems = function(items) {
 		if (!Array.isArray(items)) {
 			items = [items];
 		}
-		changePricelist('remove', items).then((result) => {
+		removeItemsFromPricelist(items).then((result) => {
 			if (!result) return resolve(false);
 			return resolve(result);
 		}).catch((err) => {
@@ -328,103 +323,101 @@ async function getDefindex (search) {
 	});
 }
 
-function changePricelist (action, items) {
+function addItemsToPricelist (items) {
 	return new Promise((resolve, reject) => {
-		if (action == 'add') {
-			let alreadyAdded = 0;
-			fs.readFile('./config/pricelist.json', function(err, data) {
-				if (err) {
-					return reject(err);
-				}
+		let alreadyAdded = 0;
+		fs.readFile('./config/pricelist.json', function(err, data) {
+			if (err) {
+				return reject(err);
+			}
 
-				const pricelist = JSON.parse(data);
-				itemsloop:
-				// for each item, check if they're already in the pricelist *while changing it too* to avoid having 2 of the same
-				for (j = 0; j < items.length; j++) {
-					for (i = 0; i < pricelist.length; i++) {
-						if (pricelist[i].sku == items[j].sku) {
-							alreadyAdded++;
-							if (items.length - 1 == j) {
-								fs.writeFile('./config/pricelist.json', JSON.stringify(pricelist, null, 4), function(err) {
-									if (err) {
-										return reject(err);
-									}
-
-									return resolve(alreadyAdded);
-								});
-							}
-
-							continue itemsloop;
-						}
-					}
-					
-					// Not already added, so add
-					pricelist.push(items[j]);
-					if (items.length - 1 == j) {
-						fs.writeFile('./config/pricelist.json', JSON.stringify(pricelist, null, 4), function(err) {
-							if (err) {
-								return reject(err);
-							}
-
-							return resolve(alreadyAdded);
-						});
-					}
-				}
-			});
-		}
-
-		// Dont think this one needs much explaining
-		if (action == 'remove') {
-			let itemsremoved = 0;
-			fs.readFile('./config/pricelist.json', function(err, data) {
-				if (err) {
-					return reject(err);
-				}
-
-				const pricelist = JSON.parse(data);
+			const pricelist = JSON.parse(data);
+			itemsloop:
+			// for each item, check if they're already in the pricelist *while changing it too* to avoid having 2 of the same
+			for (j = 0; j < items.length; j++) {
 				for (i = 0; i < pricelist.length; i++) {
-					for (j = 0; j < items.length; j++) {
-						if (pricelist[i].sku == items[j]) {
-							pricelist.splice(pricelist.indexOf(pricelist[i]), 1);
-							itemsremoved++;
+					if (pricelist[i].sku == items[j].sku) {
+						alreadyAdded++;
+						if (items.length - 1 == j) {
+							fs.writeFile('./config/pricelist.json', JSON.stringify(pricelist, null, 4), function(err) {
+								if (err) {
+									return reject(err);
+								}
+
+								return resolve(alreadyAdded);
+							});
 						}
+
+						continue itemsloop;
 					}
 				}
+				
+				// Not already added, so add
+				pricelist.push(items[j]);
+				if (items.length - 1 == j) {
+					fs.writeFile('./config/pricelist.json', JSON.stringify(pricelist, null, 4), function(err) {
+						if (err) {
+							return reject(err);
+						}
 
-				fs.writeFile('./config/pricelist.json', JSON.stringify(pricelist, null, 4), function(err) {
-					if (err) {
-						return reject(err);
+						return resolve(alreadyAdded);
+					});
+				}
+			}
+		});
+	});
+}
+
+function removeItemsFromPricelist (items) {
+	return new Promise((resolve, reject) => {
+		let itemsremoved = 0;
+		fs.readFile('./config/pricelist.json', function(err, data) {
+			if (err) {
+				return reject(err);
+			}
+
+			const pricelist = JSON.parse(data);
+			for (i = 0; i < pricelist.length; i++) {
+				for (j = 0; j < items.length; j++) {
+					if (pricelist[i].sku == items[j]) {
+						pricelist.splice(pricelist.indexOf(pricelist[i]), 1);
+						itemsremoved++;
 					}
+				}
+			}
 
-					return resolve(itemsremoved);
-				});
+			fs.writeFile('./config/pricelist.json', JSON.stringify(pricelist, null, 4), function(err) {
+				if (err) {
+					return reject(err);
+				}
+
+				return resolve(itemsremoved);
 			});
-		}
+		});
 	});
 }
 
 // Render the pricelist with some info
 exports.renderPricelist = function(res, type, msg, failedItems = []) {
-	fs.readFile('./config/pricelist.json', function(err, data) {
-		if (err) throw err;
+	fs.readJSON('./config/pricelist.json').then((pricelist) => {
 		res.render('home', {
 			type: type,
 			msg: msg,
-			pricelist: JSON.parse(data),
+			pricelist: pricelist,
 			failedItems: failedItems
 		});
+	}).catch((err) => {
+		throw err;
 	});
 };
 
 // Summon satan
 exports.clearPricelist = function() {
 	return new Promise((resolve, reject) => {
-		fs.writeFile('./config/pricelist.json', '[]', function(err) {
-			if (err) {
-				return reject(err);
-			}
-
+		fs.writeJSON('./config/pricelist.json', []).then(() => {
 			return resolve(true);
+		}).catch((err) => {
+			return reject(err);
 		});
 	});
 };
