@@ -418,14 +418,15 @@ exports.renderPricelist = function(res, type, msg, failedItems = []) {
 };
 
 // Summon satan
-exports.clearPricelist = function(res) {
-	fs.writeFile('./config/pricelist.json', '[]', function(err) {
-		if (err) {
-			console.log(err);
-			exports.renderPricelist(res, 'danger', 'Error occured trying to clear the pricelist. See the console for more information');
-			return;
-		}
-		exports.renderPricelist(res, 'success', 'Pricelist has been cleared');
+exports.clearPricelist = function() {
+	return new Promise((resolve, reject) => {
+		fs.writeFile('./config/pricelist.json', '[]', function(err) {
+			if (err) {
+				return reject(err);
+			}
+			
+			return resolve(true);
+		});
 	});
 };
 

@@ -106,7 +106,11 @@ app.post('/pricelist', async(req, res) => {
 
 // Burn the pricelist with fire
 app.post('/clearPricelist', (req, res) => {
-	pricelist.clearPricelist(res);
+	pricelist.clearPricelist().then(() => {
+		pricelist.renderPricelist(res, 'success', 'Pricelist has been cleared');
+	}).catch((err) => {
+		throw err;
+	});
 });
 
 
