@@ -326,44 +326,29 @@ async function getDefindex (search) {
 function addItemsToPricelist (items) {
 	return new Promise((resolve, reject) => {
 		let alreadyAdded = 0;
-		fs.readFile('./config/pricelist.json', function(err, data) {
-			if (err) {
-				return reject(err);
-			}
-
-			const pricelist = JSON.parse(data);
+		fs.readJSON('./config/pricelist.json').then((pricelist) => {
 			itemsloop:
 			// for each item, check if they're already in the pricelist *while changing it too* to avoid having 2 of the same
 			for (j = 0; j < items.length; j++) {
 				for (i = 0; i < pricelist.length; i++) {
 					if (pricelist[i].sku == items[j].sku) {
 						alreadyAdded++;
-						if (items.length - 1 == j) {
-							fs.writeFile('./config/pricelist.json', JSON.stringify(pricelist, null, 4), function(err) {
-								if (err) {
-									return reject(err);
-								}
-
-								return resolve(alreadyAdded);
-							});
-						}
-
 						continue itemsloop;
 					}
 				}
 				
 				// Not already added, so add
 				pricelist.push(items[j]);
-				if (items.length - 1 == j) {
-					fs.writeFile('./config/pricelist.json', JSON.stringify(pricelist, null, 4), function(err) {
-						if (err) {
-							return reject(err);
-						}
-
-						return resolve(alreadyAdded);
-					});
-				}
 			}
+			return pricelist;
+		}).then((pricelist) => {
+			fs.writeJSON('./config/pricelist.json', pricelist).then(() => {
+				return resolve(alreadyAdded);
+			}).catch((err) => {
+				throw err;
+			});
+		}).catch((err) => {
+			return reject(err);
 		});
 	});
 }
@@ -371,12 +356,7 @@ function addItemsToPricelist (items) {
 function removeItemsFromPricelist (items) {
 	return new Promise((resolve, reject) => {
 		let itemsremoved = 0;
-		fs.readFile('./config/pricelist.json', function(err, data) {
-			if (err) {
-				return reject(err);
-			}
-
-			const pricelist = JSON.parse(data);
+		fs.readJSON('./config/pricelist.json').then((pricelist) => {
 			for (i = 0; i < pricelist.length; i++) {
 				for (j = 0; j < items.length; j++) {
 					if (pricelist[i].sku == items[j]) {
@@ -385,14 +365,14 @@ function removeItemsFromPricelist (items) {
 					}
 				}
 			}
-
-			fs.writeFile('./config/pricelist.json', JSON.stringify(pricelist, null, 4), function(err) {
-				if (err) {
-					return reject(err);
-				}
-
+		}).then((pricelist) => {
+			fs.writeJSON('./config/pricelist.json', pricelist).then(() => {
 				return resolve(itemsremoved);
+			}).then((err) => {
+				return reject(err);
 			});
+		}).catch((err) => {
+			return reject(err);
 		});
 	});
 }
