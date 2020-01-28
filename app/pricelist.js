@@ -12,87 +12,87 @@ exports.addItems = async function(search, options) {
 	let failedItems = [];
 	let skus = [];
 
-	// Remove parts / paint text for bptf markdown input and remove empty entries (blank enters)
-	for (i = 0; i < search.length; i++) {
-		if (search[i].indexOf('Part') > -1) {
-			search[i] = search[i].split(' with ').shift();
-		}
-		if (search[i].indexOf(' painted ') > -1) {
-			search[i] = search[i].split(' painted ').shift();
-		}
-		if (search[i] === '') {
-			search.splice(i, 1);
-			i--;
-		}
-	}
-
-	getAllPriced().then(async(allPrices) => { // Why, you ask? For the glory of satan of course!
-		console.log('Got all prices, continuing...');
-
-		// First check for item names like normal, for items like "Cool Breeze", "Hot Dogger", "Vintage Tyrolean" and whatever
-		// Get those skus, and remove them from the search list so it doesn't try again
-		for (i = 0, list = allPrices.length; i < list; i++) {
-			if (search.indexOf(allPrices[i].name) > -1) {
-				skus.push(allPrices[i].sku);
-				search.splice(search.indexOf(allPrices[i].name), 1);
+	return new Promise((resolve, reject) => {
+		// Remove parts / paint text for bptf markdown input and remove empty entries (blank enters)
+		for (i = 0; i < search.length; i++) {
+			if (search[i].indexOf('Part') > -1) {
+				search[i] = search[i].split(' with ').shift();
 			}
-		}
-
-		// You can .filter before .map but not .map before .filter, SAD
-		const promises = search.map((searchItem) => {
-			return getSKU(searchItem);
-		});
-
-		const generatedSkus = await Promise.all(promises);
-		// Add the item skus that weren't already handled to the skus array
-		skus = skus.concat(generatedSkus);
-
-		const start = new Date();
-		// Remove items where it failed to generate a sku
-		for (i = 0; i < skus.length; i++) {
-			if (skus[i] === false) {
-				skus.splice(skus.indexOf(skus[i]), 1);
-				itemsFailed++;
+			if (search[i].indexOf(' painted ') > -1) {
+				search[i] = search[i].split(' painted ').shift();
+			}
+			if (search[i] === '') {
+				search.splice(i, 1);
 				i--;
 			}
 		}
-		
-		for (i = 0, list = allPrices.length; i < list; i++) { // Dont recalculate length every time, it wont change
-			if (skus.indexOf(allPrices[i].sku) > -1) {
-				if (allPrices[i].buy === null || allPrices[i].sell === null) {
-					continue;
-				}
-				
-				const item = {
-					sku: allPrices[i].sku,
-					enabled: true,
-					autoprice: true,
-					max: options.max,
-					min: options.min,
-					intent: options.intent,
-					name: '',
-					buy: {},
-					sell: {},
-					time: 0
-				};
-				item.name = allPrices[i].name;
-				item.buy = allPrices[i].buy;
-				item.sell = allPrices[i].sell;
-				item.time = allPrices[i].time;
 
-				// Add item to items array, these will be used to update the pricelist and remove from skus array
-				items.push(item);
-				skus.splice(skus.indexOf(allPrices[i].sku), 1);
-				itemsAdded++;
+		getAllPriced().then(async(allPrices) => { // Why, you ask? For the glory of satan of course!
+			console.log('Got all prices, continuing...');
+
+			// First check for item names like normal, for items like "Cool Breeze", "Hot Dogger", "Vintage Tyrolean" and whatever
+			// Get those skus, and remove them from the search list so it doesn't try again
+			for (i = 0, list = allPrices.length; i < list; i++) {
+				if (search.indexOf(allPrices[i].name) > -1) {
+					skus.push(allPrices[i].sku);
+					search.splice(search.indexOf(allPrices[i].name), 1);
+				}
 			}
 
-			if (i == allPrices.length - 1) { // Done looping
-				const end = new Date() - start;
-				console.info('Execution time: %dms', end);
-				itemsFailed += skus.length; // items that succeeded get removed from skus 
-				failedItems = skus; // so all thats left in skus is failed items
-				
-				return new Promise((resolve, reject) => {
+			// You can .filter before .map but not .map before .filter, SAD
+			const promises = search.map((searchItem) => {
+				return getSKU(searchItem);
+			});
+
+			const generatedSkus = await Promise.all(promises);
+			// Add the item skus that weren't already handled to the skus array
+			skus = skus.concat(generatedSkus);
+
+			const start = new Date();
+			// Remove items where it failed to generate a sku
+			for (i = 0; i < skus.length; i++) {
+				if (skus[i] === false) {
+					skus.splice(skus.indexOf(skus[i]), 1);
+					itemsFailed++;
+					i--;
+				}
+			}
+			
+			for (i = 0, list = allPrices.length; i < list; i++) { // Dont recalculate length every time, it wont change
+				if (skus.indexOf(allPrices[i].sku) > -1) {
+					if (allPrices[i].buy === null || allPrices[i].sell === null) {
+						continue;
+					}
+					
+					const item = {
+						sku: allPrices[i].sku,
+						enabled: true,
+						autoprice: true,
+						max: options.max,
+						min: options.min,
+						intent: options.intent,
+						name: '',
+						buy: {},
+						sell: {},
+						time: 0
+					};
+					item.name = allPrices[i].name;
+					item.buy = allPrices[i].buy;
+					item.sell = allPrices[i].sell;
+					item.time = allPrices[i].time;
+
+					// Add item to items array, these will be used to update the pricelist and remove from skus array
+					items.push(item);
+					skus.splice(skus.indexOf(allPrices[i].sku), 1);
+					itemsAdded++;
+				}
+
+				if (i == allPrices.length - 1) { // Done looping
+					const end = new Date() - start;
+					console.info('Execution time: %dms', end);
+					itemsFailed += skus.length; // items that succeeded get removed from skus 
+					failedItems = skus; // so all thats left in skus is failed items
+
 					if (itemsAdded > 0) {
 						changePricelist('add', items).then((result) => {
 							if (result > 0) {
@@ -114,9 +114,9 @@ exports.addItems = async function(search, options) {
 							failedItems: failedItems
 						});
 					}
-				});
+				}
 			}
-		}
+		});
 	});
 };
 

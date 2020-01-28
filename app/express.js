@@ -28,7 +28,7 @@ app.get('/', (req, res) => {
 });
 
 // Add a list of items to the pricelist
-app.post('/add-items', async(req, res) => {
+app.post('/add-items', (req, res) => {
 	req.body.input = req.body.input.split(/\r?\n/);
 	req.body.input.forEach(function(item, index) {
 		if (req.body.max - req.body.min < 1) {
@@ -47,11 +47,11 @@ app.post('/add-items', async(req, res) => {
 		min: parseInt(req.body.min),
 		max: parseInt(req.body.max)
 	}).then((result) => {
-		let msg = '';
-		result.itemsAdded ? msg += result.itemsAdded + (result.itemsAdded == 1 ? ' item' : ' items') + ' added' : '';
-		result.itemsFailed ? msg += ', ' + result.itemsFailed + (result.itemsFailed == 1 ? ' item' : ' items') + ' failed' : '';
-		result.alreadyAdded ? msg += ', ' + result.alreadyAdded + (result.alreadyAdded == 1 ? ' item was' : ' items were') + ' already in your pricelist.' : '.';
-		pricelist.renderPricelist(res, msg, result.failedItems);
+		// Yeah theres gotta be a better way to do this
+		const msg = result.itemsAdded + (result.itemsAdded == 1 ? ' item' : ' items') + ' added, ' +
+			result.itemsFailed + (result.itemsFailed == 1 ? ' item' : ' items') + ' failed' +
+			result.alreadyAdded > 0 ? ', ' + result.alreadyAdded + (result.alreadyAdded == 1 ? ' item was' : ' items were') + ' already in your pricelist.' : '.';
+		pricelist.renderPricelist(res, 'primary', msg, result.failedItems);
 	}).catch((err) => {
 		throw err;
 	});
