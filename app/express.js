@@ -41,13 +41,6 @@ app.post('/add-items', async(req, res) => {
 			return;
 		}
 	});
-	
-	resolve({
-		itemsAdded: itemsAdded,
-		itemsFailed: itemsFailed,
-		alreadyAdded: result,
-		failedItems: failedItems
-	});
 
 	pricelist.addItems(req.body.input, {
 		intent: parseInt(req.body.intent),
