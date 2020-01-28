@@ -90,7 +90,11 @@ app.post('/changeItem', (req, res) => {
 	item.autoprice = autoprice;
 	item.time = autoprice ? new Date().getTime() : 0;
 	
-	pricelist.changeSingleItem(res, item);
+	pricelist.changeSingleItem(item).then(() => {
+		pricelist.renderPricelist(res, 'success', item.sku + ' has been changed');
+	}).catch((err) => {
+		throw err;
+	});
 });
 
 // Remove selected items from pricelist

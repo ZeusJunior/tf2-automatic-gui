@@ -120,37 +120,36 @@ exports.addItems = async function(search, options) {
 	});
 };
 
-exports.changeSingleItem = function(res, item) {
-	fs.readFile('./config/pricelist.json', function(err, data) {
-		if (err) {
-			console.log(err);
-			exports.renderPricelist(res, 'danger', 'Error occured trying to change the item. See the console for more information');
-			return;
-		}
-		
-		// Get pricelist, change some stuff and save
-		const pricelist = JSON.parse(data);
-		for (i = 0; i < pricelist.length; i++) {
-			if (item.sku === pricelist[i].sku) {
-				pricelist[i].buy = item.buy;
-				pricelist[i].sell = item.sell;
-				pricelist[i].intent = item.intent;
-				pricelist[i].min = item.min;
-				pricelist[i].max = item.max;
-				pricelist[i].autoprice = item.autoprice;
-				pricelist[i].time = item.time;
-				break;
-			}
-		}
-
-		fs.writeFile('./config/pricelist.json', JSON.stringify(pricelist, null, 4), function(err, data) {
+exports.changeSingleItem = function(item) {
+	return new Promise((resolve, reject) => {
+		// TODO: Chain .then's with fs-extra readJson or something later
+		fs.readFile('./config/pricelist.json', function(err, data) {
 			if (err) {
-				console.log(err);
-				exports.renderPricelist(res, 'danger', 'Error occured trying to change the item. See the console for more information');
-				return;
+				return reject(err);
 			}
+			
+			// Get pricelist, change some stuff and save
+			const pricelist = JSON.parse(data);
+			for (i = 0; i < pricelist.length; i++) {
+				if (item.sku === pricelist[i].sku) {
+					pricelist[i].buy = item.buy;
+					pricelist[i].sell = item.sell;
+					pricelist[i].intent = item.intent;
+					pricelist[i].min = item.min;
+					pricelist[i].max = item.max;
+					pricelist[i].autoprice = item.autoprice;
+					pricelist[i].time = item.time;
+					break;
+				}
+			}
+	
+			fs.writeFile('./config/pricelist.json', JSON.stringify(pricelist, null, 4), function(err, data) {
+				if (err) {
+					return reject(err);
+				}
 
-			exports.renderPricelist(res, 'success', item.sku + ' has been changed');
+				return resolve(true);
+			});
 		});
 	});
 };
@@ -424,7 +423,7 @@ exports.clearPricelist = function() {
 			if (err) {
 				return reject(err);
 			}
-			
+
 			return resolve(true);
 		});
 	});
