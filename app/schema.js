@@ -29,9 +29,8 @@ exports.fetchSchema = function(callback) {
 			throw new Error('Couldn\'t get schema from pricestf: ' + err);
 		}
 		
-		fs.writeFileSync('./config/schema.json', JSON.stringify(schema));
-
-		callback(null, json);
+		fs.writeFileSync('./config/schema.json', JSON.stringify(body));
+		callback(null, body);
 	});
 };
 
