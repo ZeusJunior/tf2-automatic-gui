@@ -3,8 +3,10 @@ const fs = require('fs-extra');
 const getSKU = require('../utils/getSKU');
 
 
+const pricelist = module.exports;
+
 // Add the list of items
-exports.addItems = async function(search, options) {
+pricelist.addItems = async function(search, options) {
 	let itemsAdded = 0;
 	const items = [];
 	let itemsFailed = 0;
@@ -26,7 +28,7 @@ exports.addItems = async function(search, options) {
 			}
 		}
 
-		getAllPriced().then(async(allPrices) => { // Why, you ask? For the glory of satan of course!
+		getAllPrices().then(async(allPrices) => { // Why, you ask? For the glory of satan of course!
 			console.log('Got all prices, continuing...');
 
 			// First check for item names like normal, for items like "Cool Breeze", "Hot Dogger", "Vintage Tyrolean" and whatever
@@ -119,33 +121,23 @@ exports.addItems = async function(search, options) {
 	});
 };
 
-exports.changeSingleItem = function(item) {
-	return new Promise((resolve, reject) => {
-		fs.readJSON('./config/pricelist.json').then((pricelist) => {
-			// Get pricelist, change some stuff and save
-			for (i = 0; i < pricelist.length; i++) {
-				if (item.sku === pricelist[i].sku) {
-					pricelist[i].buy = item.buy;
-					pricelist[i].sell = item.sell;
-					pricelist[i].intent = item.intent;
-					pricelist[i].min = item.min;
-					pricelist[i].max = item.max;
-					pricelist[i].autoprice = item.autoprice;
-					pricelist[i].time = item.time;
-					break;
+pricelist.changeSingleItem = function(item) {
+	return fs.readJSON('./config/pricelist.json')
+		.then((pricelist) => {
+			pricelist.forEach((pricedItem) => {
+				if (item.sku === pricedItem.sku) {
+					pricedItem.buy = item.buy;
+					pricedItem.sell = item.sell;
+					pricedItem.intent = item.intent;
+					pricedItem.min = item.min;
+					pricedItem.max = item.max;
+					pricedItem.autoprice = item.autoprice;
+					pricedItem.time = item.time;
 				}
-			}
-			return pricelist;
-		}).then((pricelist) => {
-			fs.writeJSON('./config/pricelist.json', pricelist).then(() => {
-				return resolve(true);
-			}).catch((err) => {
-				return reject(err);
 			});
-		}).catch((err) => {
-			return reject(err);
+
+			return fs.writeJSON('./config/pricelist.json', pricelist);
 		});
-	});
 };
 
 
@@ -154,7 +146,7 @@ exports.changeSingleItem = function(item) {
  * @param {Object|Object[]} items
  * @return {Promise<number|boolean>}
  */
-exports.removeItems = function(items) {
+pricelist.removeItems = function(items) {
 	return new Promise((resolve, reject) => {
 		if (!items || items.length == 0) {
 			return resolve(false);
@@ -230,7 +222,7 @@ function removeItemsFromPricelist (items) {
 }
 
 // Render the pricelist with some info
-exports.renderPricelist = function(res, type, msg, failedItems = []) {
+pricelist.renderPricelist = function(res, type, msg, failedItems = []) {
 	fs.readJSON('./config/pricelist.json').then((pricelist) => {
 		res.render('home', {
 			type: type,
@@ -243,11 +235,11 @@ exports.renderPricelist = function(res, type, msg, failedItems = []) {
 	});
 };
 
-exports.clear = function() {
+pricelist.clear = function() {
 	return fs.writeJSON('./config/pricelist.json', []);
 };
 
-function getAllPriced () {
+function getAllPrices () {
 	console.log('Getting all prices...');
 
 	const options = {
