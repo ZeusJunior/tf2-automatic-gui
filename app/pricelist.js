@@ -163,35 +163,29 @@ pricelist.removeItems = async function(items) {
 	}
 };
 
-
 function addItemsToPricelist (items) {
-	return new Promise((resolve, reject) => {
-		let alreadyAdded = 0;
-		fs.readJSON('./config/pricelist.json').then((pricelist) => {
-			itemsloop:
-			// for each item, check if they're already in the pricelist *while changing it too* to avoid having 2 of the same
-			for (j = 0; j < items.length; j++) {
-				for (i = 0; i < pricelist.length; i++) {
-					if (pricelist[i].sku == items[j].sku) {
+	let alreadyAdded = 0;
+
+	return fs.readJSON('./config/pricelist.json')
+		.then((pricelist) => {
+			items: for (let i = 0; i < items.length; i++) {
+				for (let y = 0; y < pricelist.length; y++) {
+					if (pricelist[i].sku === items[y].sku) {
 						alreadyAdded++;
+						
+						// eslint blocking continue?
 						continue itemsloop;
 					}
 				}
-				
-				// Not already added, so add
-				pricelist.push(items[j]);
+
+				pricelist.push(items[y]);
 			}
-			return pricelist;
-		}).then((pricelist) => {
-			fs.writeJSON('./config/pricelist.json', pricelist).then(() => {
-				return resolve(alreadyAdded);
-			}).catch((err) => {
-				throw err;
-			});
-		}).catch((err) => {
-			return reject(err);
-		});
-	});
+
+			return fs.writeJSON('./config/pricelist.json', pricelist);
+		})
+		.then(() => {
+			return alreadyAdded;
+		})
 }
 
 function removeItemsFromPricelist (items) {
