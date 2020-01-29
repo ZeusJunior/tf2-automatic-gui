@@ -1,3 +1,5 @@
+'use strict';
+
 const fs = require('fs-extra');
 const Schema = require('./schema');
 const app = require('./express');
