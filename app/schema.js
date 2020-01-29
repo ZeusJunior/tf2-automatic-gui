@@ -2,36 +2,37 @@
 // To not use a steam api key, and a few other things
 
 const fs = require('fs-extra');
-const request = require('request');
+const request = require('request-promise');
 let schema;
 
-exports.getSchema = function(callback) {
-	fs.readFile('./config/schema.json', function(err, Schema) {
-		if (err) {
-			throw new Error('Couldn\'t read schema: ' + err);
-		}
 
-		schema = JSON.parse(Schema);
-		callback(null, JSON.parse(Schema));
-	});
+exports.getSchema = function(callback) {
+	return fs.readJSON('./config/schema.json')
+		.then((schemaJSON) => {
+			schema = schemaJSON;
+		})
+		.catch((err) => {
+			throw new Error('Couldn\'t read schema: ' + err);
+		});
 };
 
 exports.fetchSchema = function(callback) {
-	request({
-		uri: 'https://api.prices.tf/schema',
-		method: 'GET',
-		qs: {
-			appid: 440
-		},
-		json: true
-	}, function(err, response, body) {
-		if (err) {
-			throw new Error('Couldn\'t get schema from pricestf: ' + err);
+	return request(
+		{
+			uri: 'https://api.prices.tf/schema',
+			method: 'GET',
+			qs: {
+				appid: 440
+			},
+			json: true
 		}
-		
-		fs.writeFileSync('./config/schema.json', JSON.stringify(body));
-		callback(null, body);
-	});
+	)
+		.then(() => {
+			fs.writeFileSync('./config/schema.json', JSON.stringify(body));
+		})
+		.catch((err) => {
+			throw new Error('Couldn\'t get schema from pricestf: ' + err);
+		});
 };
 
 exports.fixItem = function(item) {

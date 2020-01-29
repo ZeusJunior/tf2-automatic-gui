@@ -14,13 +14,10 @@ if (!fs.existsSync('./config/pricelist.json')) {
 /* App starts here: */
 const schemaMethod = fs.existsSync('./config/schema.json') ? 'getSchema' : 'fetchSchema';
 
-Schema[schemaMethod]((err, schema) => {
-	if (err) {
-		throw new Error('Error while getting schema.');
-	}
-
-	app.listen(3000, function() {
-		console.log('listening on port 3000');
-		require('open')('http://localhost:3000/');
+Schema[schemaMethod]()
+	.then(() => {
+		app.listen(3000, function() {
+			console.log('listening on port 3000');
+			require('open')('http://localhost:3000/');
+		});
 	});
-});

@@ -1,7 +1,7 @@
 const Schema = require('./schema.js');
 const data = require('./data.js');
 const SKU = require('tf2-sku');
-const request = require('request');
+const request = require('request-promise');
 const fs = require('fs-extra');
 
 // Add the list of items
@@ -397,41 +397,43 @@ exports.clear = function() {
 	return fs.writeJSON('./config/pricelist.json', []);
 };
 
-// Get all currently priced items on pricestf
 function getAllPriced () {
 	console.log('Getting all prices...');
-	const start = new Date();
-	return new Promise((resolve, reject) => {
-		const options = {
-			method: 'GET',
-			json: true,
-			uri: 'https://api.prices.tf/items',
-			qs: {
-				src: 'bptf'
-			}
-		};
-		if (fs.existsSync('/config/config.json')) {
-			const config = require('./config/config.json');
-			if (config.pricesApiToken) {
-				options.headers = {
-					Authorization: 'Token ' + config.pricesApiToken
-				};
-			}
+
+	const options = {
+		method: 'GET',
+		json: true,
+		uri: 'https://api.prices.tf/items',
+		qs: {
+			src: 'bptf'
+		},
+		json: true
+	};
+
+	if (fs.existsSync('/config/config.json')) {
+		const config = require('./config/config.json');
+		if (config.pricesApiToken) {
+			options.headers = {
+				Authorization: 'Token ' + config.pricesApiToken
+			};
 		}
-		request(options, function(err, response, body) {
-			if (err) {
-				return reject(err);
-			}
-			if (body.success == false) {
-				if (body.message == 'Unauthorized') {
+	}
+
+	const start = new Date();
+
+	return request(options)
+		.then(({ success, message, items }) => {
+			if (!success) {
+				if (message === 'Unauthorized') {
 					throw new Error('Your prices.tf api token is incorrect. Join the discord here https://discord.tf2automatic.com/ and request one from Nick. Or leave it blank in the config.');
 				}
+
 				throw new Error('Couldn\'t get all prices from pricestf: ' + body);
 			}
+
 			const end = new Date() - start;
 			console.info('Execution time: %dms', end);
 
-			return resolve(body.items);
+			return items;
 		});
-	});
 }
