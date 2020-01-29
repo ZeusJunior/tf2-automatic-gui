@@ -393,15 +393,8 @@ exports.renderPricelist = function(res, type, msg, failedItems = []) {
 	});
 };
 
-// Summon satan
-exports.clearPricelist = function() {
-	return new Promise((resolve, reject) => {
-		fs.writeJSON('./config/pricelist.json', []).then(() => {
-			return resolve(true);
-		}).catch((err) => {
-			return reject(err);
-		});
-	});
+exports.clear = function() {
+	return fs.writeJSON('./config/pricelist.json', []);
 };
 
 // Get all currently priced items on pricestf
