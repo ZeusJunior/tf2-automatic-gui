@@ -140,29 +140,27 @@ pricelist.changeSingleItem = function(item) {
 		});
 };
 
-
 /**
  * Remove one or multiple items
  * @param {Object|Object[]} items
  * @return {Promise<number|boolean>}
  */
-pricelist.removeItems = function(items) {
-	return new Promise((resolve, reject) => {
-		if (!items || items.length == 0) {
-			return resolve(false);
-		}
+pricelist.removeItems = async function(items) {
+	if (!items || items.length == 0) {
+		return resolve(false);
+	}
 
-		if (!Array.isArray(items)) {
-			items = [items];
-		}
+	if (!Array.isArray(items)) {
+		items = [items];
+	}
 
-		removeItemsFromPricelist(items).then((result) => {
-			if (!result) return resolve(false);
-			return resolve(result);
-		}).catch((err) => {
-			return reject(err);
-		});
-	});
+	try {
+		const result = await removeItemsFromPricelist(items);
+
+		return !result ? false : result;
+	} catch (err) {
+		return Promise.reject(err);
+	}
 };
 
 
