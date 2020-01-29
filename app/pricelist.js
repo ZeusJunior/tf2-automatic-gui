@@ -189,28 +189,27 @@ function addItemsToPricelist (items) {
 }
 
 function removeItemsFromPricelist (items) {
-	return new Promise((resolve, reject) => {
-		let itemsremoved = 0;
-		fs.readJSON('./config/pricelist.json').then((pricelist) => {
-			for (i = 0; i < pricelist.length; i++) {
-				for (j = 0; j < items.length; j++) {
-					if (pricelist[i].sku == items[j]) {
+	let itemsRemoved = 0;
+
+	return fs.readJSON('./config/pricelist.json')
+		.then((pricelist) => {
+			for (let i = 0; i < items.length; i++) {
+				for (let y = 0; y < pricelist.length; y++) {
+					if (pricelist[i].sku === items[y].sku) {
+						itemsRemoved++;
+						
 						pricelist.splice(pricelist.indexOf(pricelist[i]), 1);
-						itemsremoved++;
 					}
 				}
+
+				pricelist.push(items[y]);
 			}
-			return pricelist;
-		}).then((pricelist) => {
-			fs.writeJSON('./config/pricelist.json', pricelist).then(() => {
-				return resolve(itemsremoved);
-			}).then((err) => {
-				return reject(err);
-			});
-		}).catch((err) => {
-			return reject(err);
-		});
-	});
+
+			return fs.writeJSON('./config/pricelist.json', pricelist);
+		})
+		.then(() => {
+			return itemsRemoved;
+		})
 }
 
 // Render the pricelist with some info
