@@ -1,6 +1,7 @@
 const Schema = require('../app/schema.js');
 const data = require('../app/data.js');
 const SKU = require('tf2-sku');
+const getDefindex = require('./getDefindex');
 
 module.exports = getSKU;
 
@@ -127,6 +128,7 @@ function getSKU (search) {
 		if (name.includes('War Paint')) {
 			defindex = 16102; // Defindexes for war paints get corrected when fixing sku
 		} else {
+			// TODO: Handle correctly
 			defindex = await getDefindex(name);
 		}
 
@@ -137,20 +139,5 @@ function getSKU (search) {
 
 		item.defindex = defindex;
 		return resolve(SKU.fromObject(Schema.fixItem(item)));
-	});
-}
-
-async function getDefindex (search) {
-	const schema = await Schema.getTheFuckinSchemaVariableIHateMyLife();
-	return new Promise((resolve, reject) => {
-		const items = schema.raw.schema.items;
-		for (let i = 0; i < items.length; i++) {
-			const name = items[i].item_name;
-			if (name === search || name === search.replace('The ', '')) {
-				return resolve(items[i].defindex);
-			}
-		}
-
-		return resolve(false);
 	});
 }

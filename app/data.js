@@ -1,4 +1,5 @@
 // Make a node module for this that can be used for any related project
+// TODO: Swap effect and skin numbers for utils/getName
 exports.qualities = [
 	'Normal',
 	'Genuine',
