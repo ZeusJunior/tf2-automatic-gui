@@ -6,68 +6,66 @@ const getName = require('../utils/getName');
 
 const pricelist = module.exports;
 
-// Add the list of items
+
 pricelist.addItems = async function(search, options) {
-	let itemsAdded = 0;
-	const items = [];
-	let itemsFailed = 0;
-	let failedItems = [];
 	let skus = [];
+	let itemsFailed = 0;
+	let itemsAdded = 0;
+	let failedItems = [];
 
-	return new Promise((resolve, reject) => {
-		// Remove parts / paint text for bptf markdown input and remove empty entries (blank enters)
-		for (i = 0; i < search.length; i++) {
-			if (search[i].indexOf('Part') > -1) {
-				search[i] = search[i].split(' with ').shift();
-			}
-			if (search[i].indexOf(' painted ') > -1) {
-				search[i] = search[i].split(' painted ').shift();
-			}
-			if (search[i] === '') {
-				search.splice(i, 1);
-				i--;
-			}
+	for (let i = 0; i < search.length; i++) {
+		if (search[i].indexOf('Part') > -1) {
+			search[i] = search[i].split(' with ').shift();
 		}
+		if (search[i].indexOf(' painted ') > -1) {
+			search[i] = search[i].split(' painted ').shift();
+		}
+		if (search[i] === '') {
+			search.splice(i, 1);
+			i--;
+		}
+	}
 
-		getAllPrices().then(async(allPrices) => { // Why, you ask? For the glory of satan of course!
+	return getAllPrices()
+		.then((prices) => {
 			console.log('Got all prices, continuing...');
 
-			// First check for item names like normal, for items like "Cool Breeze", "Hot Dogger", "Vintage Tyrolean" and whatever
-			// Get those skus, and remove them from the search list so it doesn't try again
-			for (i = 0, list = allPrices.length; i < list; i++) {
-				if (search.indexOf(allPrices[i].name) > -1) {
-					skus.push(allPrices[i].sku);
-					search.splice(search.indexOf(allPrices[i].name), 1);
+			for (let i = 0; i < prices; i++) {
+				if (search.indexOf(prices[i].name) > -1) {
+					skus.push(prices[i].sku);
+					search.splice(search.indexOf(prices[i].name), 1);
 				}
 			}
 
-			// You can .filter before .map but not .map before .filter, SAD
-			const promises = search.map((searchItem) => {
-				return getSKU(searchItem);
-			});
-
-			const generatedSkus = await Promise.all(promises);
-			// Add the item skus that weren't already handled to the skus array
+			return Promise.all(
+				search.map((item) => getSKU(item))
+			);
+		})
+		
+		// eslint-disable-next-line space-before-function-paren
+		.then(async (generatedSkus) => {
 			skus = skus.concat(generatedSkus);
 
 			const start = new Date();
-			// Remove items where it failed to generate a sku
-			for (i = 0; i < skus.length; i++) {
+
+			for (let i = 0; i < skus.length; i++) {
 				if (skus[i] === false) {
 					skus.splice(skus.indexOf(skus[i]), 1);
 					itemsFailed++;
 					i--;
 				}
 			}
-			
-			for (i = 0, list = allPrices.length; i < list; i++) { // Dont recalculate length every time, it wont change
-				if (skus.indexOf(allPrices[i].sku) > -1) {
-					if (allPrices[i].buy === null || allPrices[i].sell === null) {
+
+			for (let i = 0; i < prices.length; i++) { // Dont recalculate length every time, it wont change
+				const { sku, name, buy, sell, time } = prices[i];
+				
+				if (skus.indexOf(item.sku) > -1) {
+					if (item.buy === null || item.sell === null) {
 						continue;
 					}
 					
-					const item = {
-						sku: allPrices[i].sku,
+					const listing = {
+						sku,
 						enabled: true,
 						autoprice: true,
 						max: options.max,
@@ -78,47 +76,52 @@ pricelist.addItems = async function(search, options) {
 						sell: {},
 						time: 0
 					};
-					item.name = allPrices[i].name;
-					item.buy = allPrices[i].buy;
-					item.sell = allPrices[i].sell;
-					item.time = allPrices[i].time;
+					listing.name = name;
+					listing.buy = buy;
+					listing.sell = sell;
+					listing.time = time;
 
 					// Add item to items array, these will be used to update the pricelist and remove from skus array
-					items.push(item);
-					skus.splice(skus.indexOf(allPrices[i].sku), 1);
+					items.push(listing);
+					skus.splice(skus.indexOf(sku), 1);
 					itemsAdded++;
 				}
 
-				if (i == allPrices.length - 1) { // Done looping
+				if (i == prices.length - 1) { // Done looping
 					const end = new Date() - start;
+					
 					console.info('Execution time: %dms', end);
+					
 					itemsFailed += skus.length; // items that succeeded get removed from skus 
 					failedItems = skus; // so all thats left in skus is failed items
 
 					if (itemsAdded > 0) {
-						addItemsToPricelist(items).then((result) => {
+						try {
+							const result = await addItemsToPricelist(items);
+
 							if (result > 0) {
 								itemsAdded -= result;
 							}
 
-							return resolve({
+							return {
 								itemsAdded: itemsAdded,
 								itemsFailed: itemsFailed,
 								alreadyAdded: result,
 								failedItems: failedItems
-							});
-						});
-					} else {
-						return resolve({
-							itemsAdded: itemsAdded,
-							itemsFailed: itemsFailed,
-							failedItems: failedItems
-						});
-					}
+							};
+						} catch (err) {
+							return Promise.reject(err);
+						}
+					} ;
+					
+					return {
+						itemsAdded: itemsAdded,
+						itemsFailed: itemsFailed,
+						failedItems: failedItems
+					};
 				}
 			}
 		});
-	});
 };
 
 pricelist.addSingleItem = function(search, { autoprice, max, min, intent, buy, sell }) {
