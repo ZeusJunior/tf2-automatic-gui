@@ -1,11 +1,12 @@
-const Schema = require('./schema.js');
-const data = require('./data.js');
-const SKU = require('tf2-sku');
-const request = require('request');
+const request = require('request-promise');
 const fs = require('fs-extra');
+const getSKU = require('../utils/getSKU');
+
+
+const pricelist = module.exports;
 
 // Add the list of items
-exports.addItems = async function(search, options) {
+pricelist.addItems = async function(search, options) {
 	let itemsAdded = 0;
 	const items = [];
 	let itemsFailed = 0;
@@ -27,7 +28,7 @@ exports.addItems = async function(search, options) {
 			}
 		}
 
-		getAllPriced().then(async(allPrices) => { // Why, you ask? For the glory of satan of course!
+		getAllPrices().then(async(allPrices) => { // Why, you ask? For the glory of satan of course!
 			console.log('Got all prices, continuing...');
 
 			// First check for item names like normal, for items like "Cool Breeze", "Hot Dogger", "Vintage Tyrolean" and whatever
@@ -120,267 +121,99 @@ exports.addItems = async function(search, options) {
 	});
 };
 
-exports.changeSingleItem = function(item) {
-	return new Promise((resolve, reject) => {
-		fs.readJSON('./config/pricelist.json').then((pricelist) => {
-			// Get pricelist, change some stuff and save
-			for (i = 0; i < pricelist.length; i++) {
-				if (item.sku === pricelist[i].sku) {
-					pricelist[i].buy = item.buy;
-					pricelist[i].sell = item.sell;
-					pricelist[i].intent = item.intent;
-					pricelist[i].min = item.min;
-					pricelist[i].max = item.max;
-					pricelist[i].autoprice = item.autoprice;
-					pricelist[i].time = item.time;
-					break;
+pricelist.changeSingleItem = function(item) {
+	return fs.readJSON('./config/pricelist.json')
+		.then((pricelist) => {
+			pricelist.forEach((pricedItem) => {
+				if (item.sku === pricedItem.sku) {
+					pricedItem.buy = item.buy;
+					pricedItem.sell = item.sell;
+					pricedItem.intent = item.intent;
+					pricedItem.min = item.min;
+					pricedItem.max = item.max;
+					pricedItem.autoprice = item.autoprice;
+					pricedItem.time = item.time;
 				}
-			}
-			return pricelist;
-		}).then((pricelist) => {
-			fs.writeJSON('./config/pricelist.json', pricelist).then(() => {
-				return resolve(true);
-			}).catch((err) => {
-				return reject(err);
 			});
-		}).catch((err) => {
-			return reject(err);
-		});
-	});
-};
 
+			return fs.writeJSON('./config/pricelist.json', pricelist);
+		});
+};
 
 /**
  * Remove one or multiple items
  * @param {Object|Object[]} items
  * @return {Promise<number|boolean>}
  */
-exports.removeItems = function(items) {
-	return new Promise((resolve, reject) => {
-		if (!items || items.length == 0) {
-			return resolve(false);
-		}
-
-		if (!Array.isArray(items)) {
-			items = [items];
-		}
-
-		removeItemsFromPricelist(items).then((result) => {
-			if (!result) return resolve(false);
-			return resolve(result);
-		}).catch((err) => {
-			return reject(err);
-		});
-	});
-};
-
-function getSKU (search) {
-	if (search.includes(';')) { // too lazy
-		return SKU.fromObject(Schema.fixItem(SKU.fromString(search)));
+pricelist.removeItems = async function(items) {
+	if (!items || items.length == 0) {
+		return resolve(false);
 	}
 
-	const item = {
-		defindex: '',
-		quality: 6,
-		craftable: true,
-		killstreak: 0,
-		australium: false,
-		festive: false,
-		effect: null,
-		wear: null,
-		paintkit: null,
-		quality2: null
-	};
+	if (!Array.isArray(items)) {
+		items = [items];
+	}
 
-	return new Promise(async(resolve, reject) => {
-		let name;
+	try {
+		const result = await removeItemsFromPricelist(items);
 
-		if (search.includes('backpack.tf/stats')) { // input is a stats page URL
-			searchParts = search.substring(search.indexOf('stats')).split('/');
-
-			name = decodeURI(searchParts[2]).replace('| ', ''); // Decode and just remove | by default since bptf has that for skins, not *that* good but decent
-			const quality = decodeURI(searchParts[1]);
-			item.craftable = searchParts[4] === 'Craftable' ? true : false;
-
-			if (quality == 'Strange Unusual') {
-				item.quality = 5;
-				item.quality2 = 11;
-			} else if (quality == 'Strange Haunted') {
-				item.quality = 13;
-				item.quality2 = 11;
-			} else {
-				item.quality = data.quality[searchParts[1]];
-			}
-
-			if (item.quality == 5) {
-				item.effect = parseInt(searchParts[5]);
-			}
-		} else { // Input is an item name
-			name = search;
-
-			// Check for quality if its not a bptf link
-			if (name.includes('Strange Haunted')) {
-				item.quality = 13;
-				item.quality2 = 11;
-			} else {
-				for (i = 0; i < data.qualities.length; i++) {
-					if (name.includes(data.qualities[i])) {
-						name = name.replace(data.qualities[i] + ' ', '');
-						item.quality = data.quality[data.qualities[i]];
-						break;
-					}
-				}
-			}
-
-			// Check for effects if not a bptf link
-			for (i = 0; i < data.effects.length; i++) {
-				if (name.includes(data.effects[i])) {
-					name = name.replace(data.effects[i] + ' ', '');
-					item.effect = data.effect[data.effects[i]];
-					// Has an effect, check if its strange. If so, set strange elevated
-					if (item.quality == 11) {
-						item.quality = 5;
-						item.quality2 = 11;
-					}
-					break;
-				}
-			}
-
-			// Check if craftable if not a bptf link
-			if (name.includes('Non-Craftable')) {
-				name = name.replace('Non-Craftable ', '');
-				item.craftable = false;
-			}
-		}
-
-		// Always check for wear
-		for (i = 0; i < data.wears.length; i++) {
-			if (name.includes(data.wears[i])) {
-				name = name.replace(' ' + data.wears[i], '');
-				item.wear = data.wear[data.wears[i]];
-				break;
-			}
-		}
-
-		// Always check for skin if it has a wear
-		if (item.wear) {
-			for (i = 0; i < data.skins.length; i++) {
-				if (name.includes(data.skins[i])) {
-					name = name.replace(data.skins[i] + ' ', '');
-					item.paintkit = data.skin[data.skins[i]];
-					if (item.effect) { // override decorated quality if it is unusual
-						item.quality = 5;
-					}
-					break;
-				}
-			}
-		}
-
-		// Always check for killstreak
-		for (i = 0; i < data.killstreaks.length; i++) {
-			if (name.includes(data.killstreaks[i])) {
-				name = name.replace(data.killstreaks[i] + ' ', '');
-				item.killstreak = data.killstreak[data.killstreaks[i]];
-				break;
-			}
-		}
-
-		// Always check for Australium
-		if (name.includes('Australium') && item.quality === 11) {
-			name = name.replace('Australium ', '');
-			item.australium = true;
-		}
-
-		// Always get defindex
-		let defindex;
-		if (name.includes('War Paint')) {
-			defindex = 16102; // Defindexes for war paints get corrected when fixing sku
-		} else {
-			defindex = await getDefindex(name);
-		}
-
-		if (defindex === false) {
-			console.log('Item is not priced and couldn\'t get defindex: ' + search);
-			return resolve(false);
-		}
-
-		item.defindex = defindex;
-		return resolve(SKU.fromObject(Schema.fixItem(item)));
-	});
-}
-
-async function getDefindex (search) {
-	const schema = await Schema.getTheFuckinSchemaVariableIHateMyLife();
-	return new Promise((resolve, reject) => {
-		const items = schema.raw.schema.items;
-		for (let i = 0; i < items.length; i++) {
-			const name = items[i].item_name;
-			if (name === search || name === search.replace('The ', '')) {
-				return resolve(items[i].defindex);
-			}
-		}
-
-		return resolve(false);
-	});
-}
+		return !result ? false : result;
+	} catch (err) {
+		return Promise.reject(err);
+	}
+};
 
 function addItemsToPricelist (items) {
-	return new Promise((resolve, reject) => {
-		let alreadyAdded = 0;
-		fs.readJSON('./config/pricelist.json').then((pricelist) => {
-			itemsloop:
-			// for each item, check if they're already in the pricelist *while changing it too* to avoid having 2 of the same
-			for (j = 0; j < items.length; j++) {
-				for (i = 0; i < pricelist.length; i++) {
-					if (pricelist[i].sku == items[j].sku) {
+	let alreadyAdded = 0;
+
+	return fs.readJSON('./config/pricelist.json')
+		.then((pricelist) => {
+			items: for (let i = 0; i < items.length; i++) {
+				for (let y = 0; y < pricelist.length; y++) {
+					if (pricelist[i].sku === items[y].sku) {
 						alreadyAdded++;
+						
+						// eslint blocking continue?
 						continue itemsloop;
 					}
 				}
-				
-				// Not already added, so add
-				pricelist.push(items[j]);
+
+				pricelist.push(items[y]);
 			}
-			return pricelist;
-		}).then((pricelist) => {
-			fs.writeJSON('./config/pricelist.json', pricelist).then(() => {
-				return resolve(alreadyAdded);
-			}).catch((err) => {
-				throw err;
-			});
-		}).catch((err) => {
-			return reject(err);
-		});
-	});
+
+			return fs.writeJSON('./config/pricelist.json', pricelist);
+		})
+		.then(() => {
+			return alreadyAdded;
+		})
 }
 
 function removeItemsFromPricelist (items) {
-	return new Promise((resolve, reject) => {
-		let itemsremoved = 0;
-		fs.readJSON('./config/pricelist.json').then((pricelist) => {
-			for (i = 0; i < pricelist.length; i++) {
-				for (j = 0; j < items.length; j++) {
-					if (pricelist[i].sku == items[j]) {
+	let itemsRemoved = 0;
+
+	return fs.readJSON('./config/pricelist.json')
+		.then((pricelist) => {
+			for (let i = 0; i < items.length; i++) {
+				for (let y = 0; y < pricelist.length; y++) {
+					if (pricelist[i].sku === items[y].sku) {
+						itemsRemoved++;
+						
 						pricelist.splice(pricelist.indexOf(pricelist[i]), 1);
-						itemsremoved++;
 					}
 				}
+
+				pricelist.push(items[y]);
 			}
-			return pricelist;
-		}).then((pricelist) => {
-			fs.writeJSON('./config/pricelist.json', pricelist).then(() => {
-				return resolve(itemsremoved);
-			}).then((err) => {
-				return reject(err);
-			});
-		}).catch((err) => {
-			return reject(err);
-		});
-	});
+
+			return fs.writeJSON('./config/pricelist.json', pricelist);
+		})
+		.then(() => {
+			return itemsRemoved;
+		})
 }
 
 // Render the pricelist with some info
-exports.renderPricelist = function(res, type, msg, failedItems = []) {
+pricelist.renderPricelist = function(res, type, msg, failedItems = []) {
 	fs.readJSON('./config/pricelist.json').then((pricelist) => {
 		res.render('home', {
 			type: type,
@@ -393,52 +226,47 @@ exports.renderPricelist = function(res, type, msg, failedItems = []) {
 	});
 };
 
-// Summon satan
-exports.clearPricelist = function() {
-	return new Promise((resolve, reject) => {
-		fs.writeJSON('./config/pricelist.json', []).then(() => {
-			return resolve(true);
-		}).catch((err) => {
-			return reject(err);
-		});
-	});
+pricelist.clear = function() {
+	return fs.writeJSON('./config/pricelist.json', []);
 };
 
-// Get all currently priced items on pricestf
-function getAllPriced () {
+function getAllPrices () {
 	console.log('Getting all prices...');
-	const start = new Date();
-	return new Promise((resolve, reject) => {
-		const options = {
-			method: 'GET',
-			json: true,
-			uri: 'https://api.prices.tf/items',
-			qs: {
-				src: 'bptf'
-			}
-		};
-		if (fs.existsSync('/config/config.json')) {
-			const config = require('./config/config.json');
-			if (config.pricesApiToken) {
-				options.headers = {
-					Authorization: 'Token ' + config.pricesApiToken
-				};
-			}
+
+	const options = {
+		method: 'GET',
+		json: true,
+		uri: 'https://api.prices.tf/items',
+		qs: {
+			src: 'bptf'
+		},
+		json: true
+	};
+
+	if (fs.existsSync('/config/config.json')) {
+		const config = require('./config/config.json');
+		if (config.pricesApiToken) {
+			options.headers = {
+				Authorization: 'Token ' + config.pricesApiToken
+			};
 		}
-		request(options, function(err, response, body) {
-			if (err) {
-				return reject(err);
-			}
-			if (body.success == false) {
-				if (body.message == 'Unauthorized') {
+	}
+
+	const start = new Date();
+
+	return request(options)
+		.then(({ success, message, items }) => {
+			if (!success) {
+				if (message === 'Unauthorized') {
 					throw new Error('Your prices.tf api token is incorrect. Join the discord here https://discord.tf2automatic.com/ and request one from Nick. Or leave it blank in the config.');
 				}
+
 				throw new Error('Couldn\'t get all prices from pricestf: ' + body);
 			}
+
 			const end = new Date() - start;
 			console.info('Execution time: %dms', end);
 
-			return resolve(body.items);
+			return items;
 		});
-	});
 }

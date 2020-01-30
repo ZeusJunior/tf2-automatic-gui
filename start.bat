@@ -1,3 +1,3 @@
 @ECHO OFF
-node app/app.js 
+node app
 pause

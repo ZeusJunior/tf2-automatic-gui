@@ -31,5 +31,6 @@ module.exports = {
 			"named": "always",
 			"asyncArrow": "never"
 		}],
+		"object-curly-spacing": 0
 	}
 };
