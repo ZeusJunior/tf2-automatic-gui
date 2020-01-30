@@ -6,24 +6,24 @@ module.exports = getSKU;
 
 
 function getSKU (search) {
-	if (search.includes(';')) { // too lazy
-		return SKU.fromObject(Schema.fixItem(SKU.fromString(search)));
-	}
-
-	const item = {
-		defindex: '',
-		quality: 6,
-		craftable: true,
-		killstreak: 0,
-		australium: false,
-		festive: false,
-		effect: null,
-		wear: null,
-		paintkit: null,
-		quality2: null
-	};
-
 	return new Promise(async(resolve, reject) => {
+		if (search.includes(';')) { // too lazy
+			return resolve(SKU.fromObject(Schema.fixItem(SKU.fromString(search))));
+		}
+
+		const item = {
+			defindex: '',
+			quality: 6,
+			craftable: true,
+			killstreak: 0,
+			australium: false,
+			festive: false,
+			effect: null,
+			wear: null,
+			paintkit: null,
+			quality2: null
+		};
+		
 		let name;
 
 		if (search.includes('backpack.tf/stats')) { // input is a stats page URL
