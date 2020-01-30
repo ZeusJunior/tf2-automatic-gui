@@ -121,34 +121,31 @@ pricelist.addItems = async function(search, options) {
 	});
 };
 
-pricelist.addSingleItem = function(search, options) {
-	return new Promise((resolve, reject) => {
-		getSKU(search).then((sku) => {
-			if (sku === false) {
-				return resolve(false);
-			}
-			const name = getName(sku);
+pricelist.addSingleItem = function(search, { autoprice, max, min, intent, buy, sell }) {
+	return getSKU(search)
+		.then((sku) => {
+			if (sku === false) return false;
 		
 			const item = {
+				name: getName(sku),
 				sku: sku,
 				enabled: true,
-				autoprice: options.autoprice,
-				max: options.max,
-				min: options.min,
-				intent: options.intent,
-				name: name,
-				buy: options.buy,
-				sell: options.sell,
-				time: 0
+				time: 0,
+				autoprice,
+				max,
+				min,
+				intent,
+				buy,
+				sell
 			};
 		
-			item.time = options.autoprice ? parseInt(new Date().getTime() / 1000) : 0;
-	
-			addItemsToPricelist([item]).then((alreadyAdded) => {
-				return resolve(alreadyAdded);
-			});
+			/**
+			 * Time when item got autopriced.
+			 */
+			item.time = autoprice ? parseInt(new Date().getTime() / 1000) : 0;
+
+			return addItemsToPricelist([item]);
 		});
-	});
 };
 
 pricelist.changeSingleItem = function(item) {
