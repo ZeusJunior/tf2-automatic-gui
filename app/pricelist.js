@@ -1,6 +1,7 @@
 const request = require('request-promise');
 const fs = require('fs-extra');
 const getSKU = require('../utils/getSKU');
+const getName = require('../utils/getName');
 
 
 const pricelist = module.exports;
@@ -126,6 +127,7 @@ pricelist.addSingleItem = function(search, options) {
 			if (sku === false) {
 				return resolve(false);
 			}
+			const name = getName(sku);
 		
 			const item = {
 				sku: sku,
@@ -134,7 +136,7 @@ pricelist.addSingleItem = function(search, options) {
 				max: options.max,
 				min: options.min,
 				intent: options.intent,
-				name: '', // TODO: Get name from sku
+				name: name,
 				buy: options.buy,
 				sell: options.sell,
 				time: 0

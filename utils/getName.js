@@ -1,10 +1,16 @@
 const Schema = require('../app/schema.js');
 const data = require('../app/data.js');
+const SKU = require('tf2-sku');
 
 module.exports = getName;
 
 // TODO: Make a promise
 function getName (item, proper = true) {
+	// If its a sku and not an item object
+	if (typeof item === 'string') {
+		item = SKU.fromString(item);
+	}
+
 	const schemaItem = getItemByDefindex(item.defindex);
 	if (schemaItem === null) {
 		return null;
