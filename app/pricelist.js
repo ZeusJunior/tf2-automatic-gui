@@ -1,6 +1,7 @@
 const request = require('request-promise');
 const fs = require('fs-extra');
 const getSKU = require('../utils/getSKU');
+const getName = require('../utils/getName');
 
 
 const pricelist = module.exports;
@@ -99,14 +100,13 @@ pricelist.addItems = async function(search, options) {
 							if (result > 0) {
 								itemsAdded -= result;
 							}
+
 							return resolve({
 								itemsAdded: itemsAdded,
 								itemsFailed: itemsFailed,
 								alreadyAdded: result,
 								failedItems: failedItems
 							});
-						}).catch((err) => {
-							return reject(err);
 						});
 					} else {
 						return resolve({
@@ -117,6 +117,36 @@ pricelist.addItems = async function(search, options) {
 					}
 				}
 			}
+		});
+	});
+};
+
+pricelist.addSingleItem = function(search, options) {
+	return new Promise((resolve, reject) => {
+		getSKU(search).then((sku) => {
+			if (sku === false) {
+				return resolve(false);
+			}
+			const name = getName(sku);
+		
+			const item = {
+				sku: sku,
+				enabled: true,
+				autoprice: options.autoprice,
+				max: options.max,
+				min: options.min,
+				intent: options.intent,
+				name: name,
+				buy: options.buy,
+				sell: options.sell,
+				time: 0
+			};
+		
+			item.time = options.autoprice ? parseInt(new Date().getTime() / 1000) : 0;
+	
+			addItemsToPricelist([item]).then((alreadyAdded) => {
+				return resolve(alreadyAdded);
+			});
 		});
 	});
 };
@@ -170,22 +200,21 @@ function addItemsToPricelist (items) {
 		.then((pricelist) => {
 			items: for (let i = 0; i < items.length; i++) {
 				for (let y = 0; y < pricelist.length; y++) {
-					if (pricelist[i].sku === items[y].sku) {
+					if (pricelist[y].sku === items[i].sku) {
 						alreadyAdded++;
-						
-						// eslint blocking continue?
-						continue itemsloop;
+
+						continue items;
 					}
 				}
 
-				pricelist.push(items[y]);
+				pricelist.push(items[i]);
 			}
 
 			return fs.writeJSON('./config/pricelist.json', pricelist);
 		})
 		.then(() => {
 			return alreadyAdded;
-		})
+		});
 }
 
 function removeItemsFromPricelist (items) {
@@ -195,21 +224,21 @@ function removeItemsFromPricelist (items) {
 		.then((pricelist) => {
 			for (let i = 0; i < items.length; i++) {
 				for (let y = 0; y < pricelist.length; y++) {
-					if (pricelist[i].sku === items[y].sku) {
+					if (pricelist[y].sku === items[i].sku) {
 						itemsRemoved++;
 						
 						pricelist.splice(pricelist.indexOf(pricelist[i]), 1);
 					}
 				}
 
-				pricelist.push(items[y]);
+				pricelist.push(items[i]);
 			}
 
 			return fs.writeJSON('./config/pricelist.json', pricelist);
 		})
 		.then(() => {
 			return itemsRemoved;
-		})
+		});
 }
 
 // Render the pricelist with some info

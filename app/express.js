@@ -27,6 +27,63 @@ app.get('/', (req, res) => {
 	else pricelist.renderPricelist(res, 'primary', 'none');
 });
 
+app.get('/add-item', (req, res) => {
+	res.render('addSingle');
+});
+
+// Add a single item to the pricelist
+app.post('/add-item', (req, res) => {
+	const item = req.body.input;
+
+	if (item.includes('classifieds')) {
+		pricelist.renderPricelist(res, 'danger', 'Please use the items stats page or full name, not the classifieds link');
+		return;
+	}
+
+	if (req.body.max - req.body.min < 1) {
+		pricelist.renderPricelist(res, 'warning', 'The maximum stock must be atleast one higher than the minimum');
+		return;
+	}
+
+	const sellvalues = new TF2Currencies({keys: req.body.sellkeys, metal: req.body.sellmetal.replace(',', '.')}).toJSON();
+	const buyvalues = new TF2Currencies({keys: req.body.buykeys, metal: req.body.buymetal.replace(',', '.')}).toJSON();
+
+	// lower sell keys
+	if (sellvalues.keys < buyvalues.keys) {
+		pricelist.renderPricelist(res, 'warning', 'The sell price must be higher than the buy price');
+		return;
+	}
+	// Same amount of keys, lower or equal sell metal
+	if (sellvalues.keys === buyvalues.keys && sellvalues.metal <= buyvalues.metal) {
+		pricelist.renderPricelist(res, 'warning', 'The sell price must be higher than the buy price');
+		return;
+	}
+
+	const autoprice = req.body.autoprice == 'true';
+
+	pricelist.addSingleItem(req.body.input, {
+		intent: parseInt(req.body.intent),
+		min: parseInt(req.body.min),
+		max: parseInt(req.body.max),
+		buy: buyvalues,
+		sell: sellvalues,
+		autoprice: autoprice
+	}).then((result) => {
+		if (result === false) {
+			pricelist.renderPricelist(res, 'danger', 'Couldn\'t generate SKU');
+			return;
+		} else if (result > 0) {
+			pricelist.renderPricelist(res, 'warning', 'Item is already in the pricelist');
+			return;
+		}
+
+		pricelist.renderPricelist(res, 'success', 'Item was added successfully');
+	}).catch((err) => {
+		console.log(err);
+		pricelist.renderPricelist(res, 'danger', 'Error occured');
+	});
+});
+
 // Add a list of items to the pricelist
 app.post('/add-items', (req, res) => {
 	req.body.input = req.body.input.split(/\r?\n/);
@@ -88,7 +145,7 @@ app.post('/changeItem', (req, res) => {
 
 	const autoprice = req.body.autoprice == 'true';
 	item.autoprice = autoprice;
-	item.time = autoprice ? new Date().getTime() : 0;
+	item.time = autoprice ? parseInt(new Date().getTime() / 1000) : 0;
 	
 	pricelist.changeSingleItem(item).then(() => {
 		pricelist.renderPricelist(res, 'success', item.sku + ' has been changed');
