@@ -172,9 +172,8 @@ function addItemsToPricelist (items) {
 				for (let y = 0; y < pricelist.length; y++) {
 					if (pricelist[i].sku === items[y].sku) {
 						alreadyAdded++;
-						
-						// eslint blocking continue?
-						continue itemsloop;
+
+						continue items;
 					}
 				}
 
@@ -185,7 +184,7 @@ function addItemsToPricelist (items) {
 		})
 		.then(() => {
 			return alreadyAdded;
-		})
+		});
 }
 
 function removeItemsFromPricelist (items) {
@@ -209,7 +208,7 @@ function removeItemsFromPricelist (items) {
 		})
 		.then(() => {
 			return itemsRemoved;
-		})
+		});
 }
 
 // Render the pricelist with some info
