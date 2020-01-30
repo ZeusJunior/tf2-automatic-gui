@@ -141,11 +141,11 @@ exports.fixItem = function(item) {
 	return item;
 };
 
-function _isPromo (schemaItem) {
+function _isPromo(schemaItem) {
 	return schemaItem.name.startsWith('Promo ') && schemaItem.craft_class == '';
 }
 
-function getItemByDefindex (defindex) {
+function getItemByDefindex(defindex) {
 	for (let i = 0; i < schema.raw.schema.items.length; i++) {
 		const item = schema.raw.schema.items[i];
 		if (item.defindex === defindex) {
@@ -156,6 +156,6 @@ function getItemByDefindex (defindex) {
 	return null;
 }
 
-exports.getTheFuckinSchemaVariableIHateMyLife = function() {
+exports.get = function() {
 	return schema;
 };

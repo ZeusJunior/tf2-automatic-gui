@@ -37,12 +37,12 @@ pricelist.addItems = async function(search, options) {
 				}
 			}
 
-			return Promise.all(
-				search.map((item) => getSKU(item))
-			);
+			/**
+			 * Keeping it split into two then's
+			 * for better readability for now.
+			 */
+			return search.map((item) => getSKU(item));
 		})
-		
-		// eslint-disable-next-line space-before-function-paren
 		.then(async (generatedSkus) => {
 			skus = skus.concat(generatedSkus);
 
@@ -125,30 +125,29 @@ pricelist.addItems = async function(search, options) {
 };
 
 pricelist.addSingleItem = function(search, { autoprice, max, min, intent, buy, sell }) {
-	return getSKU(search)
-		.then((sku) => {
-			if (sku === false) return false;
-		
-			const item = {
-				name: getName(sku),
-				sku: sku,
-				enabled: true,
-				time: 0,
-				autoprice,
-				max,
-				min,
-				intent,
-				buy,
-				sell
-			};
-		
-			/**
-			 * Time when item got autopriced.
-			 */
-			item.time = autoprice ? parseInt(new Date().getTime() / 1000) : 0;
+	const sku = getSKU(search);
+	
+	if (sku === false) return false;
 
-			return addItemsToPricelist([item]);
-		});
+	const item = {
+		name: getName(sku),
+		sku: sku,
+		enabled: true,
+		time: 0,
+		autoprice,
+		max,
+		min,
+		intent,
+		buy,
+		sell
+	};
+
+	/**
+	 * Time when item got autopriced.
+	 */
+	item.time = autoprice ? parseInt(new Date().getTime() / 1000) : 0;
+
+	return addItemsToPricelist([item]);
 };
 
 pricelist.changeSingleItem = function(item) {
@@ -177,7 +176,7 @@ pricelist.changeSingleItem = function(item) {
  */
 pricelist.removeItems = async function(items) {
 	if (!items || items.length == 0) {
-		return resolve(false);
+		return false;
 	}
 
 	if (!Array.isArray(items)) {
@@ -193,7 +192,7 @@ pricelist.removeItems = async function(items) {
 	}
 };
 
-function addItemsToPricelist (items) {
+function addItemsToPricelist(items) {
 	let alreadyAdded = 0;
 
 	return fs.readJSON('./config/pricelist.json')
@@ -217,17 +216,19 @@ function addItemsToPricelist (items) {
 		});
 }
 
-function removeItemsFromPricelist (items) {
+function removeItemsFromPricelist(items) {
 	let itemsRemoved = 0;
 
 	return fs.readJSON('./config/pricelist.json')
 		.then((pricelist) => {
+			console.log(items);
+
 			for (let i = 0; i < items.length; i++) {
 				for (let y = 0; y < pricelist.length; y++) {
 					if (pricelist[y].sku === items[i].sku) {
 						itemsRemoved++;
 						
-						pricelist.splice(pricelist.indexOf(pricelist[i]), 1);
+						pricelist.splice(pricelist.indexOf(pricelist[y]), 1);
 					}
 				}
 
@@ -241,25 +242,11 @@ function removeItemsFromPricelist (items) {
 		});
 }
 
-// Render the pricelist with some info
-pricelist.renderPricelist = function(res, type, msg, failedItems = []) {
-	fs.readJSON('./config/pricelist.json').then((pricelist) => {
-		res.render('home', {
-			type: type,
-			msg: msg,
-			pricelist: pricelist,
-			failedItems: failedItems
-		});
-	}).catch((err) => {
-		throw err;
-	});
-};
-
 pricelist.clear = function() {
 	return fs.writeJSON('./config/pricelist.json', []);
 };
 
-function getAllPrices () {
+function getAllPrices() {
 	console.log('Getting all prices...');
 
 	const options = {
