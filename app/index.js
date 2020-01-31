@@ -4,17 +4,18 @@ const fs = require('fs-extra');
 const Schema = require('./schema');
 const app = require('./express');
 
+const paths = require('../resources/filePaths');
 
-console.log('tf2-automatic-gui v' + require('../package.json').version + ' is starting...');
+console.log('tf2-automatic-gui v' + require(paths.files.package).version + ' is starting...');
 
 
-if (!fs.existsSync('./config/pricelist.json')) {
+if (!fs.existsSync(paths.files.pricelist)) {
 	throw new Error('Missing pricelist - Please put your pricelist file in the config folder');
 }
 
 
 /* App starts here: */
-const schemaMethod = fs.existsSync('./config/schema.json') ? 'getSchema' : 'fetchSchema';
+const schemaMethod = fs.existsSync(paths.files.schema) ? 'getSchema' : 'fetchSchema';
 
 Schema[schemaMethod]()
 	.then(() => {

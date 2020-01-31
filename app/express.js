@@ -9,6 +9,7 @@ const fs = require('fs-extra');
 
 const pricelist = require('./pricelist');
 const getPluralOrSingularString = require('../utils/getPluralOrSingularString');
+const paths = require('../resources/filePaths');
 
 // TODO: functionalize
 app
@@ -216,7 +217,7 @@ app.post('/clearPricelist', (req, res) => {
 
 
 function renderPricelist({ res, type, message, failedItems = [] }) {
-	return fs.readJSON('./config/pricelist.json')
+	return fs.readJSON(paths.files.pricelist)
 		.then((pricelist) => {
 			res.render('home', {
 				type,

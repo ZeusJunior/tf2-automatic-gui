@@ -1,6 +1,7 @@
 const Schema = require('../app/schema.js');
 const { wear, wears, quality, qualities, effect, effects, killstreak, killstreaks, skin, skins } = require('../app/data.js');
 const SKU = require('tf2-sku');
+const fixItem = require('../utils/fixItem');
 
 module.exports = getSKU;
 
@@ -8,7 +9,7 @@ module.exports = getSKU;
 function getSKU(search) {
 	if (search.includes(';')) { // too lazy
 		return SKU.fromObject(
-			Schema.fixItem(
+			fixItem(
 				SKU.fromString(
 					search
 				)
@@ -159,7 +160,7 @@ function getSKU(search) {
 	item.defindex = defindex;
 	
 	return SKU.fromObject(
-		Schema.fixItem(item)
+		fixItem(item)
 	);
 }
 
