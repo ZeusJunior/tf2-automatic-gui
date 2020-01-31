@@ -6,7 +6,7 @@ const request = require('request-promise');
 let schema;
 
 
-exports.getSchema = function(callback) {
+exports.getSchema = function() {
 	return fs.readJSON('./config/schema.json')
 		.then((schemaJSON) => {
 			schema = schemaJSON;
@@ -16,7 +16,7 @@ exports.getSchema = function(callback) {
 		});
 };
 
-exports.fetchSchema = function(callback) {
+exports.fetchSchema = function() {
 	return request(
 		{
 			uri: 'https://api.prices.tf/schema',
@@ -27,7 +27,7 @@ exports.fetchSchema = function(callback) {
 			json: true
 		}
 	)
-		.then(() => {
+		.then((body) => {
 			fs.writeFileSync('./config/schema.json', JSON.stringify(body));
 		})
 		.catch((err) => {

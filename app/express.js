@@ -36,18 +36,18 @@ app.get('/', (req, res) => {
 		renderInfo.message = 'Somehow not able to remove items!';
 	} else if (removed) {
 		renderInfo.type = 'success';
-		render.message = 'Removed ' + removed + (removed == 1 ? ' item' : ' items') + ' from your pricelist';
+		renderInfo.message = 'Removed ' + removed + (removed == 1 ? ' item' : ' items') + ' from your pricelist';
 	}
 
 	renderPricelist(renderInfo);
 });
 
-app.get('/add-item', (_, res) => res.render('addSingle'));
+app.get('/add-item', (req, res) => res.render('addSingle'));
 
 app.post('/add-item', (req, res) => {
 	const item = req.body.input;
 
-	const { min, max, sellmetal, sellkeys, buymetal, buykeys } = item.body;
+	const { min, max, intent, sellmetal, sellkeys, buymetal, buykeys, autoprice } = req.body;
 
 	if (item.includes('classifieds')) {
 		renderPricelist({ res, type: 'danger', message: 'Please use the items stats page or full name, not the classifieds link' });
@@ -73,7 +73,7 @@ app.post('/add-item', (req, res) => {
 		return;
 	}
 
-	const autoprice = autoprice == true;
+	const autopriced = autoprice == true;
 
 	pricelist
 		.addSingleItem(item, {
@@ -82,7 +82,7 @@ app.post('/add-item', (req, res) => {
 			max: parseInt(max),
 			buy: buyvalues,
 			sell: sellvalues,
-			autoprice: autoprice
+			autoprice: autopriced
 		})
 		.then((result) => {
 			const renderInfo = {
@@ -110,14 +110,15 @@ app.post('/add-item', (req, res) => {
 app.post('/add-items', (req, res) => {
 	const input = req.body.input.split(/\r?\n/);
 
-	input.forEach(function(item) {
-		if (req.body.max - req.body.min < 1) {
-			renderPricelist({ res, type: 'warning', message: 'The maximum stock must be atleast one higher than the minimum' });
-			return;
-		}
+	if (req.body.max - req.body.min < 1) {
+		renderPricelist({ res, type: 'warning', message: 'The maximum stock must be atleast one higher than the minimum' });
+		return;
+	}
 
+	input.forEach(function(item) {
 		if (item.includes('classifieds')) {
 			renderPricelist({ res, type: 'danger', message: 'Please use the items stats page or full name, not the classifieds link' });
+			return;
 		}
 	});
 
@@ -128,9 +129,8 @@ app.post('/add-items', (req, res) => {
 			max: parseInt(req.body.max)
 		})
 		.then(({ itemsAdded, failedItems, itemsFailed, alreadyAdded }) => {
-			// Yeah theres gotta be a better way to do this
 			const message = `${itemsAdded} item${getPluralOrSingularString(itemsAdded)} added
-							, ${result.itemsFailed} item${getPluralOrSingularString(itemsFailed)}
+							, ${itemsFailed} item${getPluralOrSingularString(itemsFailed)} failed
 							${(alreadyAdded > 0 ? `, ${alreadyAdded} ${alreadyAdded == 1 ? 'item was' : 'items were'} already in your pricelist` : '')}
 							.`;
 				

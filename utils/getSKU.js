@@ -1,5 +1,5 @@
 const Schema = require('../app/schema.js');
-const { quality, wears, qualities, effects, killstreaks, skins } = require('../app/data.js');
+const { wear, wears, quality, qualities, effect, effects, killstreak, killstreaks, skin, skins } = require('../app/data.js');
 const SKU = require('tf2-sku');
 
 module.exports = getSKU;
@@ -38,7 +38,7 @@ function getSKU(search) {
 
 		name = decodeURI(searchParts[2]).replace('| ', ''); // Decode and just remove | by default since bptf has that for skins, not *that* good but decent
 		
-		const quality = decodeURI(searchParts[1]);
+		const urlQuality = decodeURI(searchParts[1]);
 		
 		item.craftable = searchParts[4] === 'Craftable' ? true : false;
 
@@ -49,7 +49,7 @@ function getSKU(search) {
 			item.quality = 13;
 			item.quality2 = 11;
 		} else {
-			item.quality = quality[searchParts[1]];
+			item.quality = quality[urlQuality];
 		}
 
 		if (item.quality == 5) {
@@ -77,7 +77,7 @@ function getSKU(search) {
 		for (i = 0; i < effects.length; i++) {
 			if (name.includes(effects[i])) {
 				name = name.replace(effects[i] + ' ', '');
-				item.effect = data.effect[effects[i]];
+				item.effect = effect[effects[i]];
 				// Has an effect, check if its strange. If so, set strange elevated
 				if (item.quality == 11) {
 					item.quality = 5;
@@ -99,7 +99,7 @@ function getSKU(search) {
 	for (i = 0; i < wears.length; i++) {
 		if (name.includes(wears[i])) {
 			name = name.replace(' ' + wears[i], '');
-			item.wear = data.wear[wears[i]];
+			item.wear = wear[wears[i]];
 			
 			break;
 		}
@@ -110,7 +110,7 @@ function getSKU(search) {
 		for (i = 0; i < skins.length; i++) {
 			if (name.includes(skins[i])) {
 				name = name.replace(skins[i] + ' ', '');
-				item.paintkit = data.skin[skins[i]];
+				item.paintkit = skin[skins[i]];
 				
 				if (item.effect) { // override decorated quality if it is unusual
 					item.quality = 5;
@@ -125,7 +125,7 @@ function getSKU(search) {
 	for (i = 0; i < killstreaks.length; i++) {
 		if (name.includes(killstreaks[i])) {
 			name = name.replace(killstreaks[i] + ' ', '');
-			item.killstreak = data.killstreak[killstreaks[i]];
+			item.killstreak = killstreak[killstreaks[i]];
 			
 			break;
 		}
@@ -137,12 +137,17 @@ function getSKU(search) {
 		item.australium = true;
 	}
 
+	// Always check for Festivized
+	if (name.includes('Festivized')) {
+		name = name.replace('Festivized ', '');
+		item.festive = true;
+	}
+
 	// Always get defindex
 	let defindex;
 	if (name.includes('War Paint')) {
 		defindex = 16102; // Defindexes for war paints get corrected when fixing sku
 	} else {
-		// TODO: Handle correctly
 		defindex = getDefindex(name);
 	}
 

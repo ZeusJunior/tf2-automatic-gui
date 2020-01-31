@@ -9,6 +9,7 @@ const pricelist = module.exports;
 
 pricelist.addItems = async function(search, options) {
 	let skus = [];
+	const items = []; // Why did you delete?
 	let itemsFailed = 0;
 	let itemsAdded = 0;
 	let failedItems = [];
@@ -27,10 +28,10 @@ pricelist.addItems = async function(search, options) {
 	}
 
 	return getAllPrices()
-		.then((prices) => {
+		.then(async (prices) => {
 			console.log('Got all prices, continuing...');
 
-			for (let i = 0; i < prices; i++) {
+			for (let i = 0; i < prices.length; i++) {
 				if (search.indexOf(prices[i].name) > -1) {
 					skus.push(prices[i].sku);
 					search.splice(search.indexOf(prices[i].name), 1);
@@ -40,10 +41,9 @@ pricelist.addItems = async function(search, options) {
 			/**
 			 * Keeping it split into two then's
 			 * for better readability for now.
+			 * ^ You can not do this if you're not taking scope into account
 			 */
-			return search.map((item) => getSKU(item));
-		})
-		.then(async (generatedSkus) => {
+			const generatedSkus = search.map((item) => getSKU(item));
 			skus = skus.concat(generatedSkus);
 
 			const start = new Date();
@@ -56,11 +56,11 @@ pricelist.addItems = async function(search, options) {
 				}
 			}
 
-			for (let i = 0; i < prices.length; i++) { // Dont recalculate length every time, it wont change
+			for (let i = 0; i < prices.length; i++) {
 				const { sku, name, buy, sell, time } = prices[i];
 				
-				if (skus.indexOf(item.sku) > -1) {
-					if (item.buy === null || item.sell === null) {
+				if (skus.indexOf(sku) > -1) {
+					if (buy === null || sell === null) {
 						continue;
 					}
 					
@@ -127,7 +127,7 @@ pricelist.addItems = async function(search, options) {
 pricelist.addSingleItem = function(search, { autoprice, max, min, intent, buy, sell }) {
 	const sku = getSKU(search);
 	
-	if (sku === false) return false;
+	if (sku === false) return Promise.resolve(false);
 
 	const item = {
 		name: getName(sku),
@@ -169,11 +169,6 @@ pricelist.changeSingleItem = function(item) {
 		});
 };
 
-/**
- * Remove one or multiple items
- * @param {Object|Object[]} items
- * @return {Promise<number|boolean>}
- */
 pricelist.removeItems = async function(items) {
 	if (!items || items.length == 0) {
 		return false;
@@ -221,18 +216,14 @@ function removeItemsFromPricelist(items) {
 
 	return fs.readJSON('./config/pricelist.json')
 		.then((pricelist) => {
-			console.log(items);
-
-			for (let i = 0; i < items.length; i++) {
-				for (let y = 0; y < pricelist.length; y++) {
-					if (pricelist[y].sku === items[i].sku) {
+			for (let i = 0; i < pricelist.length; i++) {
+				for (let y = 0; y < items.length; y++) {
+					if (pricelist[i].sku === items[y]) {
 						itemsRemoved++;
 						
-						pricelist.splice(pricelist.indexOf(pricelist[y]), 1);
+						pricelist.splice(pricelist.indexOf(pricelist[i]), 1);
 					}
 				}
-
-				pricelist.push(items[i]);
 			}
 
 			return fs.writeJSON('./config/pricelist.json', pricelist);
