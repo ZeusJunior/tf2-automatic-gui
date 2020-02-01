@@ -1,11 +1,15 @@
+const folders = {
+	config: './config'
+};
+
+const files = {
+	pricelist: `${folders.config}/pricelist.json`,
+	config: `${folders.config}/config.json`,
+	schema: `${folders.config}/schema.json`,
+	package: '../package.json'
+};
+
 module.exports = {
-	folders: {
-		config: './config'
-	},
-	files: {
-		pricelist: `${module.exports.folders.config}/pricelist.json`,
-		config: `${module.exports.folders.config}/config.json`,
-		schema: `${module.exports.folders.config}/schema.json`,
-		package: '../package.json'
-	}
+	folders,
+	files
 };
