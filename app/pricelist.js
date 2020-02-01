@@ -2,6 +2,7 @@ const request = require('request-promise');
 const fs = require('fs-extra');
 const getSKU = require('../utils/getSKU');
 const getName = require('../utils/getName');
+const paths = require('../resources/paths');
 
 
 const pricelist = module.exports;

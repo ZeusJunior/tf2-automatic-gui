@@ -1,7 +1,7 @@
 const fs = require('fs-extra');
 const request = require('request-promise');
 
-const paths = require('../resources/filePaths');
+const paths = require('../resources/paths');
 
 
 let schema;

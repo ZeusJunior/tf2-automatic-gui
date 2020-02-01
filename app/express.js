@@ -9,7 +9,7 @@ const fs = require('fs-extra');
 
 const pricelist = require('./pricelist');
 const getPluralOrSingularString = require('../utils/getPluralOrSingularString');
-const paths = require('../resources/filePaths');
+const paths = require('../resources/paths');
 
 // TODO: functionalize
 app

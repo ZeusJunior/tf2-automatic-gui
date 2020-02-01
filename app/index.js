@@ -4,7 +4,7 @@ const fs = require('fs-extra');
 const Schema = require('./schema');
 const app = require('./express');
 
-const paths = require('../resources/filePaths');
+const paths = require('../resources/paths');
 
 console.log('tf2-automatic-gui v' + require(paths.files.package).version + ' is starting...');
 
