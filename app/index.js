@@ -14,13 +14,21 @@ if (!fs.existsSync(paths.files.pricelist)) {
 }
 
 
-/* App starts here: */
-const schemaMethod = fs.existsSync(paths.files.schema) ? 'getSchema' : 'fetchSchema';
-
-Schema[schemaMethod]()
+Schema.init()
 	.then(() => {
 		app.listen(3000, function() {
 			console.log('listening on port 3000');
 			require('open')('http://localhost:3000/');
 		});
+	})
+	.catch((err) => {
+		throw err;
 	});
+
+
+process.on('uncaughtException', (err) => {
+	console.log('Received an uncaugh error.');
+	console.log(`Error message: ${err.message}`);
+	console.log(`Error stack: ${err.stack}`);
+	console.log('Please report this bug @ https://github.com/ZeusJunior/tf2-automatic-gui/issues/new');
+});

@@ -1,3 +1,8 @@
+/*
+	Modified version of https://github.com/Nicklason/tf2-automatic/blob/master/src/app/utils/item/fixItem.js
+	To not use a steam api key, and a few other things.
+*/
+
 const Schema = require('../app/schema');
 const defindexes = require('../resources/defindexes');
 
@@ -9,11 +14,9 @@ module.exports = function(item) {
 		return item;
 	}
 
-	const schema = Schema.get();
-	const { items } = schema.raw.schema;
 	const itemInfo = {
 		item,
-		items,
+		items: Schema.get().raw.schema,
 		schemaItem
 	};
 
@@ -53,14 +56,13 @@ function fixStockWeaponDefindex(item, items, schemaItem) {
 	for (let i = 0; i < items.length; i++) {
 		const itemFromSchema = items[i];
 
-		if (isUpgradableStock(schemaItem, itemFromSchema)) {
+		if (isUpgradableStockWeapon(schemaItem, itemFromSchema)) {
 			item.defindex = itemFromSchema.defindex;
 		}
 	}
 }
 
-// TODO: better naming
-function isUpgradableStock(schemaItem, itemFromSchema) {
+function isUpgradableStockWeapon(schemaItem, itemFromSchema) {
 	return itemFromSchema.item_class === schemaItem.item_class && itemFromSchema.name.startsWith('Upgradeable ');
 }
 

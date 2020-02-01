@@ -1,25 +1,29 @@
-// Modified version of https://github.com/Nicklason/tf2-automatic/blob/master/src/app/utils/item/fixItem.js
-// To not use a steam api key, and a few other things
-
 const fs = require('fs-extra');
 const request = require('request-promise');
 
 const paths = require('../resources/filePaths');
 
+
 let schema;
+exports.init = function() {
+	const method = fs.existsSync(paths.files.schema) ? getSchema : fetchSchema;
 
-
-exports.getSchema = function() {
-	return fs.readJSON(paths.files.schema)
-		.then((schemaJSON) => {
-			schema = schemaJSON;
-		})
-		.catch((err) => {
-			throw new Error('Couldn\'t read schema: ' + err);
+	return method()
+		.then((responseSchema) => {
+			schema = responseSchema;
 		});
 };
 
-exports.fetchSchema = function() {
+function getSchema() {
+	return fs.readJSON(paths.files.schema)
+		.catch((err) => {
+			return Promise.reject(
+				new Error('Couldn\'t read schema from pricelist file: ' + err.message)
+			);
+		});
+};
+
+function fetchSchema() {
 	return request(
 		{
 			uri: 'https://api.prices.tf/schema',
@@ -34,7 +38,9 @@ exports.fetchSchema = function() {
 			fs.writeFileSync(paths.files.schema, JSON.stringify(body));
 		})
 		.catch((err) => {
-			throw new Error('Couldn\'t get schema from pricestf: ' + err);
+			return Promise.reject(
+				new Error('Couldn\'t get schema from prices.tf API: ' + err.message)
+			);
 		});
 };
 
