@@ -10,7 +10,7 @@ let schema;
 
 
 exports.getSchema = function() {
-	return fs.readJSON(paths.files.config)
+	return fs.readJSON(paths.files.schema)
 		.then((schemaJSON) => {
 			schema = schemaJSON;
 		})
@@ -31,7 +31,7 @@ exports.fetchSchema = function() {
 		}
 	)
 		.then((body) => {
-			fs.writeFileSync(paths.files.config, JSON.stringify(body));
+			fs.writeFileSync(paths.files.schema, JSON.stringify(body));
 		})
 		.catch((err) => {
 			throw new Error('Couldn\'t get schema from pricestf: ' + err);

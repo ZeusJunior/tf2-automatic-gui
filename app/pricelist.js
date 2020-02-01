@@ -151,7 +151,7 @@ pricelist.addSingleItem = function(search, { autoprice, max, min, intent, buy, s
 };
 
 pricelist.changeSingleItem = function(item) {
-	return fs.readJSON(paths.files.config)
+	return fs.readJSON(paths.files.pricelist)
 		.then((pricelist) => {
 			pricelist.forEach((pricedItem) => {
 				if (item.sku === pricedItem.sku) {
@@ -165,7 +165,7 @@ pricelist.changeSingleItem = function(item) {
 				}
 			});
 
-			return fs.writeJSON(paths.files.config, pricelist);
+			return fs.writeJSON(paths.files.pricelist, pricelist);
 		});
 };
 
@@ -190,7 +190,7 @@ pricelist.removeItems = async function(items) {
 function addItemsToPricelist(items) {
 	let alreadyAdded = 0;
 
-	return fs.readJSON(paths.files.config)
+	return fs.readJSON(paths.files.pricelist)
 		.then((pricelist) => {
 			items: for (let i = 0; i < items.length; i++) {
 				for (let y = 0; y < pricelist.length; y++) {
@@ -204,7 +204,7 @@ function addItemsToPricelist(items) {
 				pricelist.push(items[i]);
 			}
 
-			return fs.writeJSON(paths.files.config, pricelist);
+			return fs.writeJSON(paths.files.pricelist, pricelist);
 		})
 		.then(() => {
 			return alreadyAdded;
@@ -214,7 +214,7 @@ function addItemsToPricelist(items) {
 function removeItemsFromPricelist(items) {
 	let itemsRemoved = 0;
 
-	return fs.readJSON(paths.files.config)
+	return fs.readJSON(paths.files.pricelist)
 		.then((pricelist) => {
 			for (let i = 0; i < pricelist.length; i++) {
 				for (let y = 0; y < items.length; y++) {
@@ -226,7 +226,7 @@ function removeItemsFromPricelist(items) {
 				}
 			}
 
-			return fs.writeJSON(paths.files.config, pricelist);
+			return fs.writeJSON(paths.files.pricelist, pricelist);
 		})
 		.then(() => {
 			return itemsRemoved;
@@ -234,7 +234,7 @@ function removeItemsFromPricelist(items) {
 }
 
 pricelist.clear = function() {
-	return fs.writeJSON(paths.files.config, []);
+	return fs.writeJSON(paths.files.pricelist, []);
 };
 
 function getAllPrices() {
