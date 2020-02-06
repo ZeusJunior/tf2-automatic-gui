@@ -10,7 +10,7 @@ module.exports = function(itemInfo) {
 };
 
 function hasPaintKit(item) {
-	return item.paintkit;
+	return item.paintkit != null;
 }
 
 function isStockWeapon(schemaItem) {

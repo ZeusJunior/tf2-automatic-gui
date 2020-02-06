@@ -26,9 +26,15 @@ Schema.init()
 	});
 
 
-process.on('uncaughtException', (err) => {
-	console.log('Received an uncaugh error.');
-	console.log(`Error message: ${err.message}`);
-	console.log(`Error stack: ${err.stack}`);
-	console.log('Please report this bug @ https://github.com/ZeusJunior/tf2-automatic-gui/issues/new');
-});
+process
+	.on('uncaughtException', (err) => {
+		console.log('Received an uncaugh error.');
+		console.log(`Error message: ${err.message}`);
+		console.log(`Error stack: ${err.stack}`);
+		console.log('Please report this bug @ https://github.com/ZeusJunior/tf2-automatic-gui/issues/new');
+	})
+	.on('unhandledRejection', (reason, p) => {
+		console.log('Received an unhandled rejection.');
+		console.log(p);
+		console.log('Please report this @ https://github.com/ZeusJunior/tf2-automatic-gui/issues/new');
+	});
