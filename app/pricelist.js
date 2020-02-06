@@ -94,7 +94,7 @@ pricelist.addItems = async function(search, options) {
 					console.info('Execution time: %dms', end);
 					
 					itemsFailed += skus.length; // items that succeeded get removed from skus 
-					failedItems = skus; // so all thats left in skus is failed items
+					failedItems = skus.map((sku) => getName(sku)); // so all thats left in skus is failed items. 
 
 					if (itemsAdded > 0) {
 						try {
