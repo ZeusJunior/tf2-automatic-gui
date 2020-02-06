@@ -4,8 +4,8 @@ const SKU = require('tf2-sku');
 
 module.exports = getName;
 
-// TODO: Make a promise
-function getName (item, proper = true) {
+
+function getName(item, proper = true) {
 	// If its a sku and not an item object
 	if (typeof item === 'string') {
 		item = SKU.fromString(item);
@@ -85,10 +85,12 @@ function getName (item, proper = true) {
 	return name;
 }
 
-function getItemByDefindex (defindex) {
-	const schema = Schema.getTheFuckinSchemaVariableIHateMyLife();
-	for (let i = 0; i < schema.raw.schema.items.length; i++) {
-		const item = schema.raw.schema.items[i];
+function getItemByDefindex(defindex) {
+	const schema = Schema.get();
+	const { items } = schema.raw.schema;
+
+	for (let i = 0; i < items.length; i++) {
+		const item = items[i];
 		if (item.defindex === defindex) {
 			return item;
 		}

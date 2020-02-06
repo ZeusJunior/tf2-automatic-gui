@@ -4,9 +4,12 @@ const path = require('path');
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const TF2Currencies = require('tf2-currencies');
+const Currency = require('tf2-currencies');
+const fs = require('fs-extra');
 
 const pricelist = require('./pricelist');
+const getPluralOrSingularString = require('../utils/getPluralOrSingularString');
+const paths = require('../resources/paths');
 
 // TODO: functionalize
 app
@@ -22,161 +25,211 @@ app
 app.get('/', (req, res) => {
 	const removed = parseInt(req.query.removed);
 
-	if (removed == 0) pricelist.renderPricelist(res, 'danger', 'Somehow not able to remove items!');
-	else if (removed) pricelist.renderPricelist(res, 'success', 'Removed ' + removed + (removed == 1 ? ' item' : ' items') + ' from your pricelist');
-	else pricelist.renderPricelist(res, 'primary', 'none');
+	const renderInfo = {
+		res,
+		type: 'primary',
+		message: 'none',
+		failedItems: []
+	};
+
+	if (removed == 0) {
+		renderInfo.type = 'danger';
+		renderInfo.message = 'Somehow not able to remove items!';
+	} else if (removed) {
+		renderInfo.type = 'success';
+		renderInfo.message = 'Removed ' + removed + (removed == 1 ? ' item' : ' items') + ' from your pricelist';
+	}
+
+	renderPricelist(renderInfo);
 });
 
-app.get('/add-item', (req, res) => {
-	res.render('addSingle');
-});
+app.get('/add-item', (req, res) => res.render('addSingle'));
 
-// Add a single item to the pricelist
 app.post('/add-item', (req, res) => {
 	const item = req.body.input;
 
+	const { min, max, intent, sellmetal, sellkeys, buymetal, buykeys, autoprice } = req.body;
+
 	if (item.includes('classifieds')) {
-		pricelist.renderPricelist(res, 'danger', 'Please use the items stats page or full name, not the classifieds link');
+		renderPricelist({ res, type: 'danger', message: 'Please use the items stats page or full name, not the classifieds link' });
 		return;
 	}
 
-	if (req.body.max - req.body.min < 1) {
-		pricelist.renderPricelist(res, 'warning', 'The maximum stock must be atleast one higher than the minimum');
+	if (max - min < 1) {
+		renderPricelist({ res, type: 'warning', message: 'The maximum stock must be atleast one higher than the minimum' });
 		return;
 	}
 
-	const sellvalues = new TF2Currencies({keys: req.body.sellkeys, metal: req.body.sellmetal.replace(',', '.')}).toJSON();
-	const buyvalues = new TF2Currencies({keys: req.body.buykeys, metal: req.body.buymetal.replace(',', '.')}).toJSON();
+	const sellvalues = new Currency({ keys: sellkeys, metal: sellmetal.replace(',', '.') }).toJSON();
+	const buyvalues = new Currency({ keys: buykeys, metal: buymetal.replace(',', '.') }).toJSON();
 
 	// lower sell keys
 	if (sellvalues.keys < buyvalues.keys) {
-		pricelist.renderPricelist(res, 'warning', 'The sell price must be higher than the buy price');
+		renderPricelist({ res, type: 'warning', message: 'The sell price must be higher than the buy price'} );
 		return;
 	}
 	// Same amount of keys, lower or equal sell metal
 	if (sellvalues.keys === buyvalues.keys && sellvalues.metal <= buyvalues.metal) {
-		pricelist.renderPricelist(res, 'warning', 'The sell price must be higher than the buy price');
+		renderPricelist({ res, type: 'warning', message: 'The sell price must be higher than the buy price' });
 		return;
 	}
 
-	const autoprice = req.body.autoprice == 'true';
+	const autopriced = autoprice == true;
 
-	pricelist.addSingleItem(req.body.input, {
-		intent: parseInt(req.body.intent),
-		min: parseInt(req.body.min),
-		max: parseInt(req.body.max),
-		buy: buyvalues,
-		sell: sellvalues,
-		autoprice: autoprice
-	}).then((result) => {
-		if (result === false) {
-			pricelist.renderPricelist(res, 'danger', 'Couldn\'t generate SKU');
-			return;
-		} else if (result > 0) {
-			pricelist.renderPricelist(res, 'warning', 'Item is already in the pricelist');
-			return;
-		}
+	pricelist
+		.addSingleItem(item, {
+			intent: parseInt(intent),
+			min: parseInt(min),
+			max: parseInt(max),
+			buy: buyvalues,
+			sell: sellvalues,
+			autoprice: autopriced
+		})
+		.then((result) => {
+			const renderInfo = {
+				res,
+				type: 'success',
+				message: 'Item was added successfully'
+			};
+			
+			if (result === false) {
+				renderInfo.type = 'danger';
+				renderInfo.message = 'Couldn\'t generate SKU';
+			} else if (result > 0) {
+				renderInfo.type = 'warning';
+				renderInfo.message = 'Item is already in the pricelist';
+			}
 
-		pricelist.renderPricelist(res, 'success', 'Item was added successfully');
-	}).catch((err) => {
-		console.log(err);
-		pricelist.renderPricelist(res, 'danger', 'Error occured');
-	});
+			renderPricelist(renderInfo);
+		})
+		.catch((err) => {
+			console.log(err);
+			renderPricelist({ res, type: 'danger', message: 'Error occured' });
+		});
 });
 
-// Add a list of items to the pricelist
 app.post('/add-items', (req, res) => {
-	req.body.input = req.body.input.split(/\r?\n/);
-	req.body.input.forEach(function(item, index) {
-		if (req.body.max - req.body.min < 1) {
-			pricelist.renderPricelist(res, 'warning', 'The maximum stock must be atleast one higher than the minimum');
-			return;
-		}
+	const input = req.body.input.split(/\r?\n/);
 
+	if (req.body.max - req.body.min < 1) {
+		renderPricelist({ res, type: 'warning', message: 'The maximum stock must be atleast one higher than the minimum' });
+		return;
+	}
+
+	input.forEach(function(item) {
 		if (item.includes('classifieds')) {
-			pricelist.renderPricelist(res, 'danger', 'Please use the items stats page or full name, not the classifieds link');
+			renderPricelist({ res, type: 'danger', message: 'Please use the items stats page or full name, not the classifieds link' });
 			return;
 		}
 	});
 
-	pricelist.addItems(req.body.input, {
-		intent: parseInt(req.body.intent),
-		min: parseInt(req.body.min),
-		max: parseInt(req.body.max)
-	}).then((result) => {
-		// Yeah theres gotta be a better way to do this
-		const msg = result.itemsAdded + (result.itemsAdded == 1 ? ' item' : ' items') + ' added, ' +
-			result.itemsFailed + (result.itemsFailed == 1 ? ' item' : ' items') + ' failed' +
-			result.alreadyAdded > 0 ? ', ' + result.alreadyAdded + (result.alreadyAdded == 1 ? ' item was' : ' items were') + ' already in your pricelist.' : '.';
-		pricelist.renderPricelist(res, 'primary', msg, result.failedItems);
-	}).catch((err) => {
-		throw err;
-	});
+	pricelist
+		.addItems(input, {
+			intent: parseInt(req.body.intent),
+			min: parseInt(req.body.min),
+			max: parseInt(req.body.max)
+		})
+		.then(({ itemsAdded, failedItems, itemsFailed, alreadyAdded }) => {
+			const message = `${itemsAdded} item${getPluralOrSingularString(itemsAdded)} added
+							, ${itemsFailed} item${getPluralOrSingularString(itemsFailed)} failed
+							${(alreadyAdded > 0 ? `, ${alreadyAdded} ${alreadyAdded == 1 ? 'item was' : 'items were'} already in your pricelist` : '')}
+							.`;
+				
+			renderPricelist({ res, type: 'primary', message, failedItems: failedItems });
+		})
+		.catch((err) => {
+			throw err;
+		});
 });
 
 app.post('/changeItem', (req, res) => {
-	if (req.body.max <= req.body.min) {
-		pricelist.renderPricelist(res, 'warning', 'The maximum stock must be atleast one higher than the minimum');
+	const { sku, intent, autoprice, min, max, sellkeys, sellmetal, buykeys, buymetal } = req.body;
+
+	if (max <= min) {
+		renderPricelist({ res, type: 'warning', message: 'The maximum stock must be atleast one higher than the minimum' });
 		return;
 	}
 
-	const sellvalues = new TF2Currencies({keys: req.body.sellkeys, metal: req.body.sellmetal.replace(',', '.')}).toJSON();
-	const buyvalues = new TF2Currencies({keys: req.body.buykeys, metal: req.body.buymetal.replace(',', '.')}).toJSON();
+	const sellvalues = new Currency({keys: sellkeys, metal: sellmetal.replace(',', '.')}).toJSON();
+	const buyvalues = new Currency({keys: buykeys, metal: buymetal.replace(',', '.')}).toJSON();
 
 	// lower sell keys
 	if (sellvalues.keys < buyvalues.keys) {
-		pricelist.renderPricelist(res, 'warning', 'The sell price must be higher than the buy price');
+		renderPricelist({ res, type: 'warning', message: 'The sell price must be higher than the buy price' });
 		return;
 	}
 	// Same amount of keys, lower or equal sell metal
 	if (sellvalues.keys === buyvalues.keys && sellvalues.metal <= buyvalues.metal) {
-		pricelist.renderPricelist(res, 'warning', 'The sell price must be higher than the buy price');
+		renderPricelist({ res, type: 'warning', message: 'The sell price must be higher than the buy price' });
 		return;
 	}
 
 	const item = {
-		sku: req.body.sku,
+		sku: sku,
 		sell: sellvalues,
 		buy: buyvalues,
-		intent: parseInt(req.body.intent),
-		min: parseInt(req.body.min),
-		max: parseInt(req.body.max)
+		intent: parseInt(intent),
+		min: parseInt(min),
+		max: parseInt(max),
+		autoprice: autoprice == true
 	};
 
-	const autoprice = req.body.autoprice == 'true';
-	item.autoprice = autoprice;
-	item.time = autoprice ? parseInt(new Date().getTime() / 1000) : 0;
+	item.time = item.autoprice ? parseInt(new Date().getTime() / 1000) : 0;
 	
-	pricelist.changeSingleItem(item).then(() => {
-		pricelist.renderPricelist(res, 'success', item.sku + ' has been changed');
-	}).catch((err) => {
-		throw err;
-	});
+	pricelist
+		.changeSingleItem(item)
+		.then(() => renderPricelist({ res, type: 'success', message: item.sku + ' has been changed' }))
+		.catch((err) => {
+			throw err;
+		});
 });
 
-// Remove selected items from pricelist
-app.post('/pricelist', async(req, res) => {
+app.post('/pricelist', async (req, res) => {
 	const items = req.body.list;
 	
-	pricelist.removeItems(items).then((removed) => {
-		const amountRemoved = removed === false ? 0 : removed;
+	pricelist
+		.removeItems(items)
+		.then((removed) => {
+			const amountRemoved = removed === false ? 0 : removed;
 
-		res.json({
-			removed: amountRemoved
+			res.json({
+				removed: amountRemoved
+			});
+		})	.catch((err) => {
+			throw err;
 		});
-	}).catch((err) => {
-		throw err;
-	});
 });
 
-// Burn the pricelist with fire
 app.post('/clearPricelist', (req, res) => {
-	pricelist.clear().then(() => {
-		pricelist.renderPricelist(res, 'success', 'Pricelist has been cleared');
-	}).catch((err) => {
-		throw err;
-	});
+	pricelist
+		.clear()
+		.then(() => {
+			renderPricelist({
+				res,
+				type: 'success',
+				message: 'Pricelist has been cleared'
+			});
+		})
+		.catch((err) => {
+			throw err;
+		});
 });
+
+
+function renderPricelist({ res, type, message, failedItems = [] }) {
+	return fs.readJSON(paths.files.pricelist)
+		.then((pricelist) => {
+			res.render('home', {
+				type,
+				failedItems,
+				msg: message,
+				pricelist: pricelist
+			});
+		})
+		.catch((err) => {
+			throw err;
+		});
+}
 
 
 module.exports = app;
