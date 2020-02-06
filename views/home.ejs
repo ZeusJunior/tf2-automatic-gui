@@ -125,7 +125,7 @@
     </div>
   </div>
 
-  <!-- ADD ITEMS MODAL -->
+  <!-- ADD ITEMS BOX -->
   <form action="/add-items" method="POST" style="padding-left: 20px;">
     <div class="form-group">
       <label for="url">Items</label>
@@ -154,7 +154,7 @@
 
     <% if (failedItems.length > 0) { %>
       <br>
-      <% failedItems = failedItems.join(" - "); %>
+      <% failedItems = failedItems.join("\n"); %>
       <div class="form-group" style="padding-left: 20px;">
         <label for="failed">Failed items</label>
         <textarea rows="3" class="form-control" id="failed" name="input"><%= failedItems %></textarea>

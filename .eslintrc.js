@@ -28,8 +28,9 @@ module.exports = {
 		"require-jsdoc": 0,
 		"space-before-function-paren": ["error", {
 			"anonymous": "never",
-			"named": "always",
-			"asyncArrow": "never"
+			"named": "never",
+			"asyncArrow": "always"
 		}],
+		"object-curly-spacing": 0,
 	}
 };
