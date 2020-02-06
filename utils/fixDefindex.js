@@ -3,11 +3,15 @@ const _ = require('lodash');
 
 
 module.exports = function(itemInfo) {
-	if (isStockWeapon(schemaItem)) fixStockWeaponDefindex(itemInfo);
+	if (isStockWeapon(itemInfo.schemaItem)) fixStockWeaponDefindex(itemInfo);
 	else if (isFixablePromo(isPromotedItem(itemInfo.schemaItem), itemInfo.item)) fixPromoDefindex(itemInfo);
-	else if (hasPaintKit(item) && hasAttributesAndIsNotDecorated(itemInfo)) fixWarPaintDefindex(itemInfo);
+	else if (hasPaintKit(itemInfo.item) && hasAttributesAndIsNotDecorated(itemInfo)) fixWarPaintDefindex(itemInfo);
 	else fixExceptionsDefindex(itemInfo);
 };
+
+function hasPaintKit(item) {
+	return item.paintkit;
+}
 
 function isStockWeapon(schemaItem) {
 	return schemaItem.name.indexOf(schemaItem.item_class.toUpperCase()) !== -1;
@@ -25,7 +29,7 @@ function isUpgradableStockWeapon(schemaItem, itemFromSchema) {
 	return itemFromSchema.item_class === schemaItem.item_class && itemFromSchema.name.startsWith('Upgradeable ');
 }
 
-function fixExceptionsDefindex(item, schemaItem) {
+function fixExceptionsDefindex({ item, schemaItem }) {
 	if (schemaItem.item_name === 'Mann Co. Supply Crate Key') item.defindex = defindexes['Mann Co. Supply Crate Key'];
 	else if (schemaItem.item_name === 'Lugermorph') item.defindex = defindexes['Lugermorph'];
 }
