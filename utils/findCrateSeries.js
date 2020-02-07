@@ -23,12 +23,13 @@ module.exports = function({ item, items, schemaItem }) {
 	}
 };
 
-// eslint-disable-next-line camelcase
+// eslint-disable-next-line camelcase, require-jsdoc
 function isCrate({ item_class }) {
 	// eslint-disable-next-line camelcase
 	return item_class === 'supply_crate';
 }
 
+// eslint-disable-next-line require-jsdoc
 function findSeriesInAtrributes(attributes) {
 	let series = null;
 	

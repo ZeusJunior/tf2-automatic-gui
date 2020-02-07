@@ -4,7 +4,12 @@ const SKU = require('tf2-sku');
 
 module.exports = getName;
 
-
+/**
+ * 
+ * @param {(string|Object)} item - SKU or item object
+ * @param {bool} [proper=true] - If false, doesn't add "The" to the name
+ * @return {string} - Item name
+ */
 function getName(item, proper = true) {
 	// If its a sku and not an item object
 	if (typeof item === 'string') {
@@ -85,6 +90,12 @@ function getName(item, proper = true) {
 	return name;
 }
 
+
+/**
+ * Gets the full schema item
+ * @param {int} defindex 
+ * @return {Object} schemaItem
+ */
 function getItemByDefindex(defindex) {
 	const schema = Schema.get();
 	const { items } = schema.raw.schema;

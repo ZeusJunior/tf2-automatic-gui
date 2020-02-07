@@ -5,7 +5,11 @@ const fixItem = require('../utils/fixItem');
 
 module.exports = getSKU;
 
-
+/**
+ * Generates a sku
+ * @param {string} search - BPTF stats link, SKU or item name.
+ * @return {string} - The generated SKU
+ */
 function getSKU(search) {
 	if (search.includes(';')) { // too lazy
 		return SKU.fromObject(
@@ -153,7 +157,7 @@ function getSKU(search) {
 	}
 
 	if (defindex === false) {
-		console.log('Item is not priced and couldn\'t get defindex: ' + search);
+		console.log('Couldn\'t get defindex for item: ' + search);
 		return false;
 	}
 
@@ -164,6 +168,11 @@ function getSKU(search) {
 	);
 }
 
+/**
+ * Gets the defindex from schema for an item
+ * @param {string} search - Item name without quality/effect/festivized/etc
+ * @return {(int|bool)} - Found defindex, false if none is found
+ */
 function getDefindex(search) {
 	const schema = Schema.get();
 	const { items } = schema.raw.schema;
