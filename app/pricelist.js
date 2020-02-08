@@ -10,7 +10,7 @@ const pricelist = module.exports;
 
 pricelist.addItems = async function(search, options) {
 	let skus = [];
-	const items = []; // Why did you delete?
+	const items = [];
 	let itemsFailed = 0;
 	let itemsAdded = 0;
 	let failedItems = [];
@@ -188,6 +188,11 @@ pricelist.removeItems = async function(items) {
 	}
 };
 
+/**
+ * Remove items from the pricelist
+ * @param {Array} items - Array of item objects to add
+ * @return {int} - Amount of items that were already in the pricelist
+ */
 function addItemsToPricelist(items) {
 	let alreadyAdded = 0;
 
@@ -212,6 +217,11 @@ function addItemsToPricelist(items) {
 		});
 }
 
+/**
+ * Remove items from the pricelist
+ * @param {Array} items - Array of SKUs to remove
+ * @return {int} - Amount of items removed
+ */
 function removeItemsFromPricelist(items) {
 	let itemsRemoved = 0;
 
@@ -238,6 +248,10 @@ pricelist.clear = function() {
 	return fs.writeJSON(paths.files.pricelist, []);
 };
 
+/**
+ * Gets all priced items on prices.tf
+ * @return {Object} pricelist
+ */
 function getAllPrices() {
 	console.log('Getting all prices...');
 

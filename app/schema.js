@@ -14,15 +14,23 @@ exports.init = function() {
 		});
 };
 
+/**
+ * Gets schema from file
+ * @return {Object} schema
+ */
 function getSchema() {
 	return fs.readJSON(paths.files.schema)
 		.catch((err) => {
 			return Promise.reject(
-				new Error('Couldn\'t read schema from pricelist file: ' + err.message)
+				new Error('Couldn\'t read schema file: ' + err.message)
 			);
 		});
 };
 
+/**
+ * Gets schema from API
+ * @return {Object} schema
+ */
 function fetchSchema() {
 	return request(
 		{

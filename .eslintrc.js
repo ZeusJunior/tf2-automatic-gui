@@ -25,7 +25,7 @@ module.exports = {
 			"ignoreComments": true
 		}],
 		"comma-dangle": ["error", "never"],
-		"require-jsdoc": 0,
+		"require-jsdoc": 2,
 		"space-before-function-paren": ["error", {
 			"anonymous": "never",
 			"named": "never",

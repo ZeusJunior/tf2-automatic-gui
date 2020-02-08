@@ -7,7 +7,7 @@ const fixQuality = require('./fixQuality');
 /**
  * Fixes item.
  * @param {Object} sku
- * @return {Object} 
+ * @return {Object} - Fixed item object
  */
 module.exports = function(sku) {
 	/**
@@ -38,6 +38,11 @@ module.exports = function(sku) {
 	return sku;
 };
 
+/**
+ * Gets the full schema item
+ * @param {int} defindex 
+ * @return {Object} schemaItem
+ */
 function getItemByDefindex(defindex) {
 	const schema = Schema.get();
 	const { items } = schema.raw.schema;
