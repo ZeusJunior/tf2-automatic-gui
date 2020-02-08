@@ -252,7 +252,8 @@ function getAllPrices() {
 	};
 
 	if (fs.existsSync(paths.files.config)) {
-		const config = require(paths.files.config);
+		const config = fs.readJSONSync(paths.files.config);
+		
 		if (config.pricesApiToken) {
 			options.headers = {
 				Authorization: 'Token ' + config.pricesApiToken
