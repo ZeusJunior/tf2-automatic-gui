@@ -41,7 +41,7 @@ function getSKU(search) {
 			.substring(search.indexOf('stats'))
 			.split('/');
 
-		name = decodeURI(searchParts[2]).replace('| ', ''); // Decode and just remove | by default since bptf has that for skins, not *that* good but decent
+		name = decodeURIComponent(searchParts[2]).replace('| ', ''); // Decode and just remove | by default since bptf has that for skins, not *that* good but decent
 		
 		const urlQuality = decodeURI(searchParts[1]);
 		
