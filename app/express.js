@@ -226,7 +226,7 @@ app.post('/clearPricelist', (req, res) => {
 function renderPricelist({ res, type, message, failedItems = [] }) {
 	return fs.readJSON(paths.files.pricelist)
 		.then((pricelist) => {
-			res.render('home', {
+			res.render('index', {
 				type,
 				failedItems,
 				msg: message,
