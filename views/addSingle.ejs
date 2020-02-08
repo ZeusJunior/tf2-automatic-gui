@@ -1,0 +1,74 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head lang="en">
+  <meta charset="UTF-8">
+  <title>Unofficial tf2-automatic GUI</title>
+  <link rel="stylesheet" type="text/css" href="/style.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+</head>
+<body>
+
+  <%- include("partials/navbar") %>
+  <br>
+
+  <form action="/add-item" method="POST" style="padding-left: 20px;">
+    <div class="form-group">
+      <label for="name">Item</label>
+      <input type="text" class="form-control" style="width:50%;" id="name" name="input" required>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="intent">Intent</label>
+        <select name="intent" class="form-control" id="intent">
+          <option selected="selected" value="2">Bank (buy and sell)</option>
+          <option value="0">Buy</option>
+          <option value="1">Sell</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="minimum">Minimum stock</label>
+        <input type="number" class="form-control" id="minimum" name="min" min="0" value="0" required>
+      </div>
+      <div class="form-group">
+        <label for="maximum">Maximum stock</label>
+        <input type="number" class="form-control" id="maximum" name="max" min="0" value="1" required>
+      </div>
+      <div class="form-group">
+        <label for="autoprice">Autoprice</label>
+        <select name="autoprice" class="form-control" id="autoprice">
+          <option selected="selected" value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group">
+          <label for="sellkeys">Sell keys</label>
+          <input type="number" class="form-control" id="sellkeys" name="sellkeys" min="0" value="0" required>
+        </div>
+        <div class="form-group">
+          <label for="sellmetal">Sell metal</label>
+          <input type="number" class="form-control" id="sellmetal" name="sellmetal" min="0" step="any" required>
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group">
+          <label for="buykeys">Buy keys</label>
+          <input type="number" class="form-control" id="buykeys" name="buykeys" min="0"value="0"  required>
+        </div>
+        <div class="form-group">
+          <label for="buymetal">Buy metal</label>
+          <input type="number" class="form-control" id="buymetal" name="buymetal" min="0" step="any" required>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add</button>
+  </form>
+
+</body>
+</html>

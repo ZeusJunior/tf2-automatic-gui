@@ -11,7 +11,9 @@ $(document).ready(function() {
 	});
 
 	// eslint-disable-next-line new-cap
-	const datatable = $('table').DataTable();
+	const datatable = $('table').DataTable({
+		lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'All']]
+	});
 	$('.dataTables_length').addClass('bs-select');
 
 	$('.table > tbody').on('mouseenter', 'tr', function(event) {
