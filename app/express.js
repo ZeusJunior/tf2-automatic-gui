@@ -9,6 +9,7 @@ const fs = require('fs-extra');
 
 const pricelist = require('./pricelist');
 const getPluralOrSingularString = require('../utils/getPluralOrSingularString');
+const searchSchemaByNamePart = require('../utils/searchSchemaByNamePart');
 const paths = require('../resources/paths');
 
 // TODO: functionalize
@@ -43,7 +44,12 @@ app.get('/', (req, res) => {
 	renderPricelist(renderInfo);
 });
 
-app.get('/add-item', (req, res) => res.render('addSingle'));
+app.get('/add-item', (req, res) => {
+	const name = req.query.name ? decodeURIComponent(req.query.name) : '';
+	res.render('addSingle', {
+		name
+	});
+});
 
 app.post('/add-item', (req, res) => {
 	const item = req.body.input;
@@ -215,6 +221,15 @@ app.post('/clearPricelist', (req, res) => {
 		});
 });
 
+app.get('/search', (req, res) => {
+	const search = decodeURIComponent(req.query.text);
+	const results = searchSchemaByNamePart(search);
+	
+	res.json({
+		results
+	});
+});
+
 /**
  * Renders the pricelist page with info
  * @property {Object} res - The res from expressjs
@@ -226,7 +241,7 @@ app.post('/clearPricelist', (req, res) => {
 function renderPricelist({ res, type, message, failedItems = [] }) {
 	return fs.readJSON(paths.files.pricelist)
 		.then((pricelist) => {
-			res.render('home', {
+			res.render('index', {
 				type,
 				failedItems,
 				msg: message,

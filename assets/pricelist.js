@@ -1,6 +1,6 @@
 $(document).ready(function() {
 	$('#removeBtn').attr('disabled', 'disabled');
-	$('[type=checkbox]').each(function(index, value) {
+	$('[type=checkbox]').each(function(index, elem) {
 		$(this).click(function() {
 			if ($('#frm input:checkbox:checked').length > 0) {
 				$('#removeBtn').removeAttr('disabled');
@@ -14,6 +14,7 @@ $(document).ready(function() {
 	const datatable = $('table').DataTable({
 		lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'All']]
 	});
+
 	$('.dataTables_length').addClass('bs-select');
 
 	$('.table > tbody').on('mouseenter', 'tr', function(event) {
@@ -37,6 +38,23 @@ $(document).ready(function() {
 			$('#priceModal').find('#pricemaximum').val(info.data('max'));
 			$('#priceModal').modal('show');
 		}
+	});
+
+	// Invert selection
+	$('#invertBtn').on('click', function(event) {
+		$('[type=checkbox]').each(function(index, elem) {
+			if (elem.checked) {
+				$(elem).prop('checked', false);
+			} else {
+				$(elem).prop('checked', true);
+			}
+
+			if ($('#frm input:checkbox:checked').length > 0) {
+				$('#removeBtn').removeAttr('disabled');
+			} else {
+				$('#removeBtn').attr('disabled', 'disabled');
+			}
+		});
 	});
 
 	// Handle delete request of selected items
