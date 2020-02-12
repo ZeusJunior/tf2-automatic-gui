@@ -14,8 +14,10 @@
   <script src='/search.js'></script>
 </head>
 <body>
+
     <%- include("partials/navbar") %>
     <br>
+
     <% if(!polldata) {  %> 
       <div style="text-align: center;">
         <h1>You are missing the polldata.json file. <br> Please add it to the config folder if you want to use this feature.</h1>
@@ -26,34 +28,34 @@
     </div>
     <center>
     <div style="width: 90%">
-    <table class="table table-hover"> 
-      <thead>
-        <tr>
-          <th scope="col">Offer Id</th>
-          <th scope="col">Partner</th>
-          <th scope="col">Accepted</th>
-          <th scope="col">Time</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% for(let i = 0; i < data.length; i++) { %>
+      <table class="table table-hover"> 
+        <thead>
           <tr>
-            <th style="font-weight: normal;"><%- data[i].id %></th>
-            <td><%- data[i].partner %> </td>
-            <td><%- data[i].accepted %> </td>
-            <td><%- data[i].time %></td>
+            <th scope="col">Offer Id</th>
+            <th scope="col">Partner</th>
+            <th scope="col">Accepted</th>
+            <th scope="col">Time</th>
           </tr>
-        <% } %>
-      </tbody>
-      <tfoot>
-        <tr>
-          <th scope="col">Offer Id</th>
-          <th scope="col">Partner</th>
-          <th scope="col">Accepted</th>
-          <th scope="col">Time</th>
-        </tr>
-      </tfoot>
-    </table>
+        </thead>
+        <tbody>
+          <% for(let i = 0; i < data.length; i++) { %>
+            <tr>
+              <th style="font-weight: normal;"><%- data[i].id %></th>
+              <td><%- data[i].partner %> </td>
+              <td><%- data[i].accepted %> </td>
+              <td><%- data[i].time %></td>
+            </tr>
+          <% } %>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th scope="col">Offer Id</th>
+            <th scope="col">Partner</th>
+            <th scope="col">Accepted</th>
+            <th scope="col">Time</th>
+          </tr>
+        </tfoot>
+      </table>
     </div>
   </center>
   <% } %>

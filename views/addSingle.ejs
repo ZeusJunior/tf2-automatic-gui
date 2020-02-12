@@ -18,7 +18,7 @@
   <form action="/add-item" method="POST" style="padding-left: 20px;">
     <div class="form-group">
       <label for="name">Item</label>
-      <input type="text" class="form-control" style="width:50%;" id="name" name="input" <% locals.name != "" ? 'value="' + locals.name + '"' : '' %> required>
+      <input type="text" class="form-control" style="width:50%;" id="name" name="input" <%- locals.name != "" ? 'value="' + locals.name + '"' : '' %> required>
     </div>
     <div class="form-row">
       <div class="form-group">
