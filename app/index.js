@@ -19,11 +19,8 @@ if (!fs.existsSync(paths.files.pricelist)) {
 Schema.init()
 	.then(() => {
 		app.listen(3000, function() {
-			const config = require('../config/config.json');
 			console.log('listening on port 3000');
-			if (config.dev !== true) {
-				require('open')('http://localhost:3000/');
-			}
+			require('open')('http://localhost:3000/');
 		});
 	})
 	.catch((err) => {
