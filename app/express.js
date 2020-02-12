@@ -8,10 +8,12 @@ const Currency = require('tf2-currencies');
 const fs = require('fs-extra');
 
 const pricelist = require('./pricelist');
+const trades = require('./trades');
 const getPluralOrSingularString = require('../utils/getPluralOrSingularString');
 const paths = require('../resources/paths');
 
 // TODO: functionalize
+// TODO: ADD ROUTES! routes/index.js, routes/additem etc.
 app
 	.use(express.static(path.join(__dirname, '../assets')))
 	.set('views', path.join(__dirname, '../views'))
@@ -41,6 +43,20 @@ app.get('/', (req, res) => {
 	}
 
 	renderPricelist(renderInfo);
+});
+
+app.get('/trades', function(req, res) {
+	trades.getTrades(function(err, data) {
+		if (err) {
+			console.error('Error while reading trades ' + err);
+			res.json({error: true, message: 'Error while reading trades ' + err});
+			return;
+		}
+
+		res.render('trades', {
+			data: data
+		});
+	});
 });
 
 app.get('/add-item', (req, res) => res.render('addSingle'));
@@ -226,7 +242,7 @@ app.post('/clearPricelist', (req, res) => {
 function renderPricelist({ res, type, message, failedItems = [] }) {
 	return fs.readJSON(paths.files.pricelist)
 		.then((pricelist) => {
-			res.render('home', {
+			res.render('index', {
 				type,
 				failedItems,
 				msg: message,
@@ -237,6 +253,5 @@ function renderPricelist({ res, type, message, failedItems = [] }) {
 			throw err;
 		});
 }
-
 
 module.exports = app;

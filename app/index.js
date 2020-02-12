@@ -8,17 +8,26 @@ const paths = require('../resources/paths');
 
 console.log('tf2-automatic-gui v' + require(paths.files.package).version + ' is starting...');
 
+/*
+	TODO: Be able to actually define a path so the polldata gets updated instead of having to drag and drop everytime :)
+*/
 
 if (!fs.existsSync(paths.files.pricelist)) {
 	throw new Error('Missing pricelist - Please put your pricelist file in the config folder');
 }
 
+if (!fs.existsSync(paths.files.polldata)) {
+	throw new Error('Missing polldata - Please put your polldata file in the config folder');
+}
 
 Schema.init()
 	.then(() => {
 		app.listen(3000, function() {
+			const config = require('../config/config.json');
 			console.log('listening on port 3000');
-			require('open')('http://localhost:3000/');
+			if (config.dev !== true) {
+				require('open')('http://localhost:3000/');
+			}
 		});
 	})
 	.catch((err) => {

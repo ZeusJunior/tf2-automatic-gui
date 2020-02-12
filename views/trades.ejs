@@ -1,0 +1,55 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head lang="en">
+  <meta charset="UTF-8">
+  <title>Unofficial tf2-automatic GUI</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/v/bs4/dt-1.10.20/datatables.min.css"/>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  <script src="https://cdn.datatables.net/v/bs4/dt-1.10.20/datatables.min.js"></script>
+  <script src='/pricelist.js'></script>
+  <script src='/search.js'></script>
+</head>
+<body>
+    <%- include("partials/navbar") %>
+    <br>
+    <div style="text-align: center;">
+      <h1>Trades</h1>
+    </div>
+    <center>
+    <div style="width: 90%">
+    <table class="table table-hover"> 
+      <thead>
+        <tr>
+          <th scope="col">Offer Id</th>
+          <th scope="col">Partner</th>
+          <th scope="col">Accepted</th>
+          <th scope="col">Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% for(let i = 0; i < data.length; i++) { %>
+          <tr>
+            <th style="font-weight: normal;"><%- data[i].id %></th>
+            <td><%- data[i].partner %> </td>
+            <td><%- data[i].accepted %> </td>
+            <td><%- data[i].time %></td>
+          </tr>
+        <% } %>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th scope="col">Offer Id</th>
+          <th scope="col">Partner</th>
+          <th scope="col">Accepted</th>
+          <th scope="col">Time</th>
+        </tr>
+      </tfoot>
+    </table>
+    </div>
+  </center>
+</body>
+</html>
