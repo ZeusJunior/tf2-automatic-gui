@@ -45,7 +45,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/add-item', (req, res) => {
-	const name = decodeURIComponent(req.query.name);
+	const name = req.query.name ? decodeURIComponent(req.query.name) : '';
 	res.render('addSingle', {
 		name
 	});
