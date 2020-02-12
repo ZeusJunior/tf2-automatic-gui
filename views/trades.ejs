@@ -16,6 +16,11 @@
 <body>
     <%- include("partials/navbar") %>
     <br>
+    <% if(!polldata) {  %> 
+      <div style="text-align: center;">
+        <h1>You are missing the polldata.json file. <br> Please add it to the config folder if you want to use this feature.</h1>
+      </div>
+    <% } else {%>
     <div style="text-align: center;">
       <h1>Trades</h1>
     </div>
@@ -51,5 +56,6 @@
     </table>
     </div>
   </center>
+  <% } %>
 </body>
 </html>

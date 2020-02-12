@@ -46,15 +46,23 @@ app.get('/', (req, res) => {
 });
 
 app.get('/trades', function(req, res) {
+	if (!fs.existsSync(paths.files.polldata)) {
+		res.render('trades', {
+			data: null,
+			polldata: false
+		});
+		return;
+	}
 	trades.getTrades(function(err, data) {
 		if (err) {
 			console.error('Error while reading trades ' + err);
-			res.json({error: true, message: 'Error while reading trades ' + err});
+			res.send('Error while reading trades, please check the console.');
 			return;
 		}
 
 		res.render('trades', {
-			data: data
+			data: data,
+			polldata: true
 		});
 	});
 });

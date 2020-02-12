@@ -16,10 +16,6 @@ if (!fs.existsSync(paths.files.pricelist)) {
 	throw new Error('Missing pricelist - Please put your pricelist file in the config folder');
 }
 
-if (!fs.existsSync(paths.files.polldata)) {
-	throw new Error('Missing polldata - Please put your polldata file in the config folder');
-}
-
 Schema.init()
 	.then(() => {
 		app.listen(3000, function() {
