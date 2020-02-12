@@ -15,19 +15,19 @@
     padding:6px;
 }
 .search-dropdown li:first-child{
-    border-top:0
+    border-top:0;
 }
 .search-dropdown li .item-name{
-    line-height:14px
+    line-height:14px;
+    margin-top: 5px;
 }
 .search-dropdown li.header{
-    border-bottom-style:solid;
     border-bottom-width:3px;
     border-top:0;
     padding-bottom:6px;
     padding-left:9px;
     padding-right:4px;
-    padding-top:6px
+    padding-top:6px;
 }
 .search-dropdown li .item-mini{
     background-color:#bbbbc2;
@@ -36,7 +36,7 @@
     height:38px;
     margin-right:4px;
     position:relative;
-    width:38px
+    width:38px;
 }
 .search-dropdown li .item-mini img{
     border:0;
@@ -44,5 +44,13 @@
     left:-2px;
     position:absolute;
     top:-2px;
-    width:38px
+    width:38px;
+}
+
+.dropdown-item-link {
+    display: inline-block !important;
+    height: 100% !important;
+}
+.item_name {
+    margin-top: 5px;
 }

@@ -36,12 +36,12 @@ $(document).ready(function() {
 				let string = '';
 				for (i = 0; i < response.results.length; i++) {
 					string +=	'<li class="mini-price dropdown-item">' +
-								'<a href="/add-item?name=' + response.results[i].item_name + '">' +
+								'<a class="dropdown-item-link" href="/add-item?name=' + response.results[i].item_name + '">' +
 									'<div class="item-mini"><img src="' + response.results[i].image_url + '"></div>' +
 									'<div class="item_name">' + response.results[i].item_name + '</div>' +
 								'</li>';
 								
-					if (i == 4 || i == response.results.length -1) {
+					if (i == 4 || i == response.results.length - 1) {
 						$('.search-dropdown').html(string);
 						break;
 					}
