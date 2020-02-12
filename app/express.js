@@ -46,7 +46,7 @@ app.get('/', (req, res) => {
 	renderPricelist(renderInfo);
 });
 
-app.get('/trades', function(req, res) {
+app.get('/trades', (req, res) => {
 	if (!fs.existsSync(paths.files.polldata)) {
 		res.render('trades', {
 			data: null,
@@ -54,18 +54,17 @@ app.get('/trades', function(req, res) {
 		});
 		return;
 	}
-	trades.getTrades(function(err, data) {
-		if (err) {
-			console.error('Error while reading trades ' + err);
-			res.send('Error while reading trades, please check the console.');
-			return;
-		}
 
-		res.render('trades', {
-			data: data,
-			polldata: true
+	trades.get()
+		.then((data) => {
+			res.render('trades', {
+				data: data,
+				polldata: true
+			});
+		})
+		.catch((err) => {
+			throw err;
 		});
-	});
 });
 
 app.get('/add-item', (req, res) => {

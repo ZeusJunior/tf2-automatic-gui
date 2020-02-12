@@ -1,33 +1,32 @@
-/* eslint-disable require-jsdoc */
-const fs = require('fs');
+const fs = require('fs-extra');
 const paths = require('../resources/paths');
 
-exports.getTrades = function(callback) {
-	fs.readFile(paths.files.polldata, function(err, data) {
-		if (err) {
-			callback(err);
-			return;
-		}
-		const polldata = JSON.parse(data);
-		
-		const trades = [];
-		// eslint-disable-next-line guard-for-in
-		for (offerid in polldata.offerData) {
-			const offer = polldata.offerData[offerid];
-			const accepted = offer.isAccepted ? 'Yes' : 'No';
-			const data = {
-				id: offerid,
-				partner: offer.partner,
-				accepted: accepted,
-				date: getDate(offer.finishTimestamp)
-			};
-			trades.push(data);
-		}
+exports.get = function() {
+	return fs.readJSON(paths.files.polldata)
+		.then((polldata) => {
+			const trades = [];
+			// eslint-disable-next-line guard-for-in
+			for (offerid in polldata.offerData) {
+				const offer = polldata.offerData[offerid];
+				const accepted = offer.isAccepted ? 'Yes' : 'No';
+				const data = {
+					id: offerid,
+					partner: offer.partner,
+					accepted: accepted,
+					date: getDate(offer.finishTimestamp)
+				};
+				trades.push(data);
+			}
 
-		callback(null, trades);
-	});
+			return trades;
+		});
 };
 
+/**
+ * Create a nicely formatted date string from unix
+ * @param {int} unix - Unix time
+ * @return {string} - Formatted date string
+ */
 function getDate(unix) {
 	const date = new Date(unix);
 	const year = date.getFullYear();
