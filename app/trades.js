@@ -19,7 +19,7 @@ exports.getTrades = function(callback) {
 				id: offerid,
 				partner: offer.partner,
 				accepted: accepted,
-				time: getDate(offer.finishTimestamp)
+				date: getDate(offer.finishTimestamp)
 			};
 			trades.push(data);
 		}
@@ -31,9 +31,9 @@ exports.getTrades = function(callback) {
 function getDate(unix) {
 	const date = new Date(unix);
 	const year = date.getFullYear();
-	const month = date.getMonth() + 1;
-	const hour = date.getHours() + 24 % 12 || 12;
-	const day = date.getDate();
+	const month = ('0' + (date.getMonth() + 1)).slice(-2);
+	const hour = ('0' + date.getHours()).slice(-2);
+	const day = ('0' + (date.getDate() + 1)).slice(-2);
 	const minute = date.getMinutes();
 
 	const time = year + '-' + month + '-' + day + ' ' + hour + ':' + minute;
