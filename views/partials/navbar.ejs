@@ -1,12 +1,12 @@
 <nav class="navbar navbar-expand-md navbar-dark bg-primary fixed-left">
-    <a class="navbar-brand" href>TF2-Automatic</a>
+    <a class="navbar-brand" href="/">TF2-Automatic</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
             aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-        <ul class="navbar-nav">
+        <ul class="navbar-nav mr-auto">
             <li class="nav-item">
                 <a href="/" class="nav-link">Home</a>
             </li>
@@ -20,5 +20,13 @@
                 <a href="https://github.com/ZeusJunior/tf2-automatic-gui/wiki" target="_blank" class="nav-link">Guide</a>
             </li>
         </ul>
+
+        <div class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" id="search" type="search" placeholder="Search" aria-label="Search" autocomplete="off">
+            <ul class="dropdown-menu search-dropdown" style="display: none; left: auto; width: 228px;">
+                <li class="header dropdown-item-text">What are you looking for?</li>
+            </ul>
+        </div>
+        
     </div>
 </nav>

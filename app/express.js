@@ -10,6 +10,7 @@ const fs = require('fs-extra');
 const pricelist = require('./pricelist');
 const trades = require('./trades');
 const getPluralOrSingularString = require('../utils/getPluralOrSingularString');
+const searchSchemaByNamePart = require('../utils/searchSchemaByNamePart');
 const paths = require('../resources/paths');
 
 // TODO: functionalize
@@ -67,7 +68,12 @@ app.get('/trades', function(req, res) {
 	});
 });
 
-app.get('/add-item', (req, res) => res.render('addSingle'));
+app.get('/add-item', (req, res) => {
+	const name = req.query.name ? decodeURIComponent(req.query.name) : '';
+	res.render('addSingle', {
+		name
+	});
+});
 
 app.post('/add-item', (req, res) => {
 	const item = req.body.input;
@@ -237,6 +243,15 @@ app.post('/clearPricelist', (req, res) => {
 		.catch((err) => {
 			throw err;
 		});
+});
+
+app.get('/search', (req, res) => {
+	const search = decodeURIComponent(req.query.text);
+	const results = searchSchemaByNamePart(search);
+	
+	res.json({
+		results
+	});
 });
 
 /**

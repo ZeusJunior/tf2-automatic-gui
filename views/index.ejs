@@ -3,14 +3,15 @@
 <head lang="en">
   <meta charset="UTF-8">
   <title>Unofficial tf2-automatic GUI</title>
-  <link rel="stylesheet" type="text/css" href="/style.css">
+  <link rel="stylesheet" href="/style.css">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/v/bs4/dt-1.10.20/datatables.min.css"/>
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-  <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/v/bs4/dt-1.10.20/datatables.min.js"></script>
   <script src='/pricelist.js'></script>
+  <script src='/search.js'></script>
 </head>
 <body>
 
@@ -126,11 +127,9 @@
   </div>
 
   <!-- ADD ITEMS BOX -->
-  <div style="text-align: center;">
-    <h1>Add Items</h1>
-  </div>
   <form action="/add-items" method="POST" style="padding-left: 20px;">
     <div class="form-group">
+      <label for="url">Items</label>
       <textarea rows="5" class="form-control" id="url" name="input" placeholder="Add the backpack.tf stats page, sku, or the items name. Seperate multiple inputs by a new line. See console for speed" required></textarea>
     </div>
     <div class="form-row">
@@ -167,6 +166,7 @@
     <br>
 
   <form method="POST" action="/pricelist" id="frm" style="padding-left: 20px;">
+    <button class="btn btn-primary" id="invertBtn" type="button">Invert selection</button>
     <button class="btn btn-danger" id="removeBtn" type="submit" form="frm" value="Submit">Delete selected</button>
     <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#areYouSure">Delete all items</button>
     <br><br>
