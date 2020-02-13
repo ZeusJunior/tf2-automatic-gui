@@ -1,17 +1,19 @@
 const fs = require('fs-extra');
 const paths = require('../resources/paths');
 const getName = require('../utils/getName');
+const _ = require('lodash');
+
 
 exports.get = function() {
 	return fs.readJSON(paths.files.polldata)
 		.then((polldata) => {
 			const trades = [];
-			// eslint-disable-next-line guard-for-in
-			for (offerid in polldata.offerData) {
-				const offer = polldata.offerData[offerid];
+
+			_.forOwn(polldata.offerData, (offer, id) => {
 				const accepted = offer.isAccepted ? 'Yes' : 'No';
+				
 				const data = {
-					id: offerid,
+					id,
 					partner: offer.partner,
 					accepted: accepted,
 					date: getDate(offer.finishTimestamp),
@@ -20,7 +22,7 @@ exports.get = function() {
 				};
 
 				trades.push(data);
-			}
+			});
 
 			return trades;
 		});
@@ -28,8 +30,8 @@ exports.get = function() {
 
 /**
  * Create a nicely formatted date string from unix
- * @param {int} unix - Unix time
- * @return {string} - Formatted date string
+ * @param {number} unix Unix time
+ * @return {string} Formatted date string
  */
 function getDate(unix) {
 	const date = new Date(unix);
@@ -45,23 +47,22 @@ function getDate(unix) {
 }
 
 /**
- * 
- * @param {Object} offer - The offerData entry 
- * @param {'our' | 'their'} whose - Whose items to get from the trade
- * @return {Array} - Array of strings with name + amount. For example: "Refined Metal x32". Without number if its just one
+ * Get items from offer formatted with amount.
+ * @param {Object} offer The offerData entry .
+ * @param {string} whose Whose items to get from the trade.
+ * @return {string[]} Formatted item string names.
  */
 function getItemsFromOffer(offer, whose) {
 	const items = [];
 
-	// eslint-disable-next-line guard-for-in
-	for (sku in offer.dict[whose]) {
-		let str = '';
-		str += getName(sku);
-		if (offer.dict[whose][sku] > 1) {
-			str += ' x' + offer.dict[whose][sku];
+	_.forOwn(offer.dict[whose], (amount, sku) =>{
+		let itemStr = getName(sku);
+		if (amount > 1) {
+			itemStr += ' x' + amount;
 		}
 
-		items.push(str);
-	}
+		items.push(itemStr);
+	});
+
 	return items;
 }
