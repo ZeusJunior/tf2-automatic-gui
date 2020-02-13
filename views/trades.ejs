@@ -32,11 +32,25 @@
           <div class="form-row">
             <div class="col">
               <label for="offerid">Offer Id</label>
-              <input type="text" class="form-control" id="offerid" disabled required>
+              <input type="text" class="form-control" id="offerid" disabled>
             </div>
             <div class="col">
               <label for="partner">Partner</label>
-              <input type="text" class="form-control" id="partner" disabled required>
+              <input type="text" class="form-control" id="partner" disabled>
+            </div>
+          </div>
+          <br>
+          <div class="form-row">
+            <div class="col">
+              <label for="sent">Sent items</label>
+              <textarea class="form-control" id="sent" rows="3" disabled></textarea>
+            </div>
+          </div>
+          <br>
+          <div class="form-row">
+            <div class="col">
+              <label for="received">Received items</label>
+              <textarea class="form-control" id="received" rows="3" disabled></textarea>
             </div>
           </div>
         </div>
@@ -65,7 +79,7 @@
         </thead>
         <tbody>
           <% data.forEach(trade => { %>
-            <tr data-offerid="<%= trade.id %>" data-partner="<%= trade.partner %>">
+            <tr data-offerid="<%= trade.id %>" data-partner="<%= trade.partner %>" data-sent="<%= trade.sent %>" data-received="<%= trade.received %>">
               <th style="font-weight: normal;"><%- trade.id %></th>
               <td><%- trade.partner %> </td>
               <td><%- trade.accepted %> </td>

@@ -17,6 +17,8 @@ $(document).ready(function() {
 			// Set some values
 			$('#tradeModal').find('#offerid').val(info.data('offerid'));
 			$('#tradeModal').find('#partner').val(info.data('partner'));
+			$('#tradeModal').find('#sent').val(info.data('sent').replace(/,/g, '\n'));
+			$('#tradeModal').find('#received').val(info.data('received').replace(/,/g, '\n'));
 			$('#tradeModal').modal('show');
 		}
 	});

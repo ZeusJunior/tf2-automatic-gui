@@ -1,5 +1,6 @@
 const fs = require('fs-extra');
 const paths = require('../resources/paths');
+const getName = require('../utils/getName');
 
 exports.get = function() {
 	return fs.readJSON(paths.files.polldata)
@@ -13,8 +14,11 @@ exports.get = function() {
 					id: offerid,
 					partner: offer.partner,
 					accepted: accepted,
-					date: getDate(offer.finishTimestamp)
+					date: getDate(offer.finishTimestamp),
+					received: getItemsFromOffer(offer, 'their'),
+					sent: getItemsFromOffer(offer, 'our')
 				};
+
 				trades.push(data);
 			}
 
@@ -38,4 +42,26 @@ function getDate(unix) {
 	const time = year + '-' + month + '-' + day + ' ' + hour + ':' + minute;
 
 	return time;
+}
+
+/**
+ * 
+ * @param {Object} offer - The offerData entry 
+ * @param {'our' | 'their'} whose - Whose items to get from the trade
+ * @return {Array} - Array of strings with name + amount. For example: "Refined Metal x32". Without number if its just one
+ */
+function getItemsFromOffer(offer, whose) {
+	const items = [];
+
+	// eslint-disable-next-line guard-for-in
+	for (sku in offer.dict[whose]) {
+		let str = '';
+		str += getName(sku);
+		if (offer.dict[whose][sku] > 1) {
+			str += ' x' + offer.dict[whose][sku];
+		}
+
+		items.push(str);
+	}
+	return items;
 }
