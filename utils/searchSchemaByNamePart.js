@@ -11,10 +11,20 @@ module.exports = function(search) {
 	const { items } = schema.raw.schema;
 
 	items.forEach((item) => {
-		if (item.name.toLowerCase().indexOf(search.toLowerCase()) > -1 ) {
+		if (doesSearchMatch(search, item)) {
 			matches.push(item);
 		}
 	});
 
 	return matches;
+};
+
+/**
+ * Matches items based of search indexing
+ * @param {string} search 
+ * @param {object} item
+ * @return {boolean} 
+ */
+function doesSearchMatch(search, item) {
+	return item.name.toLowerCase().indexOf(search.toLowerCase()) > -1;
 };
