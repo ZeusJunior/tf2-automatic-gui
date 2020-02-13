@@ -77,6 +77,7 @@ app.post('/add-item', (req, res) => {
 	const item = req.body.input;
 
 	const { min, max, intent, sellmetal, sellkeys, buymetal, buykeys, autoprice } = req.body;
+	const autopriced = autoprice == 'true' ? true : false;
 
 	if (item.includes('classifieds')) {
 		renderPricelist({ res, type: 'danger', message: 'Please use the items stats page or full name, not the classifieds link' });
@@ -88,21 +89,32 @@ app.post('/add-item', (req, res) => {
 		return;
 	}
 
-	const sellvalues = new Currency({ keys: sellkeys, metal: sellmetal.replace(',', '.') }).toJSON();
-	const buyvalues = new Currency({ keys: buykeys, metal: buymetal.replace(',', '.') }).toJSON();
-
-	// lower sell keys
-	if (sellvalues.keys < buyvalues.keys) {
-		renderPricelist({ res, type: 'warning', message: 'The sell price must be higher than the buy price'} );
-		return;
+	let sellvalues;
+	let buyvalues;
+	if (!autopriced) {
+		sellvalues = new Currency({ keys: sellkeys, metal: sellmetal.replace(',', '.') }).toJSON();
+		buyvalues = new Currency({ keys: buykeys, metal: buymetal.replace(',', '.') }).toJSON();
+	
+		// lower sell keys
+		if (sellvalues.keys < buyvalues.keys) {
+			renderPricelist({ res, type: 'warning', message: 'The sell price must be higher than the buy price'} );
+			return;
+		}
+		// Same amount of keys, lower or equal sell metal
+		if (sellvalues.keys === buyvalues.keys && sellvalues.metal <= buyvalues.metal) {
+			renderPricelist({ res, type: 'warning', message: 'The sell price must be higher than the buy price' });
+			return;
+		}
+	} else { // Autopriced, so dont use values
+		sellvalues = {
+			keys: 0,
+			metal: 0
+		};
+		buyvalues = {
+			keys: 0,
+			metal: 0
+		};
 	}
-	// Same amount of keys, lower or equal sell metal
-	if (sellvalues.keys === buyvalues.keys && sellvalues.metal <= buyvalues.metal) {
-		renderPricelist({ res, type: 'warning', message: 'The sell price must be higher than the buy price' });
-		return;
-	}
-
-	const autopriced = autoprice == true;
 
 	pricelist
 		.addSingleItem(item, {
