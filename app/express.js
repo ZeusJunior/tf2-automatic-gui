@@ -13,8 +13,7 @@ const getPluralOrSingularString = require('../utils/getPluralOrSingularString');
 const searchSchemaByNamePart = require('../utils/searchSchemaByNamePart');
 const paths = require('../resources/paths');
 
-// TODO: functionalize
-// TODO: ADD ROUTES! routes/index.js, routes/additem etc.
+
 app
 	.use(express.static(path.join(__dirname, '../assets')))
 	.set('views', path.join(__dirname, '../views'))

@@ -8,13 +8,11 @@ const paths = require('../resources/paths');
 
 console.log('tf2-automatic-gui v' + require(paths.files.package).version + ' is starting...');
 
-/*
-	TODO: Be able to actually define a path so the polldata gets updated instead of having to drag and drop everytime :)
-*/
 
 if (!fs.existsSync(paths.files.pricelist)) {
 	throw new Error('Missing pricelist - Please put your pricelist file in the config folder');
 }
+
 
 Schema.init()
 	.then(() => {
