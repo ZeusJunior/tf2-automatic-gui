@@ -61,7 +61,7 @@ function getItemsFromOffer(offer, whose) {
 			itemStr += ' x' + amount;
 		}
 
-		items.push(itemStr);
+		items.unshift(itemStr);
 	});
 
 	return items;
