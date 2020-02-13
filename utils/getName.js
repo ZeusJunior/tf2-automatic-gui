@@ -98,6 +98,11 @@ function getName(item, proper = true) {
  */
 function getItemByDefindex(defindex) {
 	const schema = Schema.get();
+	
+	if (!schema) {
+		return null;
+	}
+	
 	const { items } = schema.raw.schema;
 
 	for (let i = 0; i < items.length; i++) {
