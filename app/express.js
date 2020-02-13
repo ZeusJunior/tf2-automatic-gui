@@ -8,11 +8,12 @@ const Currency = require('tf2-currencies');
 const fs = require('fs-extra');
 
 const pricelist = require('./pricelist');
+const trades = require('./trades');
 const getPluralOrSingularString = require('../utils/getPluralOrSingularString');
 const searchSchemaByNamePart = require('../utils/searchSchemaByNamePart');
 const paths = require('../resources/paths');
 
-// TODO: functionalize
+
 app
 	.use(express.static(path.join(__dirname, '../assets')))
 	.set('views', path.join(__dirname, '../views'))
@@ -44,6 +45,27 @@ app.get('/', (req, res) => {
 	renderPricelist(renderInfo);
 });
 
+app.get('/trades', (req, res) => {
+	if (!fs.existsSync(paths.files.polldata)) {
+		res.render('trades', {
+			data: null,
+			polldata: false
+		});
+		return;
+	}
+
+	trades.get()
+		.then((data) => {
+			res.render('trades', {
+				data: data,
+				polldata: true
+			});
+		})
+		.catch((err) => {
+			throw err;
+		});
+});
+
 app.get('/add-item', (req, res) => {
 	const name = req.query.name ? decodeURIComponent(req.query.name) : '';
 	res.render('addSingle', {
@@ -55,6 +77,7 @@ app.post('/add-item', (req, res) => {
 	const item = req.body.input;
 
 	const { min, max, intent, sellmetal, sellkeys, buymetal, buykeys, autoprice } = req.body;
+	const autopriced = autoprice == 'true' ? true : false;
 
 	if (item.includes('classifieds')) {
 		renderPricelist({ res, type: 'danger', message: 'Please use the items stats page or full name, not the classifieds link' });
@@ -66,21 +89,32 @@ app.post('/add-item', (req, res) => {
 		return;
 	}
 
-	const sellvalues = new Currency({ keys: sellkeys, metal: sellmetal.replace(',', '.') }).toJSON();
-	const buyvalues = new Currency({ keys: buykeys, metal: buymetal.replace(',', '.') }).toJSON();
-
-	// lower sell keys
-	if (sellvalues.keys < buyvalues.keys) {
-		renderPricelist({ res, type: 'warning', message: 'The sell price must be higher than the buy price'} );
-		return;
+	let sellvalues;
+	let buyvalues;
+	if (!autopriced) {
+		sellvalues = new Currency({ keys: sellkeys, metal: sellmetal.replace(',', '.') }).toJSON();
+		buyvalues = new Currency({ keys: buykeys, metal: buymetal.replace(',', '.') }).toJSON();
+	
+		// lower sell keys
+		if (sellvalues.keys < buyvalues.keys) {
+			renderPricelist({ res, type: 'warning', message: 'The sell price must be higher than the buy price'} );
+			return;
+		}
+		// Same amount of keys, lower or equal sell metal
+		if (sellvalues.keys === buyvalues.keys && sellvalues.metal <= buyvalues.metal) {
+			renderPricelist({ res, type: 'warning', message: 'The sell price must be higher than the buy price' });
+			return;
+		}
+	} else { // Autopriced, so dont use values
+		sellvalues = {
+			keys: 0,
+			metal: 0
+		};
+		buyvalues = {
+			keys: 0,
+			metal: 0
+		};
 	}
-	// Same amount of keys, lower or equal sell metal
-	if (sellvalues.keys === buyvalues.keys && sellvalues.metal <= buyvalues.metal) {
-		renderPricelist({ res, type: 'warning', message: 'The sell price must be higher than the buy price' });
-		return;
-	}
-
-	const autopriced = autoprice == true;
 
 	pricelist
 		.addSingleItem(item, {
@@ -252,6 +286,5 @@ function renderPricelist({ res, type, message, failedItems = [] }) {
 			throw err;
 		});
 }
-
 
 module.exports = app;
