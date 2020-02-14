@@ -9,6 +9,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
   <script src='/search.js'></script>
+  <script src='/addSingle.js'></script>
 </head>
 <body>
 
@@ -18,7 +19,7 @@
   <form action="/add-item" method="POST" style="padding-left: 20px;">
     <div class="form-group">
       <label for="name">Item</label>
-      <input type="text" class="form-control" style="width:50%;" id="name" name="input" <% locals.name != "" ? 'value="' + locals.name + '"' : '' %> required>
+      <input type="text" class="form-control" style="width:50%;" id="name" name="input" <%- locals.name != "" ? 'value="' + locals.name + '"' : '' %> required>
     </div>
     <div class="form-row">
       <div class="form-group">
@@ -40,12 +41,13 @@
       <div class="form-group">
         <label for="autoprice">Autoprice</label>
         <select name="autoprice" class="form-control" id="autoprice">
-          <option selected="selected" value="true">Yes</option>
-          <option value="false">No</option>
+          <option selected="selected" value="false">No</option>
+          <option value="true">Yes</option>
         </select>
       </div>
     </div>
-    <div class="form-row">
+    <div id="prices" style="display: block;">
+      <div class="form-row">
         <div class="form-group">
           <label for="sellkeys">Sell keys</label>
           <input type="number" class="form-control" id="sellkeys" name="sellkeys" min="0" value="0" required>
@@ -54,18 +56,19 @@
           <label for="sellmetal">Sell metal</label>
           <input type="number" class="form-control" id="sellmetal" name="sellmetal" min="0" step="any" required>
         </div>
-    </div>
-    <div class="form-row">
+      </div>
+      <div class="form-row">
         <div class="form-group">
           <label for="buykeys">Buy keys</label>
-          <input type="number" class="form-control" id="buykeys" name="buykeys" min="0"value="0"  required>
+          <input type="number" class="form-control" id="buykeys" name="buykeys" min="0"value="0" required>
         </div>
         <div class="form-group">
           <label for="buymetal">Buy metal</label>
           <input type="number" class="form-control" id="buymetal" name="buymetal" min="0" step="any" required>
         </div>
+      </div>
     </div>
-
+    
     <button type="submit" class="btn btn-primary">Add</button>
   </form>
 

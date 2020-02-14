@@ -1,4 +1,4 @@
-const request = require('request-promise');
+const axios = require('axios');
 const fs = require('fs-extra');
 const getSKU = require('../utils/getSKU');
 const getName = require('../utils/getName');
@@ -257,9 +257,8 @@ function getAllPrices() {
 
 	const options = {
 		method: 'GET',
-		json: true,
-		uri: 'https://api.prices.tf/items',
-		qs: {
+		url: 'https://api.prices.tf/items',
+		params: {
 			src: 'bptf'
 		},
 		json: true
@@ -277,19 +276,19 @@ function getAllPrices() {
 
 	const start = new Date();
 
-	return request(options)
-		.then(({ success, message, items }) => {
-			if (!success) {
-				if (message === 'Unauthorized') {
+	return axios(options)
+		.then(({ data }) => {
+			if (!data.success) {
+				if (data.message === 'Unauthorized') {
 					throw new Error('Your prices.tf api token is incorrect. Join the discord here https://discord.tf2automatic.com/ and request one from Nick. Or leave it blank in the config.');
 				}
 
-				throw new Error('Couldn\'t get all prices from pricestf: ' + body);
+				throw new Error('Couldn\'t get all prices from pricestf: ' + data.message);
 			}
 
 			const end = new Date() - start;
 			console.info('Execution time: %dms', end);
 
-			return items;
+			return data.items;
 		});
 }

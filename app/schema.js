@@ -1,5 +1,5 @@
 const fs = require('fs-extra');
-const request = require('request-promise');
+const axios = require('axios');
 
 const paths = require('../resources/paths');
 
@@ -34,20 +34,20 @@ function getSchema() {
  * @return {Object} schema
  */
 function fetchSchema() {
-	return request(
+	return axios(
 		{
-			uri: 'https://api.prices.tf/schema',
+			url: 'https://api.prices.tf/schema',
 			method: 'GET',
-			qs: {
+			params: {
 				appid: 440
 			},
 			json: true
 		}
 	)
-		.then((body) => {
-			fs.writeFileSync(paths.files.schema, JSON.stringify(body));
-
-			return body;
+		.then((response) => {
+			fs.writeJSON(paths.files.schema, response.data);
+      
+			return response.data;
 		})
 		.catch((err) => {
 			return Promise.reject(

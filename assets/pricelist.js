@@ -10,7 +10,6 @@ $(document).ready(function() {
 		});
 	});
 
-	// eslint-disable-next-line new-cap
 	const datatable = $('table').DataTable({
 		lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'All']]
 	});
@@ -66,7 +65,7 @@ $(document).ready(function() {
 		// Submit form data
 		$.ajax({
 			method: 'POST',
-			url: '/pricelist',
+			url: '/removeItems',
 			data: data,
 			success: function(response) {
 				// Redirect and get qs in route
