@@ -47,7 +47,7 @@ function fetchSchema() {
 		.then((response) => {
 			fs.writeJSON(paths.files.schema, response.data);
       
-      return response.data;
+			return response.data;
 		})
 		.catch((err) => {
 			return Promise.reject(
