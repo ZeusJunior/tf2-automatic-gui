@@ -1,5 +1,4 @@
 $(document).ready(function() {
-	// eslint-disable-next-line new-cap
 	$('table').DataTable({
 		lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'All']]
 	});

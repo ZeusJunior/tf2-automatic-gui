@@ -32,5 +32,6 @@ module.exports = {
 			"asyncArrow": "always"
 		}],
 		"object-curly-spacing": 0,
+		"new-cap": 0
 	}
 };

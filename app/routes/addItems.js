@@ -1,5 +1,4 @@
 const express = require('express');
-// eslint-disable-next-line new-cap
 const router = express.Router();
 const pricelist = require('../pricelist');
 const renderPricelist = require('../../utils/renderPricelist');
