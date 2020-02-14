@@ -11,6 +11,8 @@ exports.init = function() {
 	return method()
 		.then((responseSchema) => {
 			schema = responseSchema;
+
+			return Promise.resolve();
 		});
 };
 
@@ -44,6 +46,8 @@ function fetchSchema() {
 	)
 		.then((response) => {
 			fs.writeJSON(paths.files.schema, response.data);
+      
+      return response.data;
 		})
 		.catch((err) => {
 			return Promise.reject(
