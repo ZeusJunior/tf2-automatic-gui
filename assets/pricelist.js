@@ -66,7 +66,7 @@ $(document).ready(function() {
 		// Submit form data
 		$.ajax({
 			method: 'POST',
-			url: '/pricelist',
+			url: '/removeItems',
 			data: data,
 			success: function(response) {
 				// Redirect and get qs in route

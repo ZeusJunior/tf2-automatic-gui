@@ -3,6 +3,10 @@ $(document).ready(function() {
 		const autoprice = $('#autoprice option:selected').val().toString();
 		if (autoprice === 'true') {
 			$('#prices').hide();
+			$('#sellkeys').prop('required', false);
+			$('#sellmetal').prop('required', false);
+			$('#buykeys').prop('required', false);
+			$('#buymetal').prop('required', false);
 			$('#autoprice option[value=false]').removeAttr('selected');
 			$('#autoprice option[value=true]').attr('selected', 'selected');
 		} else {
