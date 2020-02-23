@@ -226,8 +226,10 @@ function removeItemsFromPricelist(items) {
 				for (let y = 0; y < items.length; y++) {
 					if (pricelist[i].sku === items[y]) {
 						itemsRemoved++;
-						
+
 						pricelist.splice(pricelist.indexOf(pricelist[i]), 1);
+						i--;
+						break;
 					}
 				}
 			}
