@@ -55,14 +55,18 @@ function getDate(unix) {
 function getItemsFromOffer(offer, whose) {
 	const items = [];
 
-	_.forOwn(offer.dict[whose], (amount, sku) =>{
-		let itemStr = getName(sku);
-		if (amount > 1) {
-			itemStr += ' x' + amount;
-		}
+	if (offer.dict) {
+		_.forOwn(offer.dict[whose], (amount, sku) => {
+			let itemStr = getName(sku);
+			if (amount > 1) {
+				itemStr += ' x' + amount;
+			}
+	
+			items.unshift(itemStr);
+		});
 
-		items.unshift(itemStr);
-	});
+		return items;
+	}
 
-	return items;
+	return [];
 }
