@@ -7,7 +7,7 @@ const renderPricelist = require('../../utils/renderPricelist');
 router.post('/', (req, res) => {
 	const { sku, intent, autoprice, min, max, sellkeys, sellmetal, buykeys, buymetal } = req.body;
 
-	if (max <= min) {
+	if (parseInt(max) <= parseInt(min)) {
 		renderPricelist({ res, type: 'warning', message: 'The maximum stock must be atleast one higher than the minimum' });
 		return;
 	}

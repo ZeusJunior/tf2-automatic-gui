@@ -39,11 +39,6 @@ pricelist.addItems = async function(search, options) {
 				}
 			}
 
-			/**
-			 * Keeping it split into two then's
-			 * for better readability for now.
-			 * ^ You can not do this if you're not taking scope into account
-			 */
 			const generatedSkus = search.map((item) => getSKU(item));
 			skus = skus.concat(generatedSkus);
 
@@ -231,8 +226,10 @@ function removeItemsFromPricelist(items) {
 				for (let y = 0; y < items.length; y++) {
 					if (pricelist[i].sku === items[y]) {
 						itemsRemoved++;
-						
+
 						pricelist.splice(pricelist.indexOf(pricelist[i]), 1);
+						i--;
+						break;
 					}
 				}
 			}
