@@ -11,7 +11,8 @@ $(document).ready(function() {
 	});
 
 	const datatable = $('table').DataTable({
-		lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'All']]
+		lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'All']],
+		order: [[1, 'desc']]
 	});
 
 	$('.dataTables_length').addClass('bs-select');

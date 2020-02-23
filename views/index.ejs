@@ -193,8 +193,8 @@
             </td>
             <td><%= item.name %></td>
             <td><%= item.intent == 2 ? "Bank" : item.intent == 1 ? "Sell" : "buy"%></td>
-            <td><%= item.buy.keys %> keys, <%= item.buy.metal %> metal</td>
-            <td><%= item.sell.keys %> keys, <%= item.sell.metal %> metal</td>
+            <td data-order="<%= item.buyorder %>"><%= item.buy.keys %> keys, <%= item.buy.metal %> metal</td>
+            <td data-order="<%= item.sellorder %>"><%= item.sell.keys %> keys, <%= item.sell.metal %> metal</td>
             <td><%= item.min %></td>
             <td><%= item.max %></td>
           </tr>
