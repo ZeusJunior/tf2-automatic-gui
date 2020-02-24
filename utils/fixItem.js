@@ -27,7 +27,7 @@ module.exports = function(sku) {
 
 	const itemInfo = {
 		item: sku,
-		items: Schema.get().raw.schema,
+		items: Schema.get().raw.schema.items,
 		schemaItem
 	};
 
