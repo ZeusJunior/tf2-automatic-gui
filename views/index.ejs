@@ -17,190 +17,161 @@
 
   <%- include("partials/navbar") %>
   <br>
+  <div class="container-fluid">
+    <% if (msg !== 'none') { %>
+      <div class="alert alert-<%=type%>" role="alert">
+        <%= msg %>
+      </div>
+    <% } %>
 
-  <% if (msg !== 'none') { %>
-    <div class="alert alert-<%=type%>" role="alert">
-      <%= msg %>
+    <!-- REMOVE ALL MODAL -->
+    <div class="modal fade" id="areYouSure" tabindex="-1" role="dialog" aria-labelledby="removeModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="removeModalLabel">Are you sure?</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+              Do you want to delete all items from your pricelist?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+            <form action="/clearPricelist" method="POST">
+              <button type="submit" class="btn btn-primary">Yes, delete everything</button>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
-  <% } %>
 
-  <!-- REMOVE ALL MODAL -->
-  <div class="modal fade" id="areYouSure" tabindex="-1" role="dialog" aria-labelledby="removeModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="removeModalLabel">Are you sure?</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-            Do you want to delete all items from your pricelist?
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
-          <form action="/clearPricelist" method="POST">
-            <button type="submit" class="btn btn-primary">Yes, delete everything</button>
+    <!-- PRICE MODAL -->
+    <div class="modal fade bd-example-modal-lg" id="priceModal" tabindex="-1" role="dialog" aria-labelledby="priceModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Manage item</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <form action="/changeItem" method="POST">
+            <input type="hidden" id="pricesku" name="sku" required>
+            <div class="modal-body">
+              <div class="form-row">
+                <div class="col">
+                  <label for="pricename">Name</label>
+                  <input type="text" class="form-control" id="pricename" name="name" disabled required>
+                </div>
+              </div>
+              <br>
+              <div class="form-row">
+                <div class="col">
+                  <label for="sellkeys">Sell keys</label>
+                  <input type="number" class="form-control" id="sellkeys" name="sellkeys" min="0" required>
+                </div>
+                <div class="col">
+                  <label for="sellmetal">Sell metal</label>
+                  <input type="number" class="form-control" id="sellmetal" name="sellmetal" min="0" step="any" required>
+                </div>
+              </div>
+              <br>
+              <div class="form-row">
+                <div class="col">
+                  <label for="buykeys">Buy keys</label>
+                  <input type="number" class="form-control" id="buykeys" name="buykeys" min="0" required>
+                </div>
+                <div class="col">
+                  <label for="buymetal">Buy metal</label>
+                  <input type="number" class="form-control" id="buymetal" name="buymetal" min="0" step="any" required>
+                </div>
+              </div>
+              <br>
+              <div class="form-row">
+                <div class="col" id="priceintentdiv">
+                  <label for="intent">Intent</label>
+                  <select name="intent" class="form-control" id="priceintent">
+                    <option value="2">Bank (buy and sell)</option>
+                    <option value="0">Buy</option>
+                    <option value="1">Sell</option>
+                  </select>
+                </div>
+                <div class="col">
+                  <label for="minimum">Minimum stock</label>
+                  <input type="number" class="form-control" id="priceminimum" name="min" min="0" required>
+                </div>
+                <div class="col">
+                  <label for="maximum">Maximum stock</label>
+                  <input type="number" class="form-control" id="pricemaximum" name="max" min="0" required>
+                </div>
+              </div>
+              <br>
+              <div class="form-row">
+                <div class="col" id="autopricediv">
+                  <label for="autoprice">Autoprice</label>
+                  <select name="autoprice" class="form-control" id="autoprice">
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
           </form>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- PRICE MODAL -->
-  <div class="modal fade bd-example-modal-lg" id="priceModal" tabindex="-1" role="dialog" aria-labelledby="priceModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Manage item</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+    <!-- ADD ITEMS BOX -->
+    <form action="/add-items" method="POST" style="padding-left: 20px;">
+      <div class="form-group">
+        <label for="url">Items</label>
+        <textarea rows="5" class="form-control" id="url" name="input" placeholder="Add the backpack.tf stats page, sku, or the items name. Seperate multiple inputs by a new line. See console for speed" required></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="intent">Intent</label>
+          <select name="intent" class="form-control" id="intent">
+            <option selected="selected" value="2">Bank (buy and sell)</option>
+            <option value="0">Buy</option>
+            <option value="1">Sell</option>
+          </select>
         </div>
-        <form action="/changeItem" method="POST">
-          <input type="hidden" id="pricesku" name="sku" required>
-          <div class="modal-body">
-            <div class="form-row">
-              <div class="col">
-                <label for="pricename">Name</label>
-                <input type="text" class="form-control" id="pricename" name="name" disabled required>
-              </div>
-            </div>
-            <br>
-            <div class="form-row">
-              <div class="col">
-                <label for="sellkeys">Sell keys</label>
-                <input type="number" class="form-control" id="sellkeys" name="sellkeys" min="0" required>
-              </div>
-              <div class="col">
-                <label for="sellmetal">Sell metal</label>
-                <input type="number" class="form-control" id="sellmetal" name="sellmetal" min="0" step="any" required>
-              </div>
-            </div>
-            <br>
-            <div class="form-row">
-              <div class="col">
-                <label for="buykeys">Buy keys</label>
-                <input type="number" class="form-control" id="buykeys" name="buykeys" min="0" required>
-              </div>
-              <div class="col">
-                <label for="buymetal">Buy metal</label>
-                <input type="number" class="form-control" id="buymetal" name="buymetal" min="0" step="any" required>
-              </div>
-            </div>
-            <br>
-            <div class="form-row">
-              <div class="col" id="priceintentdiv">
-                <label for="intent">Intent</label>
-                <select name="intent" class="form-control" id="priceintent">
-                  <option value="2">Bank (buy and sell)</option>
-                  <option value="0">Buy</option>
-                  <option value="1">Sell</option>
-                </select>
-              </div>
-              <div class="col">
-                <label for="minimum">Minimum stock</label>
-                <input type="number" class="form-control" id="priceminimum" name="min" min="0" required>
-              </div>
-              <div class="col">
-                <label for="maximum">Maximum stock</label>
-                <input type="number" class="form-control" id="pricemaximum" name="max" min="0" required>
-              </div>
-            </div>
-            <br>
-            <div class="form-row">
-              <div class="col" id="autopricediv">
-                <label for="autoprice">Autoprice</label>
-                <select name="autoprice" class="form-control" id="autoprice">
-                  <option value="true">Yes</option>
-                  <option value="false">No</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-              <button type="submit" class="btn btn-primary">Save</button>
-          </div>
-        </form>
+        <div class="form-group">
+          <label for="minimum">Minimum stock</label>
+          <input type="number" class="form-control" id="minimum" name="min" min="0" value="0" required>
+        </div>
+        <div class="form-group">
+          <label for="maximum">Maximum stock</label>
+          <input type="number" class="form-control" id="maximum" name="max" min="0" value="1" required>
+        </div>
       </div>
-    </div>
-  </div>
+      <button type="submit" class="btn btn-primary">Add</button>
+    </form>
 
-  <!-- ADD ITEMS BOX -->
-  <form action="/add-items" method="POST" style="padding-left: 20px;">
-    <div class="form-group">
-      <label for="url">Items</label>
-      <textarea rows="5" class="form-control" id="url" name="input" placeholder="Add the backpack.tf stats page, sku, or the items name. Seperate multiple inputs by a new line. See console for speed" required></textarea>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label for="intent">Intent</label>
-        <select name="intent" class="form-control" id="intent">
-          <option selected="selected" value="2">Bank (buy and sell)</option>
-          <option value="0">Buy</option>
-          <option value="1">Sell</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="minimum">Minimum stock</label>
-        <input type="number" class="form-control" id="minimum" name="min" min="0" value="0" required>
-      </div>
-      <div class="form-group">
-        <label for="maximum">Maximum stock</label>
-        <input type="number" class="form-control" id="maximum" name="max" min="0" value="1" required>
-      </div>
-    </div>
-    <button type="submit" class="btn btn-primary">Add</button>
-  </form>
-
-    <% if (failedItems.length > 0) { %>
+      <% if (failedItems.length > 0) { %>
+        <br>
+        <% failedItems = failedItems.join("\n"); %>
+        <div class="form-group" style="padding-left: 20px;">
+          <label for="failed">Failed items</label>
+          <textarea rows="3" class="form-control" id="failed" name="input" readonly><%= failedItems %></textarea>
+        </div>
+      <% } %>
+      
+      <% if (pricelist.length !== 0) { %>
       <br>
-      <% failedItems = failedItems.join("\n"); %>
-      <div class="form-group" style="padding-left: 20px;">
-        <label for="failed">Failed items</label>
-        <textarea rows="3" class="form-control" id="failed" name="input" readonly><%= failedItems %></textarea>
-      </div>
-    <% } %>
-    
-    <% if (pricelist.length !== 0) { %>
-    <br>
 
-  <form method="POST" action="/removeItems" id="frm" style="padding-left: 20px;">
-    <button class="btn btn-primary" id="invertBtn" type="button">Invert selection</button>
-    <button class="btn btn-danger" id="removeBtn" type="submit" form="frm" value="Submit">Delete selected</button>
-    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#areYouSure">Delete all items</button>
-    <br><br>
-    <table class="table table-hover">
-      <thead>
-        <tr>
-          <th scope="col">SKU</th>
-          <th scope="col">Name</th>
-          <th scope="col">Intent</th>
-          <th scope="col">Buy price</th>
-          <th scope="col">Sell price</th>
-          <th scope="col">Minimum stock</th>
-          <th scope="col">Maximum stock</th>
-        </tr>
-      </thead>
-        <tbody>
-        <% pricelist.forEach(item => { %>
-          <tr data-name="<%= item.name %>"  data-autoprice="<%= item.autoprice %>" data-sku="<%= item.sku %>" data-intent="<%= item.intent %>" data-min="<%= item.min %>" data-max="<%= item.max %>" data-buy_keys="<%= item.buy.keys %>" data-buy_metal="<%= item.buy.metal %>" data-sell_keys="<%= item.sell.keys %>" data-sell_metal="<%= item.sell.metal %>">
-            <td>
-              <div class="custom-control custom-checkbox">
-                <input type="checkbox" class="custom-control-input" id="<%= item.sku %>" name='list' value='<%= item.sku %>'>
-                <label class="custom-control-label" for="<%= item.sku %>"></label><%= item.sku %></label>
-              </div>
-            </td>
-            <td><%= item.name %></td>
-            <td><%= item.intent == 2 ? "Bank" : item.intent == 1 ? "Sell" : "buy"%></td>
-            <td data-order="<%= item.buyorder %>"><%= item.buy.keys %> keys, <%= item.buy.metal %> metal</td>
-            <td data-order="<%= item.sellorder %>"><%= item.sell.keys %> keys, <%= item.sell.metal %> metal</td>
-            <td><%= item.min %></td>
-            <td><%= item.max %></td>
-          </tr>
-        <% }) %>
-        </tbody>
-        <tfoot>
+    <form method="POST" action="/removeItems" id="frm" style="padding-left: 20px;">
+      <button class="btn btn-primary" id="invertBtn" type="button">Invert selection</button>
+      <button class="btn btn-danger" id="removeBtn" type="submit" form="frm" value="Submit">Delete selected</button>
+      <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#areYouSure">Delete all items</button>
+      <br><br>
+      <table class="table table-hover">
+        <thead>
           <tr>
             <th scope="col">SKU</th>
             <th scope="col">Name</th>
@@ -210,10 +181,39 @@
             <th scope="col">Minimum stock</th>
             <th scope="col">Maximum stock</th>
           </tr>
-        </tfoot>
-    </table>
-  </form>
-<% } %>
-
+        </thead>
+          <tbody>
+          <% pricelist.forEach(item => { %>
+            <tr data-name="<%= item.name %>"  data-autoprice="<%= item.autoprice %>" data-sku="<%= item.sku %>" data-intent="<%= item.intent %>" data-min="<%= item.min %>" data-max="<%= item.max %>" data-buy_keys="<%= item.buy.keys %>" data-buy_metal="<%= item.buy.metal %>" data-sell_keys="<%= item.sell.keys %>" data-sell_metal="<%= item.sell.metal %>">
+              <td>
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="<%= item.sku %>" name='list' value='<%= item.sku %>'>
+                  <label class="custom-control-label" for="<%= item.sku %>"></label><%= item.sku %></label>
+                </div>
+              </td>
+              <td><%= item.name %></td>
+              <td><%= item.intent == 2 ? "Bank" : item.intent == 1 ? "Sell" : "buy"%></td>
+              <td data-order="<%= item.buyorder %>"><%= item.buy.keys %> keys, <%= item.buy.metal %> metal</td>
+              <td data-order="<%= item.sellorder %>"><%= item.sell.keys %> keys, <%= item.sell.metal %> metal</td>
+              <td><%= item.min %></td>
+              <td><%= item.max %></td>
+            </tr>
+          <% }) %>
+          </tbody>
+          <tfoot>
+            <tr>
+              <th scope="col">SKU</th>
+              <th scope="col">Name</th>
+              <th scope="col">Intent</th>
+              <th scope="col">Buy price</th>
+              <th scope="col">Sell price</th>
+              <th scope="col">Minimum stock</th>
+              <th scope="col">Maximum stock</th>
+            </tr>
+          </tfoot>
+      </table>
+    </form>
+    <% } %>
+  </div>
 </body>
 </html>
