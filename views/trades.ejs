@@ -15,89 +15,90 @@
 </head>
 <body>
 
-    <%- include("partials/navbar") %>
-    <br>
-
-  <!-- TRADE MODAL -->
-  <div class="modal fade bd-example-modal-lg" id="tradeModal" tabindex="-1" role="dialog" aria-labelledby="tradeModal" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Trade info</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <div class="form-row">
-            <div class="col">
-              <label for="offerid">Offer Id</label>
-              <input type="text" class="form-control" id="offerid" disabled>
-            </div>
-            <div class="col">
-              <label for="partner">Partner</label>
-              <input type="text" class="form-control" id="partner" disabled>
-            </div>
+  <%- include("partials/navbar") %>
+  <br>
+  <div class="container-fluid">
+    <!-- TRADE MODAL -->
+    <div class="modal fade bd-example-modal-lg" id="tradeModal" tabindex="-1" role="dialog" aria-labelledby="tradeModal" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Trade info</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
           </div>
-          <br>
-          <div class="form-row">
-            <div class="col">
-              <label for="sent">Sent items</label>
-              <textarea class="form-control" id="sent" rows="3" disabled></textarea>
+          <div class="modal-body">
+            <div class="form-row">
+              <div class="col">
+                <label for="offerid">Offer Id</label>
+                <input type="text" class="form-control" id="offerid" disabled>
+              </div>
+              <div class="col">
+                <label for="partner">Partner</label>
+                <input type="text" class="form-control" id="partner" disabled>
+              </div>
             </div>
-          </div>
-          <br>
-          <div class="form-row">
-            <div class="col">
-              <label for="received">Received items</label>
-              <textarea class="form-control" id="received" rows="3" disabled></textarea>
+            <br>
+            <div class="form-row">
+              <div class="col">
+                <label for="sent">Sent items</label>
+                <textarea class="form-control" id="sent" rows="3" disabled></textarea>
+              </div>
+            </div>
+            <br>
+            <div class="form-row">
+              <div class="col">
+                <label for="received">Received items</label>
+                <textarea class="form-control" id="received" rows="3" disabled></textarea>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-    <% if(!polldata) {  %> 
+      <% if(!polldata) {  %> 
+        <div style="text-align: center;">
+          <h1>You are missing the polldata.json file. <br> Please add it to the config folder if you want to use this feature.</h1>
+        </div>
+      <% } else { %>
       <div style="text-align: center;">
-        <h1>You are missing the polldata.json file. <br> Please add it to the config folder if you want to use this feature.</h1>
+        <h1>Trades</h1>
       </div>
-    <% } else { %>
-    <div style="text-align: center;">
-      <h1>Trades</h1>
-    </div>
-    <center>
-    <div style="width: 90%">
-      <table class="table table-hover"> 
-        <thead>
-          <tr>
-            <th scope="col">Offer Id</th>
-            <th scope="col">Partner</th>
-            <th scope="col">Accepted</th>
-            <th scope="col">Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% data.forEach(trade => { %>
-            <tr data-offerid="<%= trade.id %>" data-partner="<%= trade.partner %>" data-sent="<%= trade.sent %>" data-received="<%= trade.received %>">
-              <th style="font-weight: normal;"><%- trade.id %></th>
-              <td><%- trade.partner %> </td>
-              <td><%- trade.accepted %> </td>
-              <td><%- trade.date %></td>
+      <center>
+      <div style="width: 90%">
+        <table class="table table-hover"> 
+          <thead>
+            <tr>
+              <th scope="col">Offer Id</th>
+              <th scope="col">Partner</th>
+              <th scope="col">Accepted</th>
+              <th scope="col">Date</th>
             </tr>
-          <% }); %>
-        </tbody>
-        <tfoot>
-          <tr>
-            <th scope="col">Offer Id</th>
-            <th scope="col">Partner</th>
-            <th scope="col">Accepted</th>
-            <th scope="col">Date</th>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
-  </center>
-  <% } %>
+          </thead>
+          <tbody>
+            <% data.forEach(trade => { %>
+              <tr data-offerid="<%= trade.id %>" data-partner="<%= trade.partner %>" data-sent="<%= trade.sent %>" data-received="<%= trade.received %>">
+                <th style="font-weight: normal;"><%- trade.id %></th>
+                <td><%- trade.partner %> </td>
+                <td><%- trade.accepted %> </td>
+                <td><%- trade.date %></td>
+              </tr>
+            <% }); %>
+          </tbody>
+          <tfoot>
+            <tr>
+              <th scope="col">Offer Id</th>
+              <th scope="col">Partner</th>
+              <th scope="col">Accepted</th>
+              <th scope="col">Date</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </center>
+    <% } %>
+  </div>
 </body>
 </html>
