@@ -16,7 +16,7 @@ exports.getImage = function getImage(defindex) {
 		}
 	}
 	if (typeof found == undefined) {
-		console.log(defindex);
+		console.log('Item with defindex ' + defindex + ' is not in schema');
 		return;
 	}
 	return {small: found.image_url, large: found.image_url_large};
