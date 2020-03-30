@@ -12,7 +12,10 @@ $(document).ready(function() {
 
 	const datatable = $('table').DataTable({
 		lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'All']],
-		order: [[1, 'desc']]
+		order: [[0, 'asc']],
+		columnDefs: [
+			{ orderable: false, targets: 1 }
+		]
 	});
 
 	$('.dataTables_length').addClass('bs-select');

@@ -2,6 +2,7 @@ const fs = require('fs-extra');
 const Currency = require('tf2-currencies');
 const paths = require('../resources/paths');
 const getName = require('./getName');
+const getImage = require('./getImage');
 /**
  * Renders the pricelist page with info
  * @property {Object} res - The res from expressjs
@@ -18,6 +19,7 @@ module.exports = function({ res, type, message, failedItems = [] }) {
 				if (!item.name) {
 					item.name = getName(item.sku);
 				}
+				item.image = getImage.getImageFromSKU(item.sku);
 				
 				item.sellorder = new Currency({ keys: item.sell.keys, metal: item.sell.metal }).toValue(60);
 				item.buyorder = new Currency({ keys: item.buy.keys, metal: item.buy.metal }).toValue(60);
