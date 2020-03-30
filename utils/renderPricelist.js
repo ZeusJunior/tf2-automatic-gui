@@ -20,6 +20,7 @@ module.exports = function({ res, type, message, failedItems = [] }) {
 					item.name = getName(item.sku);
 				}
 				item.image = getImage.getImageFromSKU(item.sku);
+				item.quality_color = getImage.getQualityColor(item.sku);
 				
 				item.sellorder = new Currency({ keys: item.sell.keys, metal: item.sell.metal }).toValue(60);
 				item.buyorder = new Currency({ keys: item.buy.keys, metal: item.buy.metal }).toValue(60);
