@@ -3,6 +3,7 @@ const Currency = require('tf2-currencies');
 const paths = require('../resources/paths');
 const getName = require('./getName');
 const getImage = require('./getImage');
+const SKU = require('tf2-sku');
 /**
  * Renders the pricelist page with info
  * @property {Object} res - The res from expressjs
@@ -16,12 +17,11 @@ module.exports = function({ res, type, message, failedItems = [] }) {
 		.then((pricelist) => {
 			for (i = 0; i < pricelist.length; i++) {
 				const item = pricelist[i];
+				item.craftable = SKU.fromString(item.sku).craftable;
 				if (!item.name) {
 					item.name = getName(item.sku);
 				}
-				item.image = getImage.getImageFromSKU(item.sku);
-				item.quality_color = getImage.getQualityColor(item.sku);
-				
+				item.style = getImage.getImageStyle(item.sku);
 				item.sellorder = new Currency({ keys: item.sell.keys, metal: item.sell.metal }).toValue(60);
 				item.buyorder = new Currency({ keys: item.buy.keys, metal: item.buy.metal }).toValue(60);
 			}

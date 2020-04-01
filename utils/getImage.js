@@ -27,7 +27,7 @@ exports.getImage = function getImage(defindex) {
  * @param {string} sku item SKU
  * @return {Object} Item image links - {small: 'link', large: 'link'}
  */
-exports.getImageFromSKU = function getImageFromSKU(sku) {
+function getImageFromSKU(sku) {
 	const items = Schema.get().raw.schema.items;
 	let found;
 	for (let i = 0; i < items.length; i++) {
@@ -43,13 +43,14 @@ exports.getImageFromSKU = function getImageFromSKU(sku) {
 	}
 	return {small: found.image_url, large: found.image_url_large};
 };
+exports.getImageFromSKU = getImageFromSKU;
 
 /**
  * generates colour for items quality
  * @param {String} sku item SKU
- * @return {String} color in hexadecimal string
+ * @return {Object} {color in hexadecimal string, craflable, image_url, image_url_large}
  */
-exports.getQualityColor = function getQualityColor(sku) {
+exports.getImageStyle = function getImageStyle(sku) {
 	const qualityColors = {
 		0: '#B2B2B2',
 		1: '#4D7455',
@@ -67,7 +68,7 @@ exports.getQualityColor = function getQualityColor(sku) {
 		14: '#AA0000',
 		15: '#FAFAFA'
 	};
-	
-	
-	return qualityColors[SKU.fromString(sku).quality];
+	const img = getImageFromSKU(sku);
+	const item = SKU.fromString(sku);
+	return {quality_color: qualityColors[item.quality], craftable: item.craftable, image_small: img.small, image_arge: img.large};
 };
