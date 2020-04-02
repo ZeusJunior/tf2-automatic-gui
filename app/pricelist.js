@@ -151,6 +151,7 @@ pricelist.changeSingleItem = function(item) {
 		.then((pricelist) => {
 			pricelist.forEach((pricedItem) => {
 				if (item.sku === pricedItem.sku) {
+					pricedItem.enabled = item.enabled;
 					pricedItem.buy = item.buy;
 					pricedItem.sell = item.sell;
 					pricedItem.intent = item.intent;

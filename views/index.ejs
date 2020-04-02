@@ -1,224 +1,208 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html lang="en">
-<head lang="en">
-  <meta charset="UTF-8">
-  <title>Unofficial tf2-automatic GUI</title>
-  <link rel="stylesheet" href="/style.css">
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdn.datatables.net/v/bs4/dt-1.10.20/datatables.min.css"/>
-  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-  <script src="https://cdn.datatables.net/v/bs4/dt-1.10.20/datatables.min.js"></script>
-  <script src='/pricelist.js'></script>
-  <script src='/search.js'></script>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Unofficial tf2-automatic GUI</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretty-checkbox@3.0/dist/pretty-checkbox.min.css">
+	<link rel="stylesheet" href="/index.css">
+	<script
+  src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+	<!-- development version, includes helpful console warnings -->
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src='/search.js'></script>
 </head>
 <body>
+	<%- include("partials/navbar") %>
+	<div class="container-xl pt-4 pb-4 bg-light border border-top-0 rounded-bottom" id="app">
+		<div v-if="msg.enabled" class="alert" :class="['alert-' + msg.type]" role="alert">
+			{{msg.text}}
+			<button type="button" class="close" @click="closeMessage">
+			  	<span>&times;</span>
+			</button>
+		</div>
+		<!-- REMOVE ALL MODAL -->
+		<div id="areYouSure" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="removeModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="removeModalLabel">Are you sure?</h5>
+						<button class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						Do you want to remove items from pricelist?
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+						<button type="button" class="btn btn-danger" @click="removeItems">Yes</button>
+					</div>
+				</div>
+			</div>
+		</div>
 
-  <%- include("partials/navbar") %>
-  <br>
-  <div class="container-fluid">
-    <% if (msg !== 'none') { %>
-      <div class="alert alert-<%=type%>" role="alert">
-        <%= msg %>
-      </div>
-    <% } %>
+		<!-- PRICE MODAL -->
+		<div id="priceModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="priceModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="priceModalLabel">{{modal.edit ? 'Edit item' : 'Create item'}}</h5>
+						<button class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<form>
+						<div class="modal-body">
+						  <div class="form-row">
+							<div class="col">
+							  <label >Name</label>
+							  <input type="text" class="form-control" id="pricename" name="name" required v-model="modal.item.name" :disabled="modal.edit">
+							</div>
+						  </div>
+						  <div class="form-row">
+							<div class="col" id="enableddiv">
+							  	<div class="pretty p-switch p-fill">
+									<input type="checkbox" name="enabled" id="enabled" v-model="modal.item.enabled" :disabled="!modal.edit"/>
+									<div class="state p-success">
+										<label>Enabled</label>
+									</div>
+								</div>
+							</div>
+						  </div>
+						  <div class="form-row" v-if="modal.item.enabled">
+							<div class="col" id="autopricediv">
+							  	<div class="pretty p-switch p-fill">
+									<input type="checkbox" name="autoprice" id="autoprice" v-model="modal.item.autoprice"/>
+									<div class="state p-success">
+										<label>Autoprice</label>
+									</div>
+								</div>
+							</div>
+						  </div>
+						  <div class="form-row" v-if="!(modal.item.autoprice&&!modal.edit)&&modal.item.enabled&&(modal.item.intent!=0)">
+							<div class="col">
+							  <label>Sell keys</label>
+							  <input type="number" class="form-control" id="sellkeys" name="sellkeys" min="0" placeholder="Keys" required :disabled="modal.item.autoprice" v-model="modal.item.sell.keys">
+							</div>
+							<div class="col">
+							  <label>Sell metal</label>
+							  <input type="number" class="form-control" id="sellmetal" name="sellmetal" min="0" placeholder="Metal" step="any" required :disabled="modal.item.autoprice" v-model="modal.item.sell.metal">
+							</div>
+						  </div>
+						  <div class="form-row" v-if="!(modal.item.autoprice&&!modal.edit)&&modal.item.enabled&&(modal.item.intent!=1)">
+							<div class="col">
+							  <label>Buy keys</label>
+							  <input type="number" class="form-control" id="buykeys" name="buykeys" min="0" placeholder="Keys" required :disabled="modal.item.autoprice" v-model="modal.item.buy.keys">
+							</div>
+							<div class="col">
+							  <label >Buy metal</label>
+							  <input type="number" class="form-control" id="buymetal" name="buymetal" min="0" placeholder="Metal" step="any" required :disabled="modal.item.autoprice" v-model="modal.item.buy.metal">
+							</div>
+						  </div>
+						  <div class="form-row" v-if="modal.item.enabled">
+							<div class="col" id="priceintentdiv">
+							  <label>Intent</label>
+							  <select name="intent" class="form-control" id="priceintent"  v-model="modal.item.intent">
+								<option value="2">Bank (buy and sell)</option>
+								<option value="0">Buy</option>
+								<option value="1">Sell</option>
+							  </select>
+							</div>
+							<div class="col">
+							  <label>Minimum stock</label>
+							  <input type="number" class="form-control" id="priceminimum" name="min" min="0" required v-model="modal.item.min">
+							</div>
+							<div class="col">
+							  <label>Maximum stock</label>
+							  <input type="number" class="form-control" id="pricemaximum" name="max" min="0" required v-model="modal.item.max">
+							</div>
+						  </div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+							<button type="submit" class="btn btn-primary" @click.prevent="saveItem(modal.item, modal.edit)">Save</button>
+							<button type="button" v-if="modal.edit" class="btn btn-danger" @click="deleteItem(modal.item)">Delete item</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
 
-    <!-- REMOVE ALL MODAL -->
-    <div class="modal fade" id="areYouSure" tabindex="-1" role="dialog" aria-labelledby="removeModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="removeModalLabel">Are you sure?</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-              Do you want to delete all items from your pricelist?
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
-            <form action="/clearPricelist" method="POST">
-              <button type="submit" class="btn btn-primary">Yes, delete everything</button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
+		<div id="bulkModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="bulkModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="bulkModalLabel">Add items in bulk</h5>
+						<button class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<form>
+						<div class="modal-body">
+							<div class="form-group">
+								<label for="url">Items</label>
+								<textarea rows="5" class="form-control" id="url" name="input" placeholder="Add the backpack.tf stats page, sku, or the items name. Seperate multiple inputs by a new line. See console for speed" required v-model="bulk.input"></textarea>
+							</div>
+							<div class="form-row">
+								<div class="form-group">
+								  	<label for="intent">Intent</label>
+								  	<select name="intent" class="form-control" id="intent" v-model="bulk.intent">
+										<option selected="selected" value="2">Bank (buy and sell)</option>
+										<option value="0">Buy</option>
+										<option value="1">Sell</option>
+								  	</select>
+								</div>
+								<div class="form-group">
+								  	<label for="minimum">Minimum stock</label>
+								  	<input type="number" class="form-control" id="minimum" name="min" min="0" value="0" required v-model="bulk.min">
+								</div>
+								<div class="form-group">
+								  	<label for="maximum">Maximum stock</label>
+								  	<input type="number" class="form-control" id="maximum" name="max" min="0" value="1" required v-model="bulk.max">
+								</div>
+							  </div>
+						</div>
+						<div class="modal-footer">
+							<button type="submit" class="btn btn-primary" @click.prevent="bulkAdd(bulk)">Add</button>
+							<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
 
-    <!-- PRICE MODAL -->
-    <div class="modal fade bd-example-modal-lg" id="priceModal" tabindex="-1" role="dialog" aria-labelledby="priceModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Manage item</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <form action="/changeItem" method="POST">
-            <input type="hidden" id="pricesku" name="sku" required>
-            <div class="modal-body">
-              <div class="form-row">
-                <div class="col">
-                  <label for="pricename">Name</label>
-                  <input type="text" class="form-control" id="pricename" name="name" disabled required>
-                </div>
-              </div>
-              <br>
-              <div class="form-row">
-                <div class="col">
-                  <label for="sellkeys">Sell keys</label>
-                  <input type="number" class="form-control" id="sellkeys" name="sellkeys" min="0" required>
-                </div>
-                <div class="col">
-                  <label for="sellmetal">Sell metal</label>
-                  <input type="number" class="form-control" id="sellmetal" name="sellmetal" min="0" step="any" required>
-                </div>
-              </div>
-              <br>
-              <div class="form-row">
-                <div class="col">
-                  <label for="buykeys">Buy keys</label>
-                  <input type="number" class="form-control" id="buykeys" name="buykeys" min="0" required>
-                </div>
-                <div class="col">
-                  <label for="buymetal">Buy metal</label>
-                  <input type="number" class="form-control" id="buymetal" name="buymetal" min="0" step="any" required>
-                </div>
-              </div>
-              <br>
-              <div class="form-row">
-                <div class="col" id="priceintentdiv">
-                  <label for="intent">Intent</label>
-                  <select name="intent" class="form-control" id="priceintent">
-                    <option value="2">Bank (buy and sell)</option>
-                    <option value="0">Buy</option>
-                    <option value="1">Sell</option>
-                  </select>
-                </div>
-                <div class="col">
-                  <label for="minimum">Minimum stock</label>
-                  <input type="number" class="form-control" id="priceminimum" name="min" min="0" required>
-                </div>
-                <div class="col">
-                  <label for="maximum">Maximum stock</label>
-                  <input type="number" class="form-control" id="pricemaximum" name="max" min="0" required>
-                </div>
-              </div>
-              <br>
-              <div class="form-row">
-                <div class="col" id="autopricediv">
-                  <label for="autoprice">Autoprice</label>
-                  <select name="autoprice" class="form-control" id="autoprice">
-                    <option value="true">Yes</option>
-                    <option value="false">No</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-primary">Save</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <!-- ADD ITEMS BOX -->
-    <form action="/add-items" method="POST" style="padding-left: 20px;">
-      <div class="form-group">
-        <label for="url">Items</label>
-        <textarea rows="5" class="form-control" id="url" name="input" placeholder="Add the backpack.tf stats page, sku, or the items name. Seperate multiple inputs by a new line. See console for speed" required></textarea>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="intent">Intent</label>
-          <select name="intent" class="form-control" id="intent">
-            <option selected="selected" value="2">Bank (buy and sell)</option>
-            <option value="0">Buy</option>
-            <option value="1">Sell</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="minimum">Minimum stock</label>
-          <input type="number" class="form-control" id="minimum" name="min" min="0" value="0" required>
-        </div>
-        <div class="form-group">
-          <label for="maximum">Maximum stock</label>
-          <input type="number" class="form-control" id="maximum" name="max" min="0" value="1" required>
-        </div>
-      </div>
-      <button type="submit" class="btn btn-primary">Add</button>
-    </form>
-
-      <% if (failedItems.length > 0) { %>
-        <br>
-        <% failedItems = failedItems.join("\n"); %>
-        <div class="form-group" style="padding-left: 20px;">
-          <label for="failed">Failed items</label>
-          <textarea rows="3" class="form-control" id="failed" name="input" readonly><%= failedItems %></textarea>
-        </div>
-      <% } %>
-      
-      <% if (pricelist.length !== 0) { %>
-      <br>
-
-    <form method="POST" action="/removeItems" id="frm" style="padding-left: 20px;">
-      <button class="btn btn-primary" id="invertBtn" type="button">Invert selection</button>
-      <button class="btn btn-danger" id="removeBtn" type="submit" form="frm" value="Submit">Delete selected</button>
-      <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#areYouSure">Delete all items</button>
-      <br><br>
-      <table class="table table-hover">
-        <thead>
-          <tr>
-            <th scope="col">Item</th>
-            <th></th>
-            <th scope="col">SKU</th>
-            <th scope="col">Intent</th>
-            <th scope="col">Buy price</th>
-            <th scope="col">Sell price</th>
-            <th scope="col">Minimum stock</th>
-            <th scope="col">Maximum stock</th>
-          </tr>
-        </thead>
-          <tbody>
-          <% pricelist.forEach(item => { %>
-            <tr data-name="<%= item.name %>"  data-autoprice="<%= item.autoprice %>" data-sku="<%= item.sku %>" data-intent="<%= item.intent %>" data-min="<%= item.min %>" data-max="<%= item.max %>" data-buy_keys="<%= item.buy.keys %>" data-buy_metal="<%= item.buy.metal %>" data-sell_keys="<%= item.sell.keys %>" data-sell_metal="<%= item.sell.metal %>">
-              <td>
-                <div class="custom-control custom-checkbox">
-                  <input type="checkbox" class="custom-control-input" id="<%= item.sku %>" name='list' value='<%= item.sku %>'>
-                  <label class="custom-control-label" for="<%= item.sku %>"><%= item.name %></label>
-                </div>
-              </td>
-              <td><img src="<%-item.style.image_small%>" width="64px" height="64px" style="background-color: <%-item.style.quality_color%>; border: 2px solid black; border-radius: 5px;<%if(!item.style.craftable){%>border-style: dashed;0<%}%>"></td>
-              <td>
-                <%= item.sku %>
-              </td>
-              <td><%= item.intent == 2 ? "Bank" : item.intent == 1 ? "Sell" : "buy"%></td>
-              <td data-order="<%= item.buyorder %>"><%= item.buy.keys %> keys, <%= item.buy.metal %> metal</td>
-              <td data-order="<%= item.sellorder %>"><%= item.sell.keys %> keys, <%= item.sell.metal %> metal</td>
-              <td><%= item.min %></td>
-              <td><%= item.max %></td>
-            </tr>
-          <% }) %>
-          </tbody>
-          <tfoot>
-            <tr>
-              <th scope="col">Item</th>
-              <th></th>
-              <th scope="col">SKU</th>
-              <th scope="col">Intent</th>
-              <th scope="col">Buy price</th>
-              <th scope="col">Sell price</th>
-              <th scope="col">Minimum stock</th>
-              <th scope="col">Maximum stock</th>
-            </tr>
-          </tfoot>
-      </table>
-    </form>
-    <% } %>
-  </div>
+		<ul class="nav nav-pills justify-content-between">
+			<li class="nav-item">
+				<div class="btn-group" v-if="!removeSelect.enabled">
+					<button type="button" class="btn btn-success" data-toggle="modal" data-target="#priceModal" @click="addSingle">Add Item</button>
+					<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#bulkModal" @click="bulkClear">Bulk add</button>
+					<button type="button" class="btn btn-danger" @click="removeSelectToggle">Delete items</button>
+				</div>
+			</li>
+			<li class="nav-item">
+				<input class="form-control mr-sm-2" id="searchPricelist" type="search" placeholder="Search" aria-label="Search" autocomplete="off" v-model="searchPricelist">
+			</li>
+		</ul>
+		<div class="btn-group" v-if="removeSelect.enabled">
+			<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#areYouSure" @click="removeSelect.all=true">Delete all items</button>
+			<button type="button" class="btn btn-" :class="['btn-' + ((removeSelect.list.length==0)?'dark':'primary')]" data-toggle="modal" data-target="#areYouSure":disabled="removeSelect.list.length==0" @click="removeSelect.all=false">Delete selected items</button>
+			<button type="button" class="btn btn-success" @click="removeSelectToggle">Cancel</button>
+		</div>
+		<div class="d-flex mt-3 flex justify-content-center flex-wrap" id="pricelist">
+			<div class="item m-1" v-for="item in pricelist" v-if="item.name.toLowerCase().indexOf(searchPricelist.toLowerCase())!=-1||searchPricelist==''" :key="item.sku" :style="{ backgroundImage: `url(` + item.style.image_small + `)`, backgroundColor: item.style.quality_color, borderStyle: item.style.craftable? false : 'dashed', opacity: item.enabled?1:0.5}" @click="itemClick(item, $event)">
+				<div class="info text-center font-weight-bold" v-if="!removeSelect.list.includes(item.sku)">
+					{{item.name}}
+				</div>
+				<svg class="bi bi-check item-check" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" v-else>
+					<path fill-rule="evenodd" d="M13.854 3.646a.5.5 0 010 .708l-7 7a.5.5 0 01-.708 0l-3.5-3.5a.5.5 0 11.708-.708L6.5 10.293l6.646-6.647a.5.5 0 01.708 0z" clip-rule="evenodd"/>
+				</svg>
+			</div>
+		</div>
+	</div>
+	<script src=/index.js></script>
 </body>
 </html>
