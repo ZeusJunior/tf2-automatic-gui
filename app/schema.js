@@ -1,6 +1,6 @@
 const fs = require('fs-extra');
 const axios = require('axios');
-
+const SKU = require('tf2-sku');
 const paths = require('../resources/paths');
 
 
@@ -58,4 +58,37 @@ function fetchSchema() {
 
 exports.get = function() {
 	return schema;
+};
+
+/**
+ * Binary search for item in schema
+ * @param {String} sku sku of item
+ * @return {Object} schemaItem / null if not found
+ */
+exports.getItemBySKU = function findItemBySKU(sku) {
+	return findItemByDefindex(SKU.fromString(sku).defindex);
+};
+
+/**
+ * Binary search for item in schema
+ * @param {String} defindex defindex of item
+ * @return {Object} schemaItem / null if not found
+ */
+exports.getItemByDefindex = function findItemByDefindex(defindex) {
+	items = schema.raw.schema.items;
+	let found;
+	let start = 0;
+	let end = items.length-1;
+	while (start <= end) {
+		const mid = Math.floor(start+end/2);
+		if (items[mid].defindex < defindex) {
+			start = mid + 1;
+		} else if (items[mid].defindex > defindex) {
+			end = mid - 1;
+		} else {
+			found = items[mid];
+			break;
+		}
+	}
+	return found;
 };
