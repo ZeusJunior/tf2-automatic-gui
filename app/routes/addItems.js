@@ -37,10 +37,11 @@ router.post('/', (req, res) => {
 			max: parseInt(req.body.max)
 		})
 		.then(({ itemsAdded, failedItems, itemsFailed, alreadyAdded }) => {
-			const message = `${itemsAdded} item${getPluralOrSingularString(itemsAdded)} added,
-							${itemsFailed} item${getPluralOrSingularString(itemsFailed)} failed
-							${(alreadyAdded > 0 ? `, ${alreadyAdded} ${alreadyAdded == 1 ? 'item was' : 'items were'} already in your pricelist` : '')}
-							.`;
+			let message = `${itemsAdded} item${getPluralOrSingularString(itemsAdded)} added,
+							${itemsFailed} item${getPluralOrSingularString(itemsFailed)} failed${(alreadyAdded > 0 ? `, ${alreadyAdded} ${alreadyAdded == 1 ? ' item was' : ' items were'} already in your pricelist` : '')}.`;
+			failedItems.forEach((e) => {
+				message+=`${e} failed.`;
+			});
 			res.json({
 				success: 1,
 				msg: {
