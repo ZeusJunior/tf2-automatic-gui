@@ -19,7 +19,7 @@ module.exports = function(sku) {
 	 * gameItem
 	 * gameItems
 	 */
-	const schemaItem = getItemByDefindex(sku.defindex);
+	const schemaItem = Schema.getItemByDefindex(sku.defindex);
 
 	if (schemaItem === null) {
 		return sku;
@@ -37,22 +37,3 @@ module.exports = function(sku) {
 
 	return sku;
 };
-
-/**
- * Gets the full schema item
- * @param {int} defindex 
- * @return {Object} schemaItem
- */
-function getItemByDefindex(defindex) {
-	const schema = Schema.get();
-	const { items } = schema.raw.schema;
-
-	let itemMatch = null;
-	items.forEach((item) => {
-		if (item.defindex === defindex) {
-			itemMatch = item;
-		}
-	});
-
-	return itemMatch;
-}
