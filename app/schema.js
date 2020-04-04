@@ -62,25 +62,16 @@ exports.get = function() {
 
 /**
  * Binary search for item in schema
- * @param {String} sku sku of item
- * @return {Object} schemaItem / null if not found
- */
-exports.getItemBySKU = function findItemBySKU(sku) {
-	return findItemByDefindex(SKU.fromString(sku).defindex);
-};
-
-/**
- * Binary search for item in schema
  * @param {String} defindex defindex of item
  * @return {Object} schemaItem / null if not found
  */
-exports.getItemByDefindex = function findItemByDefindex(defindex) {
+function getItemByDefindex(defindex) {
 	items = schema.raw.schema.items;
 	let found;
 	let start = 0;
 	let end = items.length-1;
 	while (start <= end) {
-		const mid = Math.floor(start+end/2);
+		const mid = Math.floor((start+end)/2);
 		if (items[mid].defindex < defindex) {
 			start = mid + 1;
 		} else if (items[mid].defindex > defindex) {
@@ -92,3 +83,13 @@ exports.getItemByDefindex = function findItemByDefindex(defindex) {
 	}
 	return found;
 };
+exports.getItemByDefindex = getItemByDefindex;
+/**
+ * Binary search for item in schema
+ * @param {String} sku sku of item
+ * @return {Object} schemaItem / null if not found
+ */
+function getItemBySKU(sku) {
+	return getItemByDefindex(SKU.fromString(sku).defindex);
+};
+exports.getItemBySKU = getItemBySKU;
