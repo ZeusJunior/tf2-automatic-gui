@@ -92,6 +92,9 @@ const app = new Vue({
 				})
 				.then((data) => {
 					this.pricelist = data.pricelist;
+				})
+				.catch((error) => {
+					console.error('Error:', error);
 				});
 		},
 		saveItem: function(item, edit) {
