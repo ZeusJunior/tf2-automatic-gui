@@ -15,6 +15,7 @@ const changeItem = require('./routes/changeItem');
 const clearPricelist = require('./routes/clearPricelist');
 const search = require('./routes/search');
 const getItems = require('./routes/getItems');
+const getProfit = require('./routes/getProfit');
 
 app
 	.use(express.static(path.join(__dirname, '../assets')))
@@ -34,6 +35,7 @@ app
 	.use('/trades', trades)
 	.use('/changeItem', changeItem)
 	.use('/search', search)
-	.use('/getItems', getItems);
+	.use('/getItems', getItems)
+	.use('/getProfit', getProfit);
 
 module.exports = app;
