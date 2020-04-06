@@ -11,144 +11,140 @@ const axios = require('axios');
  * @param {Number} end time to end plot
  * @return {Object}
  */
-exports.get = function get(toKeys, start, interval, end) {
-	return fs.readJSON(paths.files.polldata)
-		.then((polldata) => {
-			await axios(
-				{
-					url: 'https://api.prices.tf/items/5021;6',
-					method: 'GET',
-					params: {
-						src: 'bptf'
-					},
-					json: true
-				}
-			)
-				.then((response) => {
-					const keyVal = response.data.sell.metal;
-					const trades = Object.keys(polldata.offerData).map((key)=>{
-						const ret = polldata.offerData[key];
-						ret.time = polldata.timestamps[key];
-						ret.id = key;
-						return ret;
-					});
-					const itemStock = {};
-					let overpriceProfit = 0;
-					const overItems = {}; // items sold before being bought
+exports.get = async function get(toKeys, start, interval, end) {
+	const polldata = await fs.readJSON(paths.files.polldata);
+	const response = await axios(
+		{
+			url: 'https://api.prices.tf/items/5021;6',
+			method: 'GET',
+			params: {
+				src: 'bptf'
+			},
+			json: true
+		}
+	);
+	const keyVal = response.data.sell.metal;
+	const trades = Object.keys(polldata.offerData).map((key)=>{
+		const ret = polldata.offerData[key];
+		ret.time = polldata.timestamps[key];
+		ret.id = key;
+		return ret;
+	});
+	const itemStock = {};
+	let overpriceProfit = 0;
+	const overItems = {}; // items sold before being bought
 
-					const tracker = new profitTracker(start, interval, end);
+	const tracker = new profitTracker(start, interval, end);
 
-					trades.sort((a, b)=>{
-						return a.time - b.time;
-					});
+	trades.sort((a, b)=>{
+		return a.time - b.time;
+	});
 
-					let iter = 0; // to keep track of how many trades are accepted
-					for (let i = 0; i < trades.length; i++) {
-						const trade = trades[i];
-						if (!(trade.handledByUs === true && trade.isAccepted === true)) {
-							continue;// trade was not accepted, go to next trade
-						}
-						iter++;
-						let isGift = false;
-						if (!Object.prototype.hasOwnProperty.call(trade, 'dict')) {
-							continue;// trade has no items ?
-						}
-						if (typeof Object.keys(trade.dict.our).length == 'undefined') {
-							isGift = true;// no items on our side, so it is probably gift
-						} else if (Object.keys(trade.dict.our).length != 0) { // trade is not a gift
-							if (!Object.prototype.hasOwnProperty.call(trade, 'value')) {
-								continue; // trade is missing value object
-							}
-							if (!(Object.keys(trade.prices).length > 0)) {
-								continue; // have no prices, broken, skip
-							}
-						} else {
-							isGift = true; // no items on our side, so it is probably gift
-						}
-						if (typeof trade.value === 'undefined') {
-							trade.value = {};
-						}
-						if (typeof trade.value.rate === 'undefined') {
-							if (!Object.prototype.hasOwnProperty.call(trade, 'value')) trade.value = {}; // in case it was gift
-							trade.value.rate = keyVal;// set key value to current value if it is not defined
-						}
-						for (sku in trade.dict.their) { // items bought
-							if (Object.prototype.hasOwnProperty.call(trade.dict.their, sku)) {
-								let itemCount = trade.dict.their[sku];
-				
-								if (sku !== '5000;6' && sku !== '5002;6' && sku !== '5001;6' && sku !== '5021;6') { // if it is not currency
-									if (isGift) {
-										if (!Object.prototype.hasOwnProperty.call(trade, 'prices')) trade.prices = {};
-										trade.prices[sku] = { // set price to 0 because it's a gift
-											buy: {
-												metal: 0,
-												keys: 0
-											}
-										};
-									} else if (!Object.prototype.hasOwnProperty.call(trade.prices, sku)) {
-										continue; // item is not in pricelist, so we will just skip it
-									}
-									const prices = trade.prices[sku].buy;
-									if (Object.prototype.hasOwnProperty.call(overItems, sku)) { // if record for this item exists in overItems check it
-										if (overItems[sku].count > 0) {
-											if (overItems[sku].count >= itemCount) {
-												overItems[sku].count -= itemCount;
-												tracker.countProfit( (overItems[sku].price - convert(prices, trade.value.rate, toKeys)) * itemCount, trade.time);
-												continue; // everything is already sold no need to add to stock
-											} else {
-												itemsOverOverItems = itemCount - overItems[sku].count;
-												overItems[sku].count = 0;
-												tracker.countProfit( (overItems[sku].price - convert(prices, trade.value.rate, toKeys)) * (itemCount - itemsOverOverItems), trade.time);
-												itemCount = itemsOverOverItems;
-											}
-										}
-									}
-									addToList(itemStock, {amount: itemCount, sku: sku}, prices, trade, toKeys);
-								}
-							}
-						}
+	let iter = 0; // to keep track of how many trades are accepted
+	for (let i = 0; i < trades.length; i++) {
+		const trade = trades[i];
+		if (!(trade.handledByUs === true && trade.isAccepted === true)) {
+			continue;// trade was not accepted, go to next trade
+		}
+		iter++;
+		let isGift = false;
+		if (!Object.prototype.hasOwnProperty.call(trade, 'dict')) {
+			continue;// trade has no items ?
+		}
+		if (typeof Object.keys(trade.dict.our).length == 'undefined') {
+			isGift = true;// no items on our side, so it is probably gift
+		} else if (Object.keys(trade.dict.our).length != 0) { // trade is not a gift
+			if (!Object.prototype.hasOwnProperty.call(trade, 'value')) {
+				continue; // trade is missing value object
+			}
+			if (!(Object.keys(trade.prices).length > 0)) {
+				continue; // have no prices, broken, skip
+			}
+		} else {
+			isGift = true; // no items on our side, so it is probably gift
+		}
+		if (typeof trade.value === 'undefined') {
+			trade.value = {};
+		}
+		if (typeof trade.value.rate === 'undefined') {
+			if (!Object.prototype.hasOwnProperty.call(trade, 'value')) trade.value = {}; // in case it was gift
+			trade.value.rate = keyVal;// set key value to current value if it is not defined
+		}
+		for (sku in trade.dict.their) { // items bought
+			if (Object.prototype.hasOwnProperty.call(trade.dict.their, sku)) {
+				let itemCount = trade.dict.their[sku];
 
-						for (sku in trade.dict.our) {
-							if (Object.prototype.hasOwnProperty.call(trade.dict.our, sku)) {
-								const itemCount = trade.dict.our[sku];
-								if (sku !== '5000;6' && sku !== '5002;6' && sku !== '5001;6' && sku !== '5021;6') { // TODO: TEST KEY TRADING BOTS
-									const prices = trade.prices[sku].sell;
-									if (Object.prototype.hasOwnProperty.call(itemStock, sku)) { // have we bought this item already
-										if (itemStock[sku].count >= itemCount) {
-											itemStock[sku].count -= itemCount;
-											tracker.countProfit( (convert(prices, trade.value.rate) - itemStock[sku].price) * itemCount, trade.time);
-										} else {
-											const overCount = itemCount - itemStock[sku].count;
-											addToList(overItems, {amount: overCount, sku: sku}, prices, trade, toKeys);
-											itemStock[sku].count -= itemStock[sku].count;
-											tracker.countProfit( (convert(prices, trade.value.rate) - itemStock[sku].price) * itemStock[sku].count, trade.time);
-										}
-									} else { // we have not bought this item yet
-										addToList(overItems, {amount: itemCount, sku: sku}, prices, trade, toKeys);
-									}
-								}
+				if (sku !== '5000;6' && sku !== '5002;6' && sku !== '5001;6' && sku !== '5021;6') { // if it is not currency
+					if (isGift) {
+						if (!Object.prototype.hasOwnProperty.call(trade, 'prices')) trade.prices = {};
+						trade.prices[sku] = { // set price to 0 because it's a gift
+							buy: {
+								metal: 0,
+								keys: 0
 							}
-						}
-						if (!isGift) { // calculate overprice profit
-							overpriceProfit += convert(trade.value.their, trade.value.rate) - convert(trade.value.our, trade.value.rate);
-							tracker.countProfit( convert(trade.value.their, trade.value.rate) - convert(trade.value.our, trade.value.rate), trade.time);
+						};
+					} else if (!Object.prototype.hasOwnProperty.call(trade.prices, sku)) {
+						continue; // item is not in pricelist, so we will just skip it
+					}
+					const prices = trade.prices[sku].buy;
+					if (Object.prototype.hasOwnProperty.call(overItems, sku)) { // if record for this item exists in overItems check it
+						if (overItems[sku].count > 0) {
+							if (overItems[sku].count >= itemCount) {
+								overItems[sku].count -= itemCount;
+								tracker.countProfit( (overItems[sku].price - convert(prices, trade.value.rate, toKeys)) * itemCount, trade.time);
+								continue; // everything is already sold no need to add to stock
+							} else {
+								itemsOverOverItems = itemCount - overItems[sku].count;
+								overItems[sku].count = 0;
+								tracker.countProfit( (overItems[sku].price - convert(prices, trade.value.rate, toKeys)) * (itemCount - itemsOverOverItems), trade.time);
+								itemCount = itemsOverOverItems;
+							}
 						}
 					}
-					// TODO: put into return object
-					console.log(iter);
-					console.log(itemStock);
-					console.log(overItems);
-					console.log(`Profit from overprice: ${overpriceProfit} ${toKeys?'keys':'scrap'}.`);
-					console.log(`Total profit: ${tracker.profit} ${toKeys?'keys':'scrap'}.`);
-					console.log(tracker.profitPlot);
-					console.log(tracker.profitTimed);
-					return {
-						profitTotal: tracker.profit,
-						profitTimed: tracker.profitTimed,
-						profitPlot: tracker.profitPlot
-					};
-				});
-		});
+					addToList(itemStock, {amount: itemCount, sku: sku}, prices, trade, toKeys);
+				}
+			}
+		}
+
+		for (sku in trade.dict.our) {
+			if (Object.prototype.hasOwnProperty.call(trade.dict.our, sku)) {
+				const itemCount = trade.dict.our[sku];
+				if (sku !== '5000;6' && sku !== '5002;6' && sku !== '5001;6' && sku !== '5021;6') { // TODO: TEST KEY TRADING BOTS
+					const prices = trade.prices[sku].sell;
+					if (Object.prototype.hasOwnProperty.call(itemStock, sku)) { // have we bought this item already
+						if (itemStock[sku].count >= itemCount) {
+							itemStock[sku].count -= itemCount;
+							tracker.countProfit( (convert(prices, trade.value.rate) - itemStock[sku].price) * itemCount, trade.time);
+						} else {
+							const overCount = itemCount - itemStock[sku].count;
+							addToList(overItems, {amount: overCount, sku: sku}, prices, trade, toKeys);
+							itemStock[sku].count -= itemStock[sku].count;
+							tracker.countProfit( (convert(prices, trade.value.rate) - itemStock[sku].price) * itemStock[sku].count, trade.time);
+						}
+					} else { // we have not bought this item yet
+						addToList(overItems, {amount: itemCount, sku: sku}, prices, trade, toKeys);
+					}
+				}
+			}
+		}
+		if (!isGift) { // calculate overprice profit
+			overpriceProfit += convert(trade.value.their, trade.value.rate) - convert(trade.value.our, trade.value.rate);
+			tracker.countProfit( convert(trade.value.their, trade.value.rate) - convert(trade.value.our, trade.value.rate), trade.time);
+		}
+	}
+	// TODO: put into return object
+	console.log(iter);
+	console.log(itemStock);
+	console.log(overItems);
+	console.log(`Profit from overprice: ${overpriceProfit} ${toKeys?'keys':'scrap'}.`);
+	console.log(`Total profit: ${tracker.profit} ${toKeys?'keys':'scrap'}.`);
+	console.log(tracker.profitPlot);
+	console.log(tracker.profitTimed);
+	return {
+		profitTotal: tracker.profit,
+		profitTimed: tracker.profitTimed,
+		profitPlot: tracker.profitPlot
+	};
 };
 
 
