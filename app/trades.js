@@ -10,33 +10,19 @@ exports.get = function() {
 	return fs.readJSON(paths.files.polldata)
 		.then((polldata) => {
 			const trades = [];
-
-			Object.keys(polldata.sent).forEach((key)=>{
-				const offer = polldata.offerData[key];
-				if (!checkTradeRecord(offer)) return; // offer must have essential data to be valid
-				trades.push(generateTrade(polldata, key, offer, 'sent'));
+			Object.keys(polldata.timestamps).forEach((key)=>{
+				if (typeof polldata.sent[key] != 'undefined') {
+					const offer = polldata.offerData[key];
+					if (!checkTradeRecord(offer)) return; // offer must have essential data to be valid
+					trades.push(generateTrade(polldata, key, offer, 'sent'));
+				} else if (typeof polldata.received[key] != 'undefined') {
+					const offer = polldata.offerData[key];
+					if (!checkTradeRecord(offer)) return; // offer must have essential data to be valid
+					trades.push(generateTrade(polldata, key, offer, 'received'));
+				} else {
+					console.log(`offer ${key} is not logged correctly`);
+				}
 			});
-			Object.keys(polldata.received).forEach((key)=>{
-				const offer = polldata.offerData[key];
-				if (!checkTradeRecord(offer)) return; // offer must have essential data to be valid
-				trades.push(generateTrade(polldata, key, offer, 'received'));
-			});
-			/*
-			_.forOwn(polldata.offerData, (offer, id) => {
-				const accepted = offer.isAccepted ? 'Yes' : 'No';
-				
-				const data = {
-					id,
-					partner: offer.partner,
-					accepted: accepted,
-					date: getDate(offer.finishTimestamp),
-					received: getItemsFromOffer(offer, 'their'),
-					sent: getItemsFromOffer(offer, 'our')
-				};
-
-				trades.push(data);
-			});*/
-
 			return trades;
 		});
 };
@@ -78,7 +64,10 @@ function getTime(unix) {
  */
 function checkTradeRecord(offer) {
 	if (typeof offer === 'undefined') return false;
-	return Object.prototype.hasOwnProperty.call(offer, 'partner') && Object.prototype.hasOwnProperty.call(offer, 'dict');
+	if (!Object.prototype.hasOwnProperty.call(offer, 'dict')) {
+		return false;
+	}
+	return true;
 }
 /**
  * Generates trade object
@@ -92,7 +81,7 @@ function generateTrade(polldata, key, offer, type) {
 	const trade = {
 		id: key,
 		type: type,
-		lastState: data.ETradeOfferState[polldata.sent[key]],
+		lastState: type=='sent' ? data.ETradeOfferState[polldata.sent[key]] : data.ETradeOfferState[polldata.received[key]],
 		lastChange: polldata.timestamps[key],
 		items: {
 			our: [],
@@ -115,7 +104,7 @@ function generateTrade(polldata, key, offer, type) {
 	}
 	if (Object.keys(offer.dict.their).length > 0) {
 		Object.keys(offer.dict.their).forEach((k)=>{
-			trade.items.our.push(createTradeItem(k, offer.dict.our[k]));
+			trade.items.their.push(createTradeItem(k, offer.dict.their[k]));
 		});
 	}
 	return trade;
@@ -128,7 +117,8 @@ function generateTrade(polldata, key, offer, type) {
  */
 function createTradeItem(sku, amount) {
 	const item = SKU.fromString(sku);
-	item.image = getImage.getImage(item.defindex);
+	item.sku = sku;
+	item.image = getImage.getImageStyle(sku);
 	item.amount = amount;
 	item.name=getName(sku);
 	return item;
