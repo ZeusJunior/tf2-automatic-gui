@@ -30,9 +30,7 @@ exports.get = async function get(toKeys, start, interval, end) {
 		ret.id = key;
 		return ret;
 	});
-	const itemStock = {};
 	let overpriceProfit = 0;
-	const overItems = {}; // items sold before being bought
 
 	const tracker = new itemTracker(toKeys, start, interval, end);
 
@@ -111,19 +109,12 @@ exports.get = async function get(toKeys, start, interval, end) {
 		}
 	}
 	// TODO: put into return object
-	console.log(iter);
-	console.log(itemStock);
-	console.log(tracker.itemStock);
-	console.log(overItems);
-	console.log(tracker.overItems);
-	console.log(`Profit from overprice: ${overpriceProfit} ${toKeys?'keys':'scrap'}.`);
-	console.log(`Total profit: ${tracker.profitTrack.profit} ${toKeys?'keys':'scrap'}.`);
-	console.log(tracker.profitTrack.profitPlot);
-	console.log(tracker.profitTrack.profitTimed);
 	return {
 		profitTotal: tracker.profitTrack.profit,
 		profitTimed: tracker.profitTrack.profitTimed,
-		profitPlot: tracker.profitTrack.profitPlot
+		profitPlot: tracker.profitTrack.profitPlot,
+		numberOfTrades: iter,
+		overpriceProfit: overpriceProfit
 	};
 };
 
