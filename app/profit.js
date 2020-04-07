@@ -94,7 +94,7 @@ exports.get = async function get(toKeys, start, interval, end) {
 		for (sku in trade.dict.our) {
 			if (Object.prototype.hasOwnProperty.call(trade.dict.our, sku)) {
 				const itemCount = trade.dict.our[sku];
-				if (sku !== '5000;6' && sku !== '5002;6' && sku !== '5001;6' && sku !== '5021;6') { // TODO: TEST KEY TRADING BOTS
+				if (sku !== '5000;6' && sku !== '5002;6' && sku !== '5001;6' && sku !== '5021;6') {
 					if (!Object.prototype.hasOwnProperty.call(trade.prices, sku)) {
 						continue; // item is not in pricelist, so we will just skip it
 					}
@@ -108,7 +108,6 @@ exports.get = async function get(toKeys, start, interval, end) {
 			tracker.profitTrack.countProfit( tracker.convert(trade.value.their, trade.value.rate) - tracker.convert(trade.value.our, trade.value.rate), trade.time);
 		}
 	}
-	// TODO: put into return object
 	return {
 		profitTotal: tracker.profitTrack.profit,
 		profitTimed: tracker.profitTrack.profitTimed,
@@ -155,6 +154,9 @@ class profitTracker {
 				const thisTradePlotBlock = Math.floor((time - this.start) / this.interval);
 				if (lastTradePlotBlock != thisTradePlotBlock && this.lastTradeTime !== -1) { // last block is done so we will push it to plot
 					this.profitPlot.push({time: lastTradePlotBlock*this.interval + this.start, profit: this.tempProfit});
+					for (let i = lastTradePlotBlock+1; i < thisTradePlotBlock; i++) { // create block even if no trades happend
+						this.profitPlot.push({time: i*this.interval + this.start, profit: 0});
+					}
 					this.tempProfit = normalizedAmount; // reset temp to value of current trade
 				} else {
 					this.tempProfit += normalizedAmount;
