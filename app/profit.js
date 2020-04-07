@@ -5,7 +5,7 @@ const axios = require('axios');
 
 // TODO: Make this into class
 /**
- * @param {Bool} toKeys convert to keys if true
+ * @param {Boolean} toKeys convert to keys if true
  * @param {Number} start time to start plot
  * @param {Number} interval time interval to plot
  * @param {Number} end time to end plot
@@ -34,14 +34,14 @@ exports.get = async function get(toKeys, start, interval, end) {
 	let overpriceProfit = 0;
 	const overItems = {}; // items sold before being bought
 
-	const tracker = new profitTracker(start, interval, end);
+	const tracker = new itemTracker(toKeys, start, interval, end);
 
 	trades.sort((a, b)=>{
 		return a.time - b.time;
 	});
 
 	let iter = 0; // to keep track of how many trades are accepted
-	for (let i = 0; i < trades.length; i++) {
+	for (let i = 0; i < trades.length; i++) { // TODO: ADMIN TRADES
 		const trade = trades[i];
 		if (!(trade.handledByUs === true && trade.isAccepted === true)) {
 			continue;// trade was not accepted, go to next trade
@@ -72,7 +72,7 @@ exports.get = async function get(toKeys, start, interval, end) {
 		}
 		for (sku in trade.dict.their) { // items bought
 			if (Object.prototype.hasOwnProperty.call(trade.dict.their, sku)) {
-				let itemCount = trade.dict.their[sku];
+				const itemCount = trade.dict.their[sku];
 
 				if (sku !== '5000;6' && sku !== '5002;6' && sku !== '5001;6' && sku !== '5021;6') { // if it is not currency
 					if (isGift) {
@@ -87,21 +87,8 @@ exports.get = async function get(toKeys, start, interval, end) {
 						continue; // item is not in pricelist, so we will just skip it
 					}
 					const prices = trade.prices[sku].buy;
-					if (Object.prototype.hasOwnProperty.call(overItems, sku)) { // if record for this item exists in overItems check it
-						if (overItems[sku].count > 0) {
-							if (overItems[sku].count >= itemCount) {
-								overItems[sku].count -= itemCount;
-								tracker.countProfit( (overItems[sku].price - convert(prices, trade.value.rate, toKeys)) * itemCount, trade.time);
-								continue; // everything is already sold no need to add to stock
-							} else {
-								itemsOverOverItems = itemCount - overItems[sku].count;
-								overItems[sku].count = 0;
-								tracker.countProfit( (overItems[sku].price - convert(prices, trade.value.rate, toKeys)) * (itemCount - itemsOverOverItems), trade.time);
-								itemCount = itemsOverOverItems;
-							}
-						}
-					}
-					addToList(itemStock, {amount: itemCount, sku: sku}, prices, trade, toKeys);
+
+					tracker.boughtItem(itemCount, sku, prices, trade.value.rate, trade.time);
 				}
 			}
 		}
@@ -110,87 +97,35 @@ exports.get = async function get(toKeys, start, interval, end) {
 			if (Object.prototype.hasOwnProperty.call(trade.dict.our, sku)) {
 				const itemCount = trade.dict.our[sku];
 				if (sku !== '5000;6' && sku !== '5002;6' && sku !== '5001;6' && sku !== '5021;6') { // TODO: TEST KEY TRADING BOTS
-					const prices = trade.prices[sku].sell;
-					if (Object.prototype.hasOwnProperty.call(itemStock, sku)) { // have we bought this item already
-						if (itemStock[sku].count >= itemCount) {
-							itemStock[sku].count -= itemCount;
-							tracker.countProfit( (convert(prices, trade.value.rate) - itemStock[sku].price) * itemCount, trade.time);
-						} else {
-							const overCount = itemCount - itemStock[sku].count;
-							addToList(overItems, {amount: overCount, sku: sku}, prices, trade, toKeys);
-							itemStock[sku].count -= itemStock[sku].count;
-							tracker.countProfit( (convert(prices, trade.value.rate) - itemStock[sku].price) * itemStock[sku].count, trade.time);
-						}
-					} else { // we have not bought this item yet
-						addToList(overItems, {amount: itemCount, sku: sku}, prices, trade, toKeys);
+					if (!Object.prototype.hasOwnProperty.call(trade.prices, sku)) {
+						continue; // item is not in pricelist, so we will just skip it
 					}
+					const prices = trade.prices[sku].sell;
+					tracker.soldItem(itemCount, sku, prices, trade.value.rate, trade.time);
 				}
 			}
 		}
 		if (!isGift) { // calculate overprice profit
-			overpriceProfit += convert(trade.value.their, trade.value.rate) - convert(trade.value.our, trade.value.rate);
-			tracker.countProfit( convert(trade.value.their, trade.value.rate) - convert(trade.value.our, trade.value.rate), trade.time);
+			overpriceProfit += tracker.convert(trade.value.their, trade.value.rate) - tracker.convert(trade.value.our, trade.value.rate);
+			tracker.profitTrack.countProfit( tracker.convert(trade.value.their, trade.value.rate) - tracker.convert(trade.value.our, trade.value.rate), trade.time);
 		}
 	}
 	// TODO: put into return object
 	console.log(iter);
 	console.log(itemStock);
+	console.log(tracker.itemStock);
 	console.log(overItems);
+	console.log(tracker.overItems);
 	console.log(`Profit from overprice: ${overpriceProfit} ${toKeys?'keys':'scrap'}.`);
-	console.log(`Total profit: ${tracker.profit} ${toKeys?'keys':'scrap'}.`);
-	console.log(tracker.profitPlot);
-	console.log(tracker.profitTimed);
+	console.log(`Total profit: ${tracker.profitTrack.profit} ${toKeys?'keys':'scrap'}.`);
+	console.log(tracker.profitTrack.profitPlot);
+	console.log(tracker.profitTrack.profitTimed);
 	return {
-		profitTotal: tracker.profit,
-		profitTimed: tracker.profitTimed,
-		profitPlot: tracker.profitPlot
+		profitTotal: tracker.profitTrack.profit,
+		profitTimed: tracker.profitTrack.profitTimed,
+		profitPlot: tracker.profitTrack.profitPlot
 	};
 };
-
-
-/**
- * 
- * @param {Object} prices {keys, metal} price to convert
- * @param {Number} keyPrice 
- * @param {Bool} toKeys 
- * @return {Number} converted
- */
-function convert(prices, keyPrice, toKeys) {
-	if (toKeys) {
-		const item = new Currency({
-			metal: prices.metal,
-			keys: prices.keys
-		}).toValue(keyPrice);
-		const key = new Currency({
-			metal: keyPrice
-		}).toValue(keyPrice);
-		return item / key;
-	} else {
-		const converted = new Currency(prices).toValue(keyPrice);
-		return converted;
-	}
-}
-/**
- * 
- * @param {Object} list list to add to
- * @param {Object} item {sku, ammount}
- * @param {Object} prices {metal, keys}
- * @param {Object} trade whole trade object
- * @param {Bool} toKeys convert to keys
- */
-function addToList(list, item, prices, trade, toKeys) {
-	if (Object.prototype.hasOwnProperty.call(list, item.sku)) { // check if record exists
-		const priceAvg = list[item.sku].price;
-		const itemCount = list[item.sku].count;
-		list[item.sku].price = ((priceAvg * itemCount) + (item.amount * convert(prices, trade.value.rate, toKeys))) / (itemCount + item.amount); // calculate new item average price
-		list[item.sku].count += item.amount;
-	} else {
-		list[item.sku] = {
-			count: item.amount,
-			price: convert(prices, trade.value.rate, toKeys)
-		};
-	}
-}
 
 /**
  * class for tracking profit and storing profit data
@@ -217,7 +152,7 @@ class profitTracker {
 
 	/**
 	 * 
-	 * @param {Number} normalizedAmount 
+	 * @param {Number} normalizedAmount amount of profit made normalized to keys or scrap
 	 * @param {Number} time trade time 
 	 */
 	countProfit(normalizedAmount, time) {
@@ -240,6 +175,115 @@ class profitTracker {
 			this.profitPlot.push({time: lastTradePlotBlock*this.interval + this.start, profit: this.tempProfit});
 			this.tempProfit = 0;
 		}
-		
+	}
+}
+/**
+ * this class tracks items in our inventory and their price
+ */
+class itemTracker {
+	/**
+	 * 
+	 * @param {Boolean} toKeys 
+	 * @param {Number} start 
+	 * @param {Number} interval 
+	 * @param {Number} end 
+	 */
+	constructor(toKeys, start, interval, end) {
+		this.toKeys = toKeys;
+		this.itemStock = {};
+		this.overItems = {}; // items sold before being bought
+		this.itemPricePlot = {};
+		this.profitTrack = new profitTracker(start, interval, end);
+	}
+
+	/**
+	 * 
+	 * @param {Number} itemCount item to add
+	 * @param {String} sku 
+	 * @param {Object} prices prices for this item
+	 * @param {Number} rate key rate
+	 * @param {Number} time
+	 */
+	boughtItem(itemCount, sku, prices, rate, time) {
+		if (Object.prototype.hasOwnProperty.call(this.overItems, sku)) { // if record for this item exists in overItems check it
+			if (this.overItems[sku].count > 0) {
+				if (this.overItems[sku].count >= itemCount) {
+					this.overItems[sku].count -= itemCount;
+					this.profitTrack.countProfit( (this.overItems[sku].price - this.convert(prices, trade.value.rate, toKeys)) * itemCount, time);
+					return; // everything is already sold no need to add to stock
+				} else {
+					itemsOverOverItems = itemCount - overItems[sku].count;
+					overItems[sku].count = 0;
+					this.profitTrack.countProfit( (overItems[sku].price - this.convert(prices, trade.value.rate, toKeys)) * (itemCount - itemsOverOverItems), time);
+					itemCount = itemsOverOverItems;
+				}
+			}
+		}
+		if (Object.prototype.hasOwnProperty.call(this.itemStock, sku)) { // check if record exists
+			const priceAvg = this.itemStock[sku].price;
+			const itemCountStock = this.itemStock[sku].count;
+			this.itemStock[sku].price = ((priceAvg * itemCountStock) + (itemCount * this.convert(prices, rate))) / (itemCountStock + itemCount); // calculate new item average price
+			this.itemStock[sku].count += itemCount;
+		} else {
+			this.itemStock[sku] = {
+				count: itemCount,
+				price: this.convert(prices, rate)
+			};
+		}
+	}
+
+	/**
+	 * 
+	 * @param {Number} itemCount number of items sold
+	 * @param {String} sku 
+	 * @param {Object} prices prices for item sold
+	 * @param {Number} rate key rate
+	 * @param {Number} time time of trade
+	 */
+	soldItem(itemCount, sku, prices, rate, time) {
+		if (Object.prototype.hasOwnProperty.call(this.itemStock, sku)) { // have we bought this item already
+			if (this.itemStock[sku].count >= itemCount) {
+				this.itemStock[sku].count -= itemCount;
+				this.profitTrack.countProfit( (this.convert(prices, rate) - this.itemStock[sku].price) * itemCount, time);
+				return;
+			} else {
+				this.profitTrack.countProfit( (this.convert(prices, rate) - this.itemStock[sku].price) * this.itemStock[sku].count, time);
+				itemCount -= this.itemStock[sku].count;
+				this.itemStock[sku].count = 0;
+			}
+		}
+		if (Object.prototype.hasOwnProperty.call(this.overItems, sku)) { // check if record exists
+			const priceAvg = this.overItems[sku].price;
+			const itemCountStock = this.overItems[sku].count;
+			this.overItems[sku].price = ((priceAvg * itemCountStock) + (itemCount * this.convert(prices, rate))) / (itemCountStock + itemCount); // calculate new item average price
+			this.overItems[sku].count += itemCount;
+		} else {
+			this.overItems[sku] = {
+				count: itemCount,
+				price: this.convert(prices, rate)
+			};
+		}
+	}
+
+	/**
+	 * 
+	 * @param {Object} prices {keys, metal} price to convert
+	 * @param {Number} keyPrice 
+	 * @return {Number} converted
+	 */
+	convert(prices, keyPrice) {
+		if (this.toKeys) {
+			const item = new Currency({
+				metal: prices.metal,
+				keys: prices.keys
+			}).toValue(keyPrice);
+			const key = new Currency({
+				metal: keyPrice
+			}).toValue(keyPrice);
+			return item / key;
+		} else {
+			const converted = new Currency(prices).toValue(keyPrice);
+			return converted;
+		}
 	}
 }
