@@ -1,5 +1,6 @@
 const defindexes = require('../resources/defindexes');
 const _ = require('lodash');
+const Schema = require('../app/schema');
 
 
 module.exports = function(itemInfo) {
