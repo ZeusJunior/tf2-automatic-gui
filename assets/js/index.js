@@ -209,6 +209,13 @@ const app = new Vue({
 		}
 
 	},
+	computed: {
+		pricelistFiltered() {
+			return this.pricelist.filter((item) => {
+				return item.name.toLowerCase().indexOf(this.searchPricelist.toLowerCase()) > -1;
+			});
+		}
+	},
 	created() {
 		this.loadItems();
 	}
