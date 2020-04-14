@@ -4,7 +4,8 @@ new Vue({
 		tradeList: [],
 		toShow: 50,
 		search: '',
-		order: 0
+		order: 0,
+		acceptedOnly: 0
 	},
 	methods: {
 		loadTrades: function() {
@@ -31,7 +32,7 @@ new Vue({
 	computed: {
 		filteredTrades() {
 			return this.tradeList.filter((trade) => {
-				return trade.id.indexOf(this.search.toLowerCase()) > -1;
+				return ( (trade.id.indexOf(this.search.toLowerCase()) > -1) || (trade.partner.indexOf(this.search.toLowerCase()) > -1) ) && (trade.accepted || !this.acceptedOnly);
 			});
 		},
 		sortedTrades() {
