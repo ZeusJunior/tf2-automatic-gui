@@ -202,12 +202,12 @@ class itemTracker {
 			if (this.overItems[sku].count > 0) {
 				if (this.overItems[sku].count >= itemCount) {
 					this.overItems[sku].count -= itemCount;
-					this.profitTrack.countProfit( (this.overItems[sku].price - this.convert(prices, trade.value.rate, toKeys)) * itemCount, time);
+					this.profitTrack.countProfit( (this.overItems[sku].price - this.convert(prices, rate)) * itemCount, time);
 					return; // everything is already sold no need to add to stock
 				} else {
 					itemsOverOverItems = itemCount - overItems[sku].count;
 					overItems[sku].count = 0;
-					this.profitTrack.countProfit( (overItems[sku].price - this.convert(prices, trade.value.rate, toKeys)) * (itemCount - itemsOverOverItems), time);
+					this.profitTrack.countProfit( (overItems[sku].price - this.convert(prices, rate)) * (itemCount - itemsOverOverItems), time);
 					itemCount = itemsOverOverItems;
 				}
 			}
