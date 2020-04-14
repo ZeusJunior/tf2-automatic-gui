@@ -91,7 +91,7 @@ function generateTrade(polldata, key, offer, type) {
 		partner: offer.partner,
 		accepted: offer.accepted,
 		time: offer.finishTimestamp,
-		datetime: moment.unix(Math.floor(offer.finishTimestamp/1000)).format('D. M. YYYY HH:mm'),
+		datetime: moment.unix(Math.floor(offer.finishTimestamp/1000)).format('ddd D-M-YYYY HH:mm'),
 		value: offer.value,
 		prices: offer.prices,
 		accepted: offer.handledByUs === true && offer.isAccepted === true

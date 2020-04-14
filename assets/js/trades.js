@@ -32,7 +32,7 @@ new Vue({
 	computed: {
 		filteredTrades() {
 			return this.tradeList.filter((trade) => {
-				return ( (trade.id.indexOf(this.search.toLowerCase()) > -1) || (trade.partner.indexOf(this.search.toLowerCase()) > -1) ) && (trade.accepted || !this.acceptedOnly);
+				return ( (trade.id.indexOf(this.search.toLowerCase()) > -1) || (String(trade.partner).indexOf(this.search.toLowerCase()) > -1) ) && (trade.accepted || !this.acceptedOnly);
 			});
 		},
 		sortedTrades() {

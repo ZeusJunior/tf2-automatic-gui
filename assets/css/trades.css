@@ -29,10 +29,10 @@
 	background-color:rgba(255, 255, 255, 0.7);
 }
 .trade {
-	background-color: #78e23b;
+	background-color: #1b86ce;
 }
 .trade.declined {
-	background-color: #ff3232;
+	opacity: 0.7;
 }
 .container-fluid {
 	max-width:1170px;
@@ -48,3 +48,6 @@
 	right: 5px;
  }
  
+ a {
+	color:black !important ;
+  }
