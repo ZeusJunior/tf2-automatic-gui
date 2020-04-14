@@ -1,6 +1,5 @@
 let chart = {};
 
-
 const app = new Vue({
 	el: '#app',
 	data: {
@@ -32,11 +31,24 @@ const app = new Vue({
 			type: 'time',
 			mode: true
 		}),
-		interval: 3600
+		interval: 3600,
+		msg: {
+			text: '',
+			type: '',
+			enabled: false
+		}
 	},
 	methods: {
+		sendMessage: function(type, text) {
+			this.msg.enabled = true;
+			this.msg.text = text;
+			this.msg.type = type;
+		},
+		closeMessage: function() {
+			this.msg.enabled = false;
+		},
 		refresh: function() {
-			// TODO PARAMS
+			this.sendMessage('primary', 'Loading');
 			start = moment(this.start).unix();
 			end = moment(this.end).unix();
 			$.ajax({
@@ -51,6 +63,11 @@ const app = new Vue({
 					toKeys: this.toKeys
 				},
 				success: function(data, status) {
+					if (data.success == 0) {
+						app.sendMessage('danger', 'Failed: Missing polldata.json');
+						return;
+					}
+					app.sendMessage('success', 'Loaded successfully');
 					app.profit.profitTotal = data.data.profitTotal;
 					app.profit.profitTimed = data.data.profitTimed;
 					app.profit.numberOfTrades = data.data.numberOfTrades;
