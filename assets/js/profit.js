@@ -75,7 +75,7 @@ const app = new Vue({
 					chart.data.datasets[0].data = []; // clear chart before reload
 					chart.data.labels = [];
 					data.data.profitPlot.forEach((element) => {
-						chart.data.labels.push(moment.unix(element.time).format('D. M. Y H:mm:ss'));
+						chart.data.labels.push(moment.unix(element.time).format('ddd D. M. Y H:mm:ss'));
 						if (!app.toKeys) {
 							chart.data.datasets[0].data.push(element.profit.toFixed(1));
 						} else {
