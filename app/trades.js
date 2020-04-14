@@ -95,7 +95,8 @@ function generateTrade(polldata, key, offer, type) {
 		confirmationTime: offer.confirmationTime,
 		actedOnConfirmation: offer.actedOnConfirmation,
 		value: offer.value,
-		prices: offer.prices
+		prices: offer.prices,
+		accepted: offer.handledByUs === true && offer.isAccepted === true
 	};
 	if (Object.keys(offer.dict.our).length > 0) {
 		Object.keys(offer.dict.our).forEach((k)=>{
@@ -118,8 +119,8 @@ function generateTrade(polldata, key, offer, type) {
 function createTradeItem(sku, amount) {
 	const item = SKU.fromString(sku);
 	item.sku = sku;
-	item.image = getImage.getImageStyle(sku);
+	item.name = getName(item.sku);
+	item.style = getImage.getImageStyle(item.sku);
 	item.amount = amount;
-	item.name=getName(sku);
 	return item;
 }

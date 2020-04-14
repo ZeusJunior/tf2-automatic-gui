@@ -1,170 +1,84 @@
 <!DOCTYPE HTML>
 <html lang="en">
-<head lang="en">
+<head>
   <meta charset="UTF-8">
   <title>Unofficial tf2-automatic GUI</title>
-  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/css/search.css">
+  <link rel="stylesheet" href="/css/scrollButton.css">
+  <link rel="stylesheet" href="/css/index.css">
+  
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdn.datatables.net/v/bs4/dt-1.10.20/datatables.min.css"/>
   <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-  <script src="https://cdn.datatables.net/v/bs4/dt-1.10.20/datatables.min.js"></script>
-  <script src='/search.js'></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+  <script src='/js/search.js'></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.css"/>
+  <!-- development version, includes helpful console warnings -->
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 </head>
 <body>
 
   <%- include("partials/navbar") %>
-  <div class="container-xl pt-4 pb-4 bg-light border border-top-0 rounded-bottom">
-    <!-- TRADE MODAL -->
-    <div class="modal fade bd-example-modal-lg" id="tradeModal" tabindex="-1" role="dialog" aria-labelledby="tradeModal" aria-hidden="true">
-      <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Trade info</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <div class="form-row">
-              <div class="col">
-                <label for="offerid">Offer Id</label>
-                <input type="text" class="form-control" id="offerid" disabled>
-              </div>
-              <div class="col">
-                <label for="partner">Partner</label>
-                <input type="text" class="form-control" id="partner" disabled>
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="col">
-                <label for="sent">Sent items</label>
-                <textarea class="form-control" id="sent" rows="3" disabled></textarea>
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="col">
-                <label for="received">Received items</label>
-                <textarea class="form-control" id="received" rows="3" disabled></textarea>
-              </div>
-            </div>
-          </div>
-        </div>
+  <div class="container-fluid pt-4 pb-4 bg-light border border-top-0 rounded-bottom" id="app">
+    <% if(!polldata) {  %> 
+      <div style="text-align: center;">
+        <h1>You are missing the polldata.json file. <br> Please add it to the config folder if you want to use this feature.</h1>
       </div>
-    </div>
-
-      <% if(!polldata) {  %> 
-        <div style="text-align: center;">
-          <h1>You are missing the polldata.json file. <br> Please add it to the config folder if you want to use this feature.</h1>
-        </div>
-      <% } else { %>
+    <% } else { %>
       <div style="text-align: center;">
         <h1>Trades</h1>
       </div>
-      <div style="width: 90%" class="mx-auto">
-        <table class="table table-hover"> 
-          <thead>
-            <tr>
-              <th scope="col">Offer Id</th>
-              <th scope="col">Partner</th>
-              <th scope="col">Accepted</th>
-              <th scope="col">Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% data.forEach(trade => { %>
-              <tr data-offerid="<%= trade.id %>" data-partner="<%= trade.partner %>" data-sent="<%= trade.sent %>" data-received="<%= trade.received %>">
-                <th style="font-weight: normal;"><%- trade.id %></th>
-                <td><%- trade.partner %> </td>
-                <td><%- trade.accepted %> </td>
-                <td><%- trade.date %></td>
-              </tr>
-            <% }); %>
-          </tbody>
-          <tfoot>
-            <tr>
-              <th scope="col">Offer Id</th>
-              <th scope="col">Partner</th>
-              <th scope="col">Accepted</th>
-              <th scope="col">Date</th>
-            </tr>
-          </tfoot>
-        </table>
+      <input class="form-control mr-sm-2" id="searchPricelist" type="search" placeholder="Search for trade ID" aria-label="Search" autocomplete="off" v-model="search">
+      <label for="order">Sort trades by time</label>
+      <select name="intent" class="form-control" id="order" v-model="order">
+        <option value="0">Descending</option>
+        <option value="1">Ascending</option>
+      </select>
+//TODO MAKE SWITCH FOR ONLY ACCEPTED
+      <div class="d-flex mt-3 flex-column justify-content-center flex-wrap" id="tradeList">
+        <div class="p-2 rounded border m-2 trade" v-for="(trade, index) in sortedTrades" :key="trade.id" v-if="index < toShow" :class="trade.accepted? '': 'declined'">
+          <div>
+            Trade <b>#{{trade.id}}</b> with <a :href="'https://steamcommunity.com/profiles/' + trade.partner">{{trade.partner}}</a>
+          </div>
+          <div class="row">
+            <div class="col">
+              <div>Our:</div>
+            </div>
+            <div class="col">
+              <div>Their:</div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col d-flex justify-content-center item-list p-0">
+              <div class="item m-1" v-for="item in trade.items.our" :key="item.sku" :style="{ backgroundImage: `url(` + item.style.image_small + `)`, backgroundColor: item.style.quality_color, borderStyle: item.style.craftable? false : 'dashed'}">
+                <div class="info text-center font-weight-bold">
+                  {{item.name}}
+                </div>
+                <div class="item-count">
+                  <b>{{item.amount}}X</b>
+                </div>
+              </div>
+            </div>
+            <div class="col d-flex justify-content-center item-list">
+              <div class="item m-1" v-for="item in trade.items.their" :key="item.sku" :style="{ backgroundImage: `url(` + item.style.image_small + `)`, backgroundColor: item.style.quality_color, borderStyle: item.style.craftable? false : 'dashed'}">
+                <div class="info text-center font-weight-bold">
+                  {{item.name}}
+                </div>
+                <div class="item-count">
+                  <b>{{item.amount}}X</b>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="p-2" v-if="tradeList.length >= toShow" @click="toShow+=25">
+          Show More
+        </button>
       </div>
-      <label for="start">start</label>
-      <input type="text"name="start"  id="start">
-      <label for="end">end</label>
-      <input type="text"name="end"  id="end">
-      <label for="interval">interval</label>
-      <input type="text" name="interval" id="interval">
-      <input type="datetime-local" name="" id="">
-      <button onclick="refresh()">Refresh</button>
-      <div class="chart-container" style="position: relative">
-        <canvas id="myChart"></canvas>
-    </div>
     <% } %>
-    
   </div>
-  
-<script>
-var ctx = document.getElementById('myChart').getContext('2d');
-var chart = new Chart(ctx, {
-    // The type of chart we want to create
-    type: 'bar',
-
-    // The data for our dataset
-    data: {
-        labels: [],
-        datasets: [{
-            label: 'Profit',
-            backgroundColor: 'rgb(71, 255, 0)',
-            borderColor: 'rgb(0, 0, 0)',
-            data: []
-        }]
-    },
-
-    // Configuration options go here
-    options: {
-        responsive: true,
-        title: {
-            display: true,
-            text: 'Profit'
-        },
-        scales: {
-            xAxes: [{
-                display: true
-            }],
-            yAxes: [{
-                display: true
-            }]
-        }
-    }
-});
-//function refresh(){
-  // TODO PARAMS
-  fetch('/getProfit?start=1585699200&end=1585872000&interval=3600')
-				.then((response) => {
-					return response.json();
-				})
-				.then((data) => {
-					data.data.profitPlot.forEach((element) => {
-            chart.data.labels.push(moment.unix(element.time).format("D. M. Y H:mm:ss"));
-            chart.data.datasets[0].data.push(element.profit)
-          });
-          chart.update();
-				})
-				.catch((error) => {
-					console.error('Error:', error);
-        });
-//}
-
-        
-
-</script>
-  <script src='/trades.js'></script>
+  <button onclick="topFunction()" id="scrollBtn" title="Go to top">Top</button>
+  <script src='/js/trades.js'></script>
+  <script src='/js/scrollButton.js'></script>
 </body>
 </html>
