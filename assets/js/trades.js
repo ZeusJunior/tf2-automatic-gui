@@ -37,11 +37,10 @@ new Vue({
 		},
 		sortedTrades() {
 			return this.filteredTrades.sort((a, b) => {
-				if (this.order == 0) {
-					return a.time - b.time;
-				} else {
-					return b.time - a.time;
+				if (this.order != 0) {
+					b = [a, a = b][0];
 				}
+				return a.time - b.time;
 			});
 		}
 	},
