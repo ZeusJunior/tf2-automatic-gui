@@ -269,10 +269,10 @@ class itemTracker {
 			const item = new Currency({
 				metal: prices.metal,
 				keys: prices.keys
-			}).toValue(keyPrice);
+			}).toValue(keyPrice); // get value in scrap 
 			const key = new Currency({
 				metal: keyPrice
-			}).toValue(keyPrice);
+			}).toValue(keyPrice); // get value in scrap 
 			return item / key;
 		} else {
 			const converted = new Currency(prices).toValue(keyPrice);
