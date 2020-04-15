@@ -40,6 +40,10 @@ const app = new Vue({
 			text: '',
 			type: '',
 			enabled: false
+		},
+		sort: {
+			type: 0,
+			asc: true
 		}
 	},
 	methods: {
@@ -211,6 +215,32 @@ const app = new Vue({
 	},
 	computed: {
 		pricelistFiltered() {
+			return this.pricelist.filter((item) => {
+				return item.name.toLowerCase().indexOf(this.searchPricelist.toLowerCase()) > -1;
+			});
+		},
+		pricelistSorted() {
+			return this.pricelistFiltered.sort((a, b) => {
+				if (!this.sort.asc) {
+					b = [a, a = b][0];
+				}
+				switch (Number(this.sort.type)) {
+				default:
+				case 0: // name
+					return ('' + a.name).localeCompare(b.name);
+				case 1: // sell price
+					return a.sell.total - b.sell.total;
+					break;
+				case 2: // buy price
+					return a.buy.total - b.buy.total;
+					break;
+				}
+				if (this.order == 0) {
+					return a.time - b.time;
+				} else {
+					return b.time - a.time;
+				}
+			});
 			return this.pricelist.filter((item) => {
 				return item.name.toLowerCase().indexOf(this.searchPricelist.toLowerCase()) > -1;
 			});

@@ -59,8 +59,11 @@
 						<div class="modal-body">
 						  <div class="form-row">
 							<div class="col">
-							  <label >Name</label>
-							  <input type="text" class="form-control" id="pricename" name="name" required v-model="modal.item.name" :disabled="modal.edit">
+								<label >Name</label>
+								<input type="text" class="form-control" id="pricename" name="name" required v-model="modal.item.name" :disabled="modal.edit">
+								<!-- 
+									TODO: ADD SEARCH HERE
+								-->
 							</div>
 						  </div>
 						  <div class="form-row">
@@ -184,6 +187,15 @@
 				</div>
 			</li>
 			<li class="nav-item">
+				<label for="sortType">Sort by:</label>
+				<select name="sortType" id="sortType" v-model="sort.type">
+					<option value=0>Name</option>
+					<option value=1>Sell price</option>
+					<option value=2>Buy price</option>
+				</select>
+				<button type="button" class="btn btn-primary" @click="sort.asc = !sort.asc">{{sort.asc?'ascending':'descending'}}</button>
+			</li>
+			<li class="nav-item">
 				<input class="form-control mr-sm-2" id="searchPricelist" type="search" placeholder="Search" aria-label="Search" autocomplete="off" v-model="searchPricelist">
 			</li>
 		</ul>
@@ -199,7 +211,7 @@
 		</div>
 		
 		<div class="d-flex mt-3 flex justify-content-center flex-wrap" id="pricelist">
-			<div class="item m-1" v-for="item in pricelistFiltered" :key="item.sku" :style="{ backgroundImage: `url(` + item.style.image_small + `)`, backgroundColor: item.style.quality_color, borderStyle: item.style.craftable? false : 'dashed', opacity: item.enabled?1:0.5}" @click="itemClick(item, $event)">
+			<div class="item m-1" v-for="item in pricelistSorted" :key="item.sku" :style="{ backgroundImage: `url(` + item.style.image_small + `)`, backgroundColor: item.style.quality_color, borderStyle: item.style.craftable? false : 'dashed', opacity: item.enabled?1:0.5}" @click="itemClick(item, $event)">
 				<div class="info text-center font-weight-bold" v-if="!removeSelect.list.includes(item.sku)">
 					{{item.name}}
 				</div>
