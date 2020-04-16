@@ -7,7 +7,7 @@ router.get('/', (req, res) => {
 	const results = searchSchemaByNamePart(search);
 	
 	res.json({
-		results
+		results: results.slice(0, 5) // no need to return more than used
 	});
 });
 
