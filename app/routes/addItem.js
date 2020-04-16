@@ -5,7 +5,7 @@ const pricelist = require('../pricelist');
 
 router.post('/', (req, res) => {
 	const { name, min, max, intent, sellmetal, sellkeys, buymetal, buykeys, autoprice } = req.body;
-	const autopriced = autoprice == 'true';
+	const autopriced = autoprice;
 
 	if (name.includes('classifieds')) {
 		res.json({
