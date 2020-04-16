@@ -16,8 +16,8 @@ router.post('/', (req, res) => {
 		return;
 	}
 
-	const sellvalues = new Currency({keys: sellkeys, metal: sellmetal.replace(',', '.')}).toJSON();
-	const buyvalues = new Currency({keys: buykeys, metal: buymetal.replace(',', '.')}).toJSON();
+	const sellvalues = new Currency({keys: sellkeys, metal: sellmetal}).toJSON();
+	const buyvalues = new Currency({keys: buykeys, metal: buymetal}).toJSON();
 
 	// lower sell keys
 	if (sellvalues.keys < buyvalues.keys) {
@@ -49,8 +49,8 @@ router.post('/', (req, res) => {
 		intent: parseInt(intent),
 		min: parseInt(min),
 		max: parseInt(max),
-		autoprice: autoprice == 'true',
-		enabled: enabled == 'true'
+		autoprice: autoprice,
+		enabled: enabled
 	};
 
 	item.time = item.autoprice ? parseInt(new Date().getTime() / 1000) : 0;

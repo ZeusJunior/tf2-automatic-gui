@@ -20,7 +20,7 @@ const app = new Vue({
 	el: '#app',
 	data: {
 		searchPricelist: '',
-		removeSelect: {
+		multiSelect: {
 			enabled: false,
 			all: false,
 			list: []
@@ -60,12 +60,12 @@ const app = new Vue({
 			};
 		},
 		itemClick: function(item, e) {
-			if (this.removeSelect.enabled) {
-				const index = this.removeSelect.list.indexOf(item.sku);
+			if (this.multiSelect.enabled) {
+				const index = this.multiSelect.list.indexOf(item.sku);
 				if (index == -1) {
-					this.removeSelect.list.push(item.sku);
+					this.multiSelect.list.push(item.sku);
 				} else {
-					this.removeSelect.list.splice(index, 1);
+					this.multiSelect.list.splice(index, 1);
 				}
 			} else {
 				this.modal.item= {
@@ -101,7 +101,7 @@ const app = new Vue({
 					console.error('Error:', error);
 				});
 		},
-		saveItem: function(item, edit) {
+		saveItem: async function(item, edit, fromModal) {
 			postData = {
 				name: item.name,
 				sku: item.sku,
@@ -115,19 +115,20 @@ const app = new Vue({
 				buymetal: item.buy.metal,
 				enabled: item.enabled
 			};
-			$('#priceModal').modal('hide');
+			if (fromModal) {
+				$('#priceModal').modal('hide');
+			}
 			const url = edit ? '/changeItem' : '/addItem';
-			$.ajax({
-				type: 'POST',
+			const res = await axios({
+				method: 'post',
 				url: url,
-				data: postData,
-				success: function(data, status) {
-					app.sendMessage(data.msg.type, data.msg.message);
-					app.loadItems();
-				},
-				dataType: 'json',
-				traditional: true
+				data: postData
 			});
+			
+			app.sendMessage(res.data.msg.type, res.data.msg.message);
+			if (fromModal) {
+				app.loadItems();
+			}
 		},
 		deleteItem: function(item) {
 			postData = { list: [item.sku] };
@@ -177,13 +178,13 @@ const app = new Vue({
 		},
 		removeItems: function() {
 			$('#areYouSure').modal('hide');
-			this.removeSelect.enabled = false;
-			if (this.removeSelect.all) {
+			this.multiSelect.enabled = false;
+			if (this.multiSelect.all) {
 				$.ajax({
 					type: 'POST',
 					url: '/clearPricelist',
 					success: function(data, status) {
-						this.removeSelect.list = [];
+						this.multiSelect.list = [];
 						app.sendMessage(data.msg.type, data.msg.message);
 						app.loadItems();
 					},
@@ -195,10 +196,10 @@ const app = new Vue({
 					type: 'POST',
 					url: '/removeItems',
 					data: {
-						list: this.removeSelect.list
+						list: this.multiSelect.list
 					},
 					success: function(data, status) {
-						app.removeSelect.list = [];
+						app.multiSelect.list = [];
 						app.sendMessage(data.msg.type, data.msg.message);
 						app.loadItems();
 					},
@@ -207,16 +208,28 @@ const app = new Vue({
 				});
 			}
 		},
-		removeSelectToggle: function() {
-			this.removeSelect.enabled = !this.removeSelect.enabled;
-			this.removeSelect.list = [];
+		multiSelectToggle: function() {
+			this.multiSelect.enabled = !this.multiSelect.enabled;
+			this.multiSelect.list = [];
+		},
+		changeEnableState: async function(newState) {
+			this.multiSelect.enabled = false;
+			for (let i = 0; i < this.multiSelect.list.length; i++) {
+				const item = this.pricelist.filter((item) => {
+					return item.sku.indexOf(this.multiSelect.list[i]) > -1;
+				})[0];
+				item.enabled = newState;
+				await this.saveItem(item, true, true); // await so we are not sending miltiple requests at the same time, othewise polldata will get corrupted
+			}
+			this.multiSelect.list = [];
+			app.loadItems();
 		}
 
 	},
 	computed: {
 		pricelistFiltered() {
 			return this.pricelist.filter((item) => {
-				return item.name.toLowerCase().indexOf(this.searchPricelist.toLowerCase()) > -1;
+				return item.name.toLowerCase().indexOf(this.searchPricelist.toLowerCase()) > -1 || item.sku.toLowerCase().indexOf(this.searchPricelist.toLowerCase()) > -1; // search by name or sku
 			});
 		},
 		pricelistSorted() {
@@ -235,14 +248,6 @@ const app = new Vue({
 					return a.buy.total - b.buy.total;
 					break;
 				}
-				if (this.order == 0) {
-					return a.time - b.time;
-				} else {
-					return b.time - a.time;
-				}
-			});
-			return this.pricelist.filter((item) => {
-				return item.name.toLowerCase().indexOf(this.searchPricelist.toLowerCase()) > -1;
 			});
 		}
 	},
