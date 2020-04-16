@@ -32,11 +32,11 @@ router.post('/', (req, res) => {
 	let sellvalues;
 	let buyvalues;
 	if (!autopriced) {
-		sellvalues = new Currency({ keys: sellkeys, metal: sellmetal.replace(',', '.') }).toJSON();
-		buyvalues = new Currency({ keys: buykeys, metal: buymetal.replace(',', '.') }).toJSON();
+		sellvalues = new Currency({ keys: sellkeys, metal: sellmetal}).toJSON();
+		buyvalues = new Currency({ keys: buykeys, metal: buymetal}).toJSON();
 	
 		// lower sell keys
-		if (sellvalues.keys < buyvalues.keys) {
+		if (sellvalues.keys < buyvalues.keys && intent != 0) {
 			res.json({
 				success: 0,
 				msg: {
@@ -47,7 +47,7 @@ router.post('/', (req, res) => {
 			return;
 		}
 		// Same amount of keys, lower or equal sell metal
-		if (sellvalues.keys === buyvalues.keys && sellvalues.metal <= buyvalues.metal) {
+		if (sellvalues.keys === buyvalues.keys && sellvalues.metal <= buyvalues.metal && intent != 0) {
 			res.json({
 				success: 0,
 				msg: {
