@@ -40,5 +40,10 @@ exports.getImageStyle = function getImageStyle(sku) {
 	};
 	const img = getImageFromSKU(sku);
 	const item = SKU.fromString(sku);
-	return {quality_color: qualityColors[item.quality], craftable: item.craftable, image_small: img.small, image_arge: img.large};
+	return {
+		quality_color: qualityColors[item.quality],
+		border_color: (typeof item.quality2 != 'undefined') ? qualityColors[item.quality2] : '#000000',
+		craftable: item.craftable,
+		image_small: img.small,
+		image_arge: img.large};
 };
