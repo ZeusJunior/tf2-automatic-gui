@@ -1,4 +1,4 @@
-Schema = require('./../app/schema.js');
+Schema = require('./../app/schema');
 
 module.exports = function({ item, schemaItem }) {
 	if (!isCrate(schemaItem)) {

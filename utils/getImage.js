@@ -1,6 +1,6 @@
 const Schema = require('../app/schema');
 const SKU = require('tf2-sku');
-const { qualityColors } = require('../app/data.js');
+const { qualityColors } = require('../app/data');
 
 /**
  * 
