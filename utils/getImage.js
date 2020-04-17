@@ -27,8 +27,8 @@ exports.getImageStyle = function getImageStyle(sku) {
 	const item = SKU.fromString(sku);
 	return {
 		quality_color: qualityColors[item.quality],
-		border_color: (typeof item.quality2 != null) ? qualityColors[item.quality2] : '#000000',
+		border_color: (item.quality2 != null) ? qualityColors[item.quality2] : '#000000',
 		craftable: item.craftable,
 		image_small: img.small,
-		image_arge: img.large};
+		image_large: img.large};
 };

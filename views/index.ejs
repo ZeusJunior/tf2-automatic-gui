@@ -4,7 +4,6 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Unofficial tf2-automatic GUI</title>
-	<link rel="stylesheet" href="/css/search.css">
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretty-checkbox@3.0/dist/pretty-checkbox.min.css">
 	<link rel="stylesheet" href="/css/index.css">
@@ -13,7 +12,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 	<!-- development version, includes helpful console warnings -->
 	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-	<script src='/js/search.js'></script>
+	<script src="https://unpkg.com/vue-async-computed"></script>
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
 <body>
@@ -61,7 +60,18 @@
 						  <div class="form-row">
 							<div class="col">
 								<label >Name</label>
-								<input type="text" class="form-control" id="pricename" name="name" required v-model="modal.item.name" :disabled="modal.edit">
+								<input class="form-control" id="pricename" name="name"  type="search" placeholder="Item name" aria-label="Search" autocomplete="off" required v-model="modal.item.name" :disabled="modal.edit" @focus="modal.searchFocus=true" @focusout="modal.searchFocus=false" @input="modal.searchDisable=false">
+								
+
+								
+								<ul class="dropdown-menu search-dropdown" style="display: block; left: auto; width: 98%;" v-if="modal.searchFocus && !modal.searchDisable">
+									<li class="header dropdown-item-text"  v-if="modal.item.name==''">What item are you looking for?</li>
+									<li class="mini-price dropdown-item" v-for="item in itemSearch" :key="item.defindex" @mousedown="searchClick(item)"><!-- this must have mousedown event because it is fired before focusout-->
+										<div class="item-mini" :style="{ backgroundImage: `url(` + item.image_small + `)`, backgroundColor: item.quality_color, borderStyle: item.craftable? false : 'dashed', borderColor: item.border_color}"><img :src="item.image_small"></div>
+										<div class="item_name"> {{item.name}}</div>
+									</li>
+								</ul>
+								
 								<!-- 
 									TODO: ADD SEARCH HERE
 								-->
@@ -214,7 +224,7 @@
 		</div>
 		
 		<div class="d-flex mt-3 flex justify-content-center flex-wrap" id="pricelist">
-			<div class="item m-1" v-for="item in pricelistSorted" :key="item.sku" :style="{ backgroundImage: `url(` + item.style.image_small + `)`, backgroundColor: item.style.quality_color, borderStyle: item.style.craftable? false : 'dashed', opacity: item.enabled?1:0.5}" @click="itemClick(item, $event)">
+			<div class="item m-1" v-for="item in pricelistSorted" :key="item.sku" :style="{ backgroundImage: `url(` + item.style.image_small + `)`, backgroundColor: item.style.quality_color, borderStyle: item.style.craftable? false : 'dashed', opacity: item.enabled?1:0.5, borderColor: item.style.border_color}" @click="itemClick(item, $event)">
 				<div class="info text-center font-weight-bold" v-if="!multiSelect.list.includes(item.sku)">
 					{{item.name}}
 				</div>
@@ -224,6 +234,6 @@
 			</div>
 		</div>
 	</div>
-	<script src=/js/index.js></script>
+	<script src="/js/index.js"></script>
 </body>
 </html>

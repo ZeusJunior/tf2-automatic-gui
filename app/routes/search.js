@@ -4,10 +4,10 @@ const searchSchemaByNamePart = require('../../utils/searchSchemaByNamePart');
 
 router.get('/', (req, res) => {
 	const search = decodeURIComponent(req.query.text);
-	const results = searchSchemaByNamePart(search);
+	const results = searchSchemaByNamePart(search, 5);
 	
 	res.json({
-		results: results.slice(0, 5) // no need to return more than used
+		results
 	});
 });
 

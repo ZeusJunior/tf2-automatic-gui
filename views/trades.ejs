@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>Unofficial tf2-automatic GUI</title>
-  <link rel="stylesheet" href="/css/search.css">
   <link rel="stylesheet" href="/css/scrollButton.css">
   <link rel="stylesheet" href="/css/trades.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretty-checkbox@3.0/dist/pretty-checkbox.min.css">
@@ -11,7 +10,6 @@
   <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-  <script src='/js/search.js'></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
   <!-- development version, includes helpful console warnings -->
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
@@ -57,7 +55,7 @@
           <div class="row">
             <div class="col item-list">
               <div>Our: {{trade.hasOwnProperty('value')? `${trade.value.our.keys} keys, ${trade.value.our.metal} metal`: ''}}</div>
-              <div class="item m-1 float-left" v-for="item in trade.items.our" :key="item.sku" :style="{ backgroundImage: `url(` + item.style.image_small + `)`, backgroundColor: item.style.quality_color, borderStyle: item.style.craftable? false : 'dashed'}">
+              <div class="item m-1 float-left" v-for="item in trade.items.our" :key="item.sku" :style="{ backgroundImage: `url(` + item.style.image_small + `)`, backgroundColor: item.style.quality_color, borderStyle: item.style.craftable? false : 'dashed',  borderColor: item.style.border_color}">
                 <div class="info text-center font-weight-bold">
                   {{item.name}}
                 </div>
@@ -68,7 +66,7 @@
             </div>
             <div class="col item-list">
               <div>Their: {{trade.hasOwnProperty('value')? `${trade.value.their.keys} keys, ${trade.value.their.metal} metal`: ''}}</div>
-              <div class="item m-1 float-left" v-for="item in trade.items.their" :key="item.sku" :style="{ backgroundImage: `url(` + item.style.image_small + `)`, backgroundColor: item.style.quality_color, borderStyle: item.style.craftable? false : 'dashed'}">
+              <div class="item m-1 float-left" v-for="item in trade.items.their" :key="item.sku" :style="{ backgroundImage: `url(` + item.style.image_small + `)`, backgroundColor: item.style.quality_color, borderStyle: item.style.craftable? false : 'dashed', borderColor: item.style.border_color}">
                 <div class="info text-center font-weight-bold">
                   {{item.name}}
                 </div>

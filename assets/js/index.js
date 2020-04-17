@@ -27,7 +27,10 @@ const app = new Vue({
 		},
 		modal: {
 			item: itemTemplate,
-			edit: false
+			edit: false,
+			searchResults: [],
+			searchFocus: false,
+			searchDisable: false
 		},
 		bulk: {
 			input: '',
@@ -102,6 +105,13 @@ const app = new Vue({
 				});
 		},
 		saveItem: async function(item, edit, fromModal) {
+			if (item.name === '') {
+				app.sendMessage('danger', 'Item name is missing');
+				if (fromModal) {
+					$('#priceModal').modal('hide');
+				}
+				return;
+			}
 			postData = {
 				name: item.name,
 				sku: item.sku,
@@ -223,6 +233,10 @@ const app = new Vue({
 			}
 			this.multiSelect.list = [];
 			app.loadItems();
+		},
+		searchClick: function(item) {
+			this.modal.item.name = item.name;
+			this.modal.searchDisable = true;
 		}
 
 	},
@@ -249,6 +263,20 @@ const app = new Vue({
 					break;
 				}
 			});
+		}
+	},
+	// TODO MAKING ISSUES - put it to update on change in input rather than here, i removed async plugin from ejs already
+	asyncComputed: {
+		async itemSearch() {
+			if (this.modal.item.name=='') return [];
+			const res = await axios({
+				method: 'get',
+				url: '/search',
+				params: {
+					text: this.modal.item.name
+				}
+			});
+			return res.data.results;
 		}
 	},
 	created() {
