@@ -1,72 +1,68 @@
 const fs = require('fs-extra');
 const paths = require('../resources/paths');
 const getName = require('../utils/getName');
-const _ = require('lodash');
+const data = require('./data');
+const moment = require('moment');
+const getImage = require('../utils/getImage');
+const SKU = require('tf2-sku');
 
 
 exports.get = function() {
 	return fs.readJSON(paths.files.polldata)
 		.then((polldata) => {
-			const trades = [];
-
-			_.forOwn(polldata.offerData, (offer, id) => {
-				const accepted = offer.isAccepted ? 'Yes' : 'No';
-				
-				const data = {
-					id,
+			return Object.keys(polldata.offerData).map((key)=>{
+				const offer = polldata.offerData[key];
+				const ret = {
+					id: key,
+					lastChange: polldata.timestamps[key],
+					items: {
+						our: [],
+						their: []
+					},
+					action: offer.action,
 					partner: offer.partner,
-					accepted: accepted,
-					date: getDate(offer.finishTimestamp),
-					received: getItemsFromOffer(offer, 'their'),
-					sent: getItemsFromOffer(offer, 'our')
+					accepted: offer.accepted,
+					time: offer.finishTimestamp,
+					datetime: moment.unix(Math.floor(offer.finishTimestamp/1000)).format('ddd D-M-YYYY HH:mm'),
+					value: offer.value,
+					prices: offer.prices,
+					accepted: offer.handledByUs === true && offer.isAccepted === true
 				};
 
-				trades.push(data);
-			});
+				if (typeof polldata.sent[key] != 'undefined') {
+					ret.lastState = data.ETradeOfferState[polldata.sent[key]];
+				} else if (typeof polldata.received[key] != 'undefined') {
+					ret.lastState = data.ETradeOfferState[polldata.received[key]];
+				}
+				if (Object.prototype.hasOwnProperty.call(offer, 'dict')) {
+					if (Object.keys(offer.dict.our).length > 0) {
+						Object.keys(offer.dict.our).forEach((k)=>{
+							ret.items.our.push(createTradeItem(k, offer.dict.our[k]));
+						});
+					}
+					if (Object.keys(offer.dict.their).length > 0) {
+						Object.keys(offer.dict.their).forEach((k)=>{
+							ret.items.their.push(createTradeItem(k, offer.dict.their[k]));
+						});
+					}
+				}
 
-			return trades;
+				return ret;
+			});
 		});
 };
 
 /**
- * Create a nicely formatted date string from unix
- * @param {number} unix Unix time
- * @return {string} Formatted date string
+ * Creates item object
+ * @param {String} sku 
+ * @param {number} amount 
+ * @return {Object} item object created
  */
-function getDate(unix) {
-	const date = new Date(unix);
-	const year = date.getFullYear();
-	const month = ('0' + (date.getMonth() + 1)).slice(-2);
-	const hour = ('0' + date.getHours()).slice(-2);
-	const day = ('0' + (date.getDate() + 1)).slice(-2);
-	const minute = date.getMinutes();
-
-	const time = year + '-' + month + '-' + day + ' ' + hour + ':' + minute;
-
-	return time;
-}
-
-/**
- * Get items from offer formatted with amount.
- * @param {Object} offer The offerData entry .
- * @param {string} whose Whose items to get from the trade.
- * @return {string[]} Formatted item string names.
- */
-function getItemsFromOffer(offer, whose) {
-	const items = [];
-
-	if (offer.dict) {
-		_.forOwn(offer.dict[whose], (amount, sku) => {
-			let itemStr = getName(sku);
-			if (amount > 1) {
-				itemStr += ' x' + amount;
-			}
-	
-			items.unshift(itemStr);
-		});
-
-		return items;
-	}
-
-	return [];
+function createTradeItem(sku, amount) {
+	const item = SKU.fromString(sku);
+	item.sku = sku;
+	item.name = getName(item.sku);
+	item.style = getImage.getImageStyle(item.sku);
+	item.amount = amount;
+	return item;
 }
