@@ -60,13 +60,13 @@ function isPromotedItem(schemaItem) {
 }
 
 // eslint-disable-next-line require-jsdoc
-function hasAttributesAndIsNotDecorated({ item, items, schemaItem }) {
-	return schemaItem.item_quality != 15 || !hasCorrectPaintkitAttribute(item, items);
+function hasAttributesAndIsNotDecorated({ item, schemaItem }) {
+	return schemaItem.item_quality != 15 || !hasCorrectPaintkitAttribute(item);
 }
 
 // eslint-disable-next-line require-jsdoc
-function hasCorrectPaintkitAttribute(item, items) {
-	return items[item.defindex].static_attrs !== undefined && items[item.defindex].static_attrs['paintkit_proto_def_index'] == item.paintkit;
+function hasCorrectPaintkitAttribute(item) {
+	return Schema.getItemByDefindex(item.defindex).static_attrs !== undefined && Schema.getItemByDefindex(item.defindex).static_attrs['paintkit_proto_def_index'] == item.paintkit;
 }
 
 // eslint-disable-next-line require-jsdoc
