@@ -37,6 +37,8 @@
     margin-top:0;
     padding:0;
     right:auto;
+    overflow: auto;
+    max-height: 200px;
 }
 .search-dropdown li{
     border-top-color:#ddd;

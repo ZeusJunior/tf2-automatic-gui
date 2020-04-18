@@ -3,6 +3,7 @@ const { wear, wears, quality, qualities, effect, effects, killstreak, killstreak
 const fixItem = require('./fixItem');
 const getName = require('./getName');
 const SKU = require('tf2-sku');
+const Fuse = require('fuse.js');
 
 module.exports = function(search, maxResults) {
 	const schema = Schema.get();
@@ -18,29 +19,69 @@ module.exports = function(search, maxResults) {
 	}
 	const { items } = schema.raw.schema;
 
+	
 	let matchCount = 0;
+	const matchSchemaItems = [];
 	for (let i = 0; i < items.length; i++) {
 		const schemaItem = items[i];
 		if (doesSearchMatch(item.search, schemaItem)) {
 			const match = createMatch(item, schemaItem);
 			if (match.defindex != schemaItem.defindex) continue; // this item was fixed to other defindex so skip otherwise there might be multiple matches of the same item
+			if (schemaItem.item_quality == 15) continue; // TODO: take a look into this
 			matches.push(match);
+			matchSchemaItems.push(schemaItem);
 			matchCount++;
-			if (matchCount >= maxResults) break;
+			// if (matchCount >= maxResults) break;
 		}
 	}
-
-	return matches;
+	const final = [];
+	if (matchCount === 0) { // nothing found, try fuzzy search
+		const fuse = new Fuse(items, {
+			findAllMatches: true,
+			includeScore: true,
+			distance: 1000,
+			keys: ['item_name']
+		});
+		const fuseMatches = fuse.search(item.search);
+		matchCount = 0;
+		for (let i = 0; i < fuseMatches.length; i++) {
+			const match = createMatch(item, fuseMatches[i].item);
+			if (match.defindex != fuseMatches[i].item.defindex || fuseMatches[i].item.item_quality == 15) { // prevent multiple matches of the same item TODO: same as before
+				fuseMatches.splice(i, 1);// remove current element
+				i--;
+				continue; // this item was fixed to other defindex so skip otherwise there might be multiple matches of the same item
+			}
+			if (i >= maxResults) break;
+			final.push(match);
+		}
+	} else {
+		const fuse = new Fuse(matchSchemaItems, {
+			findAllMatches: true,
+			includeScore: true,
+			distance: 1000,
+			keys: ['item_name']
+		});
+		const fuseMatches = fuse.search(item.search);
+		matchCount = 0;
+		for (let i = 0; i < fuseMatches.length; i++) {
+			if (i >= maxResults) break;
+			final.push(matches[fuseMatches[i].refIndex]);
+		}
+	}
+	
+	
+	return final;
 };
 
 /**
+ * 
  * Matches items based of search indexing
  * @param {string} search 
  * @param {object} item
  * @return {boolean} 
  */
 function doesSearchMatch(search, item) {
-	return item.name.toLowerCase().indexOf(search.toLowerCase()) > -1;
+	return item.item_name.toLowerCase().indexOf(search.toLowerCase()) > -1;
 };
 
 /**
@@ -55,7 +96,7 @@ function createMatch(item, schemaItem) {
 	return match = { // this object is like getImageStyle with name and defindex to be used as ID with vue.js
 		defindex: item.defindex,
 		quality_color: qualityColors[item.quality],
-		border_color: (typeof item.quality2 != null) ? qualityColors[item.quality2] : '#000000',
+		border_color: (item.quality2 != null) ? qualityColors[item.quality2] : '#000000',
 		craftable: item.craftable,
 		name: getName(item),
 		craftable: item.craftable,

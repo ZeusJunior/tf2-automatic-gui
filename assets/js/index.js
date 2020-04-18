@@ -265,7 +265,6 @@ const app = new Vue({
 			});
 		}
 	},
-	// TODO MAKING ISSUES - put it to update on change in input rather than here, i removed async plugin from ejs already
 	asyncComputed: {
 		async itemSearch() {
 			if (this.modal.item.name=='') return [];
