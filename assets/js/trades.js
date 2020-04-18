@@ -37,11 +37,21 @@ new Vue({
 		},
 		sortedTrades() {
 			return this.filteredTrades.sort((a, b) => {
+				a = a.time;
+				b = b.time;
+
+				// check for undefined time, sort those at the end
+				if ( (isNaN(a) || typeof a == 'undefined') && !(isNaN(b) || typeof b == 'undefined')) return 1;
+				if ( !(isNaN(a) || typeof a == 'undefined') && (isNaN(b) || typeof b == 'undefined')) return -1;
+				if ( (isNaN(a) || typeof a == 'undefined') && (isNaN(b) || typeof b == 'undefined')) return 0;
+
 				if (this.order != 0) {
 					b = [a, a = b][0];
 				}
-				return a.time - b.time;
-			});
+				
+				return a - b;
+			}).slice(0, this.toShow);
+			
 		}
 	},
 	created() {
