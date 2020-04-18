@@ -51,7 +51,6 @@ new Vue({
 				
 				return a - b;
 			}).slice(0, this.toShow);
-			
 		}
 	},
 	created() {
