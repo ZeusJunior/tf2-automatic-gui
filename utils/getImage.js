@@ -15,7 +15,7 @@ function getImageFromSKU(sku) {
 		return;
 	}
 	if (item.paintkit !== null ) {
-		const link = `https://scrap.tf/img/items/warpaint/${found.item_name}_${item.paintkit}_${item.wear}_${item.festive===true?1:0}.png`;
+		const link = `https://scrap.tf/img/items/warpaint/${encodeURIComponent(found.item_name)}_${item.paintkit}_${item.wear}_${item.festive===true?1:0}.png`;
 		return {small: link, large: link};
 	} else if (item.australium === true) {
 		const link = `https://scrap.tf/img/items/440/${found.defindex}-gold.png`;
