@@ -56,7 +56,7 @@ function servePricelist(keyPrice, pricelist, res) {
 			metal: item.buy.metal,
 			keys: item.buy.keys
 		}).toValue(keyPrice); // convert buy price to scrap with actual key value to scrap for sorting purposes
-		item.sell.total = item.buy.total = new Currency({
+		item.sell.total = new Currency({
 			metal: item.sell.metal,
 			keys: item.sell.keys
 		}).toValue(keyPrice); // convert sell price to scrap with actual key value to scrap for sorting purposes
