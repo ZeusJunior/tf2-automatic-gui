@@ -8,10 +8,18 @@ const { qualityColors } = require('../app/data');
  * @return {Object} Item image links - {small: 'link', large: 'link'}
  */
 function getImageFromSKU(sku) {
+	const item = SKU.fromString(sku);
 	const found = Schema.getItemBySKU(sku);
 	if (typeof found == undefined) {
 		console.log('Item with defindex ' + defindex + ' is not in schema');
 		return;
+	}
+	if (item.paintkit !== null ) {
+		const link = `https://scrap.tf/img/items/warpaint/${found.item_name}_${item.paintkit}_${item.wear}_${item.festive===true?1:0}.png`;
+		return {small: link, large: link};
+	} else if (item.australium === true) {
+		const link = `https://scrap.tf/img/items/440/${found.defindex}-gold.png`;
+		return {small: link, large: link};
 	}
 	return {small: found.image_url, large: found.image_url_large};
 };
