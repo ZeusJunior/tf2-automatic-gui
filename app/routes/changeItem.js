@@ -20,26 +20,28 @@ router.post('/', (req, res) => {
 	const buyvalues = new Currency({keys: buykeys, metal: buymetal}).toJSON();
 
 	// lower sell keys
-	if (sellvalues.keys < buyvalues.keys) {
-		res.json({
-			success: 0,
-			msg: {
-				type: 'warning',
-				message: 'The sell price must be higher than the buy price'
-			}
-		});
-		return;
-	}
-	// Same amount of keys, lower or equal sell metal
-	if (sellvalues.keys === buyvalues.keys && sellvalues.metal <= buyvalues.metal) {
-		res.json({
-			success: 0,
-			msg: {
-				type: 'warning',
-				message: 'The sell price must be higher than the buy price'
-			}
-		});
-		return;
+	if (!autoprice) {
+		if (sellvalues.keys < buyvalues.keys) {
+			res.json({
+				success: 0,
+				msg: {
+					type: 'warning',
+					message: 'The sell price must be higher than the buy price'
+				}
+			});
+			return;
+		}
+		// Same amount of keys, lower or equal sell metal
+		if (sellvalues.keys === buyvalues.keys && sellvalues.metal <= buyvalues.metal) {
+			res.json({
+				success: 0,
+				msg: {
+					type: 'warning',
+					message: 'The sell price must be higher than the buy price'
+				}
+			});
+			return;
+		}
 	}
 
 	const item = {
