@@ -17,6 +17,9 @@ module.exports = function(search, maxResults) {
 		matches.push( createMatch(item, Schema.getItemByDefindex(item.defindex)) );
 		return matches;
 	}
+	if (item.search == '') {
+		return [];
+	}
 	const { items } = schema.raw.schema;
 
 	
@@ -136,7 +139,7 @@ function parseSearch(search) {
 	} else {
 		for (i = 0; i < qualities.length; i++) {
 			if ( ( index = includes(name, qualities[i]) ) > -1) {
-				name = splice(name, index, qualities[i].length+1);
+				name = splice(name, index, qualities[i].length).trim();
 				item.quality = quality[qualities[i]];
 				break;
 			}
@@ -146,7 +149,7 @@ function parseSearch(search) {
 	// Check for effects if not a bptf link
 	for (i = 0; i < effects.length; i++) {
 		if ( ( index = includes(name, effects[i]) ) > -1) {
-			name = splice(name, index, effects[i].length+1);
+			name = splice(name, index, effects[i].length).trim();
 			item.effect = effect[effects[i]];
 			// Has an effect, check if its strange. If so, set strange elevated
 			if (item.quality == 11) {
@@ -159,14 +162,14 @@ function parseSearch(search) {
 
 	// Check if craftable if not a bptf link
 	if ( ( index = includes(name, 'Non-Craftable') ) > -1) {
-		name = splice(name, index, 'Non-Craftable'.length+1);
+		name = splice(name, index, 'Non-Craftable'.length).trim();
 		item.craftable = false;
 	}
 
 	// Always check for wear
 	for (i = 0; i < wears.length; i++) {
 		if ( ( index = includes(name, wears[i]) ) > -1) {
-			name = splice(name, index-1, wears[i].length+1);
+			name = splice(name, index-1, wears[i].length).trim();
 			item.wear = wear[wears[i]];
 			break;
 		}
@@ -176,7 +179,7 @@ function parseSearch(search) {
 	if (item.wear) {
 		for (i = 0; i < skins.length; i++) {
 			if ( ( index = includes(name, skins[i]) ) > -1) {
-				name = splice(name, index, skins[i].length+1);
+				name = splice(name, index, skins[i].length).trim();
 				item.paintkit = skin[skins[i]];
 				if (item.effect) { // override decorated quality if it is unusual
 					item.quality = 5;
@@ -189,7 +192,7 @@ function parseSearch(search) {
 	// Always check for killstreak
 	for (i = 0; i < killstreaks.length; i++) {
 		if ( ( index = includes(name, killstreaks[i]) ) > -1) {
-			name = splice(name, index, killstreaks[i].length+1);
+			name = splice(name, index, killstreaks[i].length).trim();
 			item.killstreak = killstreak[killstreaks[i]];
 			break;
 		}
@@ -197,13 +200,13 @@ function parseSearch(search) {
 
 	// Always check for Australium
 	if ( ( index = includes(name, 'Australium') ) > -1 && item.quality === 11) {
-		name = splice(name, index, 'Australium'.length+1);
+		name = splice(name, index, 'Australium'.length).trim();
 		item.australium = true;
 	}
 
 	// Always check for Festivized
 	if ( ( index = includes(name, 'Festivized') ) > -1) {
-		name = splice(name, index, 'Festivized'.length+1);
+		name = splice(name, index, 'Festivized'.length).trim();
 		item.festive = true;
 	}
 
@@ -216,10 +219,10 @@ function parseSearch(search) {
 
 	// remove the from search
 	if ( ( index = includes(name, 'The') ) > -1) {
-		name = splice(name, index, 'The'.length+1);
+		name = splice(name, index, 'The'.length).trim();
 	}
 	item.defindex = defindex;
-	item.search = name; // search without parsed things
+	item.search = name.trim(); // search without parsed things
 	return item;
 }
 
