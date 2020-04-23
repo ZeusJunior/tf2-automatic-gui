@@ -104,7 +104,8 @@ function createMatch(item, schemaItem) {
 		name: getName(item),
 		craftable: item.craftable,
 		image_small: schemaItem.image_url,
-		image_large: schemaItem.image_url_large
+		image_large: schemaItem.image_url_large,
+		sku: SKU.fromObject(item)
 	};
 }
 

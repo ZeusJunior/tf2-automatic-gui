@@ -51,8 +51,7 @@ const app = new Vue({
 	},
 	methods: {
 		addSingle: function() {
-			this.modal.item = itemTemplate;
-			this.modal.edit = false;
+			if (this.modal.edit) this.resetModal();
 		},
 		bulkClear: function() {
 			this.bulk = {
@@ -136,7 +135,8 @@ const app = new Vue({
 			});
 			
 			app.sendMessage(res.data.msg.type, res.data.msg.message);
-			if (fromModal) {
+			if (fromModal ) {
+				if (res.data.msg == 'success') this.resetModal();
 				app.loadItems();
 			}
 		},
@@ -236,7 +236,38 @@ const app = new Vue({
 		},
 		searchClick: function(item) {
 			this.modal.item.name = item.name;
+			this.modal.item.sku = item.sku;
 			this.modal.searchDisable = true;
+		},
+		setPriceToAuto: function(autopricePrices) {
+			// do this to copy only value
+			this.modal.item.buy.metal = autopricePrices.buy.metal;
+			this.modal.item.buy.keys = autopricePrices.buy.keys;
+			this.modal.item.sell.metal = autopricePrices.sell.metal;
+			this.modal.item.sell.keys = autopricePrices.sell.keys;
+		},
+		resetModal() {
+			this.modal.item = {
+				name: '',
+				autoprice: true,
+				sku: '',
+				enabled: true,
+				buy: {
+					keys: 0,
+					metal: 0
+				},
+				sell: {
+					keys: 0,
+					metal: 0
+				},
+				intent: 2,
+				min: 0,
+				max: 1
+			};
+			this.modal.edit = false;
+			this.modal.searchResults = [];
+			this.modal.searchFocus = false;
+			this.modal.searchDisable = false;
 		}
 
 	},
@@ -276,6 +307,54 @@ const app = new Vue({
 				}
 			});
 			return res.data.results;
+		},
+		autopriceCalc: {
+			async get() {
+				const prices = {
+					buy: {
+						keys: null,
+						metal: null
+					},
+					sell: {
+						keys: null,
+						metal: null
+					}
+				};
+				
+				if (this.modal.item.sku == '') {
+					return prices;
+				}
+				try {
+					const res = await axios({
+						method: 'get',
+						url: '/autoprice',
+						params: {
+							sku: this.modal.item.sku
+						},
+						type: 'json'
+					});
+					if (res.data.success) {
+						prices.buy = res.data.buy;
+						prices.sell = res.data.sell;
+					}
+				} catch (err) {
+					console.log(err);
+				}
+				if (this.modal.item.autoprice) {
+					this.setPriceToAuto(prices);
+				}
+				return prices;
+			},
+			default: {
+				buy: {
+					keys: null,
+					metal: null
+				},
+				sell: {
+					keys: null,
+					metal: null
+				}
+			}
 		}
 	},
 	created() {

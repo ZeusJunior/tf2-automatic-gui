@@ -86,30 +86,30 @@
 						  <div class="form-row" v-if="modal.item.enabled">
 							<div class="col" id="autopricediv">
 							  	<div class="pretty p-switch p-fill">
-									<input type="checkbox" name="autoprice" id="autoprice" v-model="modal.item.autoprice"/>
+									<input type="checkbox" name="autoprice" id="autoprice" v-model="modal.item.autoprice" @change="setPriceToAuto(autopriceCalc)"/>
 									<div class="state p-success">
 										<label>Autoprice</label>
 									</div>
 								</div>
 							</div>
 						  </div>
-						  <div class="form-row" v-if="!(modal.item.autoprice&&!modal.edit)&&modal.item.enabled&&(modal.item.intent!=0)">
+						  <div class="form-row" v-if="modal.item.enabled&&(modal.item.intent!=0)">
 							<div class="col">
-							  <label>Sell keys</label>
+							  <label>Sell keys {{(autopriceCalc.sell.keys===null||modal.item.autoprice)?'':' A: ' + autopriceCalc.sell.keys}}</label>
 							  <input type="number" class="form-control" id="sellkeys" name="sellkeys" min="0" placeholder="Keys" required :disabled="modal.item.autoprice" v-model="modal.item.sell.keys">
 							</div>
 							<div class="col">
-							  <label>Sell metal</label>
+							  <label>Sell metal {{(autopriceCalc.sell.metal===null||modal.item.autoprice)?'':' A: ' + autopriceCalc.sell.metal}}</label>
 							  <input type="number" class="form-control" id="sellmetal" name="sellmetal" min="0" placeholder="Metal" step="any" required :disabled="modal.item.autoprice" v-model="modal.item.sell.metal">
 							</div>
 						  </div>
-						  <div class="form-row" v-if="!(modal.item.autoprice&&!modal.edit)&&modal.item.enabled&&(modal.item.intent!=1)">
+						  <div class="form-row" v-if="modal.item.enabled&&(modal.item.intent!=1)">
 							<div class="col">
-							  <label>Buy keys</label>
+							  <label>Buy keys {{(autopriceCalc.buy.keys===null||modal.item.autoprice)?'':' A: ' + autopriceCalc.buy.keys}}</label>
 							  <input type="number" class="form-control" id="buykeys" name="buykeys" min="0" placeholder="Keys" required :disabled="modal.item.autoprice" v-model="modal.item.buy.keys">
 							</div>
 							<div class="col">
-							  <label >Buy metal</label>
+							  <label >Buy metal {{(autopriceCalc.buy.metal===null||modal.item.autoprice)?'':' A: ' + autopriceCalc.buy.metal}}</label>
 							  <input type="number" class="form-control" id="buymetal" name="buymetal" min="0" placeholder="Metal" step="any" required :disabled="modal.item.autoprice" v-model="modal.item.buy.metal">
 							</div>
 						  </div>
@@ -133,6 +133,7 @@
 						  </div>
 						</div>
 							<div class="modal-footer">
+								<button type="button" v-if="!modal.edit" class="btn btn-primary" @click="resetModal()">Clear</button>
 								<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
 								<button type="submit" class="btn btn-primary" @click.prevent="saveItem(modal.item, modal.edit, true)">Save</button>
 								<button type="button" v-if="modal.edit" class="btn btn-danger" @click="deleteItem(modal.item)">Delete item</button>
