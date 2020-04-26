@@ -159,7 +159,7 @@
 								<textarea rows="5" class="form-control" id="url" name="input" placeholder="Add the backpack.tf stats page, sku, or the items name. Seperate multiple inputs by a new line. See console for speed" required v-model="bulk.input"></textarea>
 							</div>
 							<div class="form-row">
-								<div class="form-group">
+								<div class="col">
 								  	<label for="intent">Intent</label>
 								  	<select name="intent" class="form-control" id="intent" v-model="bulk.intent">
 										<option selected="selected" value="2">Bank (buy and sell)</option>
@@ -167,11 +167,11 @@
 										<option value="1">Sell</option>
 								  	</select>
 								</div>
-								<div class="form-group">
+								<div class="col">
 								  	<label for="minimum">Minimum stock</label>
 								  	<input type="number" class="form-control" id="minimum" name="min" min="0" value="0" required v-model="bulk.min">
 								</div>
-								<div class="form-group">
+								<div class="col">
 								  	<label for="maximum">Maximum stock</label>
 								  	<input type="number" class="form-control" id="maximum" name="max" min="0" value="1" required v-model="bulk.max">
 								</div>
