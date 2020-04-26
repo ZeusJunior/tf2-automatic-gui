@@ -41,9 +41,9 @@ new Vue({
 				b = b.time;
 
 				// check for undefined time, sort those at the end
-				if ( (isNaN(a) || typeof a == 'undefined') && !(isNaN(b) || typeof b == 'undefined')) return 1;
-				if ( !(isNaN(a) || typeof a == 'undefined') && (isNaN(b) || typeof b == 'undefined')) return -1;
-				if ( (isNaN(a) || typeof a == 'undefined') && (isNaN(b) || typeof b == 'undefined')) return 0;
+				if ( (!a || isNaN(a)) && !(!b || isNaN(b))) return 1;
+				if ( !(!a || isNaN(a)) && (!b || isNaN(b))) return -1;
+				if ( (!a || isNaN(a)) && (!b || isNaN(b))) return 0;
 
 				if (this.order != 0) {
 					b = [a, a = b][0];

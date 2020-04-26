@@ -3,7 +3,7 @@ const router = express.Router();
 const axios = require('axios');
 
 router.get('/', (req, res) => {
-	if (typeof req.query.sku == 'undefined' || req.query.sku == '' || !isSKU(req.query.sku)) {
+	if (!req.query.sku || !isSKU(req.query.sku)) {
 		res.json({
 			success: false
 		});

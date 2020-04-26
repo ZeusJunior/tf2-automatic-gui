@@ -39,9 +39,9 @@ exports.get = async function get(toKeys, start, interval, end) {
 		b = b.time;
 
 		// check for undefined time, sort those at the beggining, they will be skipped
-		if ( (isNaN(a) || typeof a == 'undefined') && !(isNaN(b) || typeof b == 'undefined')) return -1;
-		if ( !(isNaN(a) || typeof a == 'undefined') && (isNaN(b) || typeof b == 'undefined')) return 1;
-		if ( (isNaN(a) || typeof a == 'undefined') && (isNaN(b) || typeof b == 'undefined')) return 0;
+		if ( (!a || isNaN(a)) && !(!b || isNaN(b))) return -1;
+		if ( !(!a || isNaN(a)) && (!b || isNaN(b))) return 1;
+		if ( (!a || isNaN(a)) && (!b || isNaN(b))) return 0;
 		return a - b;
 	});
 
