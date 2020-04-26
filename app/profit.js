@@ -35,7 +35,14 @@ exports.get = async function get(toKeys, start, interval, end) {
 	const tracker = new itemTracker(toKeys, start, interval, end);
 
 	trades.sort((a, b)=>{
-		return a.time - b.time;
+		a = a.time;
+		b = b.time;
+
+		// check for undefined time, sort those at the beggining, they will be skipped
+		if ( (isNaN(a) || typeof a == 'undefined') && !(isNaN(b) || typeof b == 'undefined')) return -1;
+		if ( !(isNaN(a) || typeof a == 'undefined') && (isNaN(b) || typeof b == 'undefined')) return 1;
+		if ( (isNaN(a) || typeof a == 'undefined') && (isNaN(b) || typeof b == 'undefined')) return 0;
+		return a - b;
 	});
 
 	let iter = 0; // to keep track of how many trades are accepted
