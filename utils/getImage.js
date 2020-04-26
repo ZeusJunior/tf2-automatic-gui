@@ -10,7 +10,7 @@ const { qualityColors } = require('../app/data');
 function getImageFromSKU(sku) {
 	const item = SKU.fromString(sku);
 	const found = Schema.getItemBySKU(sku);
-	if (typeof found == undefined) {
+	if (!found) {
 		console.log('Item with defindex ' + defindex + ' is not in schema');
 		return;
 	}
