@@ -210,7 +210,7 @@
 		</ul>
 		<div v-if="multiSelect.enabled">
 			<div class="btn-group" >
-				<button type="button" class="btn border-left" :class="['btn-' + ((multiSelect.list.length==0)?'dark':'primary')]" data-toggle="modal" data-target="#areYouSure":disabled="multiSelect.list.length==0" @click="multiSelect.all=false">Delete selected items</button>
+				<button type="button" class="btn border-left" :class="['btn-' + ((multiSelect.list.length==0)?'dark':'danger')]" data-toggle="modal" data-target="#areYouSure":disabled="multiSelect.list.length==0" @click="multiSelect.all=false">Delete selected items</button>
 				<button type="button" class="btn border-right border-left" :class="['btn-' + ((multiSelect.list.length==0)?'dark':'primary')]" :disabled="multiSelect.list.length==0" @click="multiSelect.all=false;changeEnableState(false)">Disable selected items</button>
 				<button type="button" class="btn border-right border-left" :class="['btn-' + ((multiSelect.list.length==0)?'dark':'primary')]" :disabled="multiSelect.list.length==0" @click="multiSelect.all=false;changeEnableState(true)">Enable selected items</button>
 				<button type="button" class="btn border-right btn-success" @click="multiSelectToggle">Cancel</button>
