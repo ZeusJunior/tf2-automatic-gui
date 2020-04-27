@@ -87,6 +87,20 @@ const app = new Vue({
 				chart.data.datasets[0].data.push(element.profit);
 			}
 			chart.update();
+		},
+		/**
+		 * Converts scrap to string - just some copypasta from tf2-currencies
+		 * @param {Number} scrapVal 
+		 * @return {String} formated currency
+		 */
+		currencyString: function(scrapVal) {
+			if (!this.plotData.keyValue) this.plotData.keyValue = 1;
+			const key = new Currencies({
+				metal: this.plotData.keyValue
+			}).toValue(this.plotData.keyValue); // get value in scrap 
+			const metal = Currencies.toRefined(scrapVal % key);
+			const keys = Math.floor(scrapVal / key);
+			return new Currencies({keys, metal}).toString();
 		}
 	},
 	created() {
@@ -121,7 +135,11 @@ const app = new Vue({
 						display: true
 					}],
 					yAxes: [{
-						display: true
+						display: true,
+						ticks: {
+							// Include a dollar sign in the ticks
+							callback: this.currencyString
+						}
 					}]
 				},
 				aspectRatio: 3,

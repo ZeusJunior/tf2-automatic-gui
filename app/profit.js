@@ -119,7 +119,8 @@ exports.get = async function get(start, interval, end) {
 		profitTimed: tracker.profitTrack.getFormated(tracker.profitTrack.profitTimed),
 		profitPlot: tracker.profitTrack.profitPlot,
 		numberOfTrades: iter,
-		overpriceProfit: tracker.profitTrack.getFormated(overpriceProfit)
+		overpriceProfit: tracker.profitTrack.getFormated(overpriceProfit),
+		keyValue: keyVal
 	};
 };
 
