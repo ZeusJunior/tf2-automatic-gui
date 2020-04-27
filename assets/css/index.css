@@ -87,3 +87,10 @@
 .item_name {
     margin-top: 5px;
 }
+
+.icon-stack {
+    bottom: 2px;
+    left: 2px;
+    position: absolute;
+    z-index: 2;
+}

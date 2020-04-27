@@ -51,3 +51,10 @@
  a.steam-profile{
 	color:black !important ;
   }
+
+.icon-stack {
+    bottom: 2px;
+    left: 2px;
+    position: absolute;
+    z-index: 2;
+}

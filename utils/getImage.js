@@ -1,6 +1,6 @@
 const Schema = require('../app/schema');
 const SKU = require('tf2-sku');
-const { qualityColors } = require('../app/data');
+const { qualityColors} = require('../app/data');
 
 /**
  * 
@@ -33,10 +33,18 @@ exports.getImageFromSKU = getImageFromSKU;
 exports.getImageStyle = function getImageStyle(sku) {
 	const img = getImageFromSKU(sku);
 	const item = SKU.fromString(sku);
+	const ks = [
+		'', // no killstreak
+		'KS',
+		'SPEC KS',
+		'PRO KS'
+	]
 	return {
 		quality_color: qualityColors[item.quality],
 		border_color: (item.quality2 != null) ? qualityColors[item.quality2] : '#000000',
 		craftable: item.craftable,
 		image_small: img.small,
-		image_large: img.large};
+		image_large: img.large,
+		killstreak: ks[item.killstreak]
+	};
 };
