@@ -30,16 +30,16 @@
 		</div>
 		<div>
 			<div>
-				Profit total: {{profit.profitTotal}} {{toKeys? 'key': 'scrap'}}.
+				Profit total: {{profit.profitTotal}}
 			</div>
 			<div>
-				Profit in timeframe: {{profit.profitTimed}} {{toKeys? 'key': 'scrap'}}.
+				Profit in timeframe: {{profit.profitTimed}}
 			</div>
 			<div>
 				Number of trades: {{profit.numberOfTrades}}.
 			</div>
 			<div>
-				Profit made from overprice: {{profit.overpriceProfit}} {{toKeys? 'key': 'scrap'}}.
+				Profit made from overprice: {{profit.overpriceProfit}}
 			</div>
 			
 		</div>
@@ -53,12 +53,6 @@
 			<option value="14400">4 Hour</option>
 			<option value="43200">12 Hour</option>
 		</select>
-		<div class="pretty p-switch p-fill">
-			<input type="checkbox" name="toKeys" id="toKeys" v-model="toKeys" @change="refresh()"/>
-			<div class="state p-success">
-				<label>Convert to keys</label>
-			</div>
-		</div>
 		<div class="chart-container" style="position: relative">
 			<canvas id="myChart"></canvas>
 		</div>

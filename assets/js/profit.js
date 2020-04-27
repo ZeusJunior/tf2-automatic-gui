@@ -3,7 +3,6 @@ let chart = {};
 const app = new Vue({
 	el: '#app',
 	data: {
-		toKeys: false,
 		plotData: {},
 		profit: {
 			profitTotal: 0,
@@ -61,8 +60,7 @@ const app = new Vue({
 						start: start,
 						interval: Number(this.interval),
 						end: end,
-						json: true,
-						toKeys: this.toKeys
+						json: true
 					}
 				});
 			} catch (err) {
@@ -86,11 +84,7 @@ const app = new Vue({
 			for (let i = 0; i < this.plotData.profitPlot.length; i++) {
 				const element = this.plotData.profitPlot[i];
 				chart.data.labels.push(moment.unix(element.time).format('ddd D. M. Y H:mm:ss'));
-				if (!this.toKeys) {
-					chart.data.datasets[0].data.push(element.profit.toFixed(1));
-				} else {
-					chart.data.datasets[0].data.push(element.profit);
-				}
+				chart.data.datasets[0].data.push(element.profit);
 			}
 			chart.update();
 		}
