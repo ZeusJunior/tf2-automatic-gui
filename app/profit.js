@@ -5,13 +5,12 @@ const axios = require('axios');
 
 // TODO: Make this into class
 /**
- * @param {Boolean} toKeys convert to keys if true
  * @param {Number} start time to start plot
  * @param {Number} interval time interval to plot
  * @param {Number} end time to end plot
  * @return {Object}
  */
-exports.get = async function get(toKeys, start, interval, end) {
+exports.get = async function get(start, interval, end) {
 	const polldata = await fs.readJSON(paths.files.polldata);
 	const response = await axios(
 		{
@@ -32,7 +31,7 @@ exports.get = async function get(toKeys, start, interval, end) {
 	});
 	let overpriceProfit = 0;
 
-	const tracker = new itemTracker(toKeys, start, interval, end);
+	const tracker = new itemTracker(start, interval, end, keyVal);
 
 	trades.sort((a, b)=>{
 		a = a.time;
@@ -116,11 +115,11 @@ exports.get = async function get(toKeys, start, interval, end) {
 		}
 	}
 	return {
-		profitTotal: tracker.profitTrack.profit,
-		profitTimed: tracker.profitTrack.profitTimed,
+		profitTotal: tracker.profitTrack.getFormated(tracker.profitTrack.profit),
+		profitTimed: tracker.profitTrack.getFormated(tracker.profitTrack.profitTimed),
 		profitPlot: tracker.profitTrack.profitPlot,
 		numberOfTrades: iter,
-		overpriceProfit: overpriceProfit
+		overpriceProfit: tracker.profitTrack.getFormated(overpriceProfit)
 	};
 };
 
@@ -133,13 +132,14 @@ class profitTracker {
 	 * @param {Number} start 
 	 * @param {Number} interval 
 	 * @param {Number} end 
+	 * @param {Number} currentKey current key price
 	 */
-	constructor(start, interval, end) {
+	constructor(start, interval, end, currentKey) {
 		this.start = Number(typeof start != 'undefined' ? start : -1);
 		this.interval = Number(typeof interval != 'undefined' ? interval : -1);
 		this.end = Number(typeof end != 'undefined' ? end : Math.floor(Date.now()/1000));
 		this.lastTradeTime = -1;
-		
+		this.currentKey = currentKey;
 		this.tempProfit = 0;
 
 		this.profit = 0;
@@ -160,9 +160,17 @@ class profitTracker {
 				const lastTradePlotBlock = Math.floor((this.lastTradeTime - this.start) / this.interval);
 				const thisTradePlotBlock = Math.floor((time - this.start) / this.interval);
 				if (lastTradePlotBlock != thisTradePlotBlock && this.lastTradeTime !== -1) { // last block is done so we will push it to plot
-					this.profitPlot.push({time: lastTradePlotBlock*this.interval + this.start, profit: this.tempProfit});
+					this.profitPlot.push({
+						time: lastTradePlotBlock*this.interval + this.start,
+						profit: this.tempProfit,
+						formated: this.getFormated(this.tempProfit)
+					});
 					for (let i = lastTradePlotBlock+1; i < thisTradePlotBlock; i++) { // create block even if no trades happend
-						this.profitPlot.push({time: i*this.interval + this.start, profit: 0});
+						this.profitPlot.push({
+							time: i*this.interval + this.start,
+							profit: 0,
+							formated: this.getFormated(0)
+						});
 					}
 					this.tempProfit = normalizedAmount; // reset temp to value of current trade
 				} else {
@@ -172,9 +180,27 @@ class profitTracker {
 			this.lastTradeTime = time;
 		} else if (this.lastTradeTime < this.end && this.tempProfit !== 0 && this.interval > 0) { // push last trade block to plot if plot is being created
 			const lastTradePlotBlock = Math.floor((this.lastTradeTime - this.start) / this.interval);
-			this.profitPlot.push({time: lastTradePlotBlock*this.interval + this.start, profit: this.tempProfit});
+			this.profitPlot.push({
+				time: lastTradePlotBlock*this.interval + this.start,
+				profit: this.tempProfit,
+				formated: this.getFormated(this.tempProfit)
+			});
 			this.tempProfit = 0;
 		}
+	}
+
+	/**
+	 * 
+	 * @param {Number} normalPrice 
+	 * @return {String} formated string
+	 */
+	getFormated(normalPrice) {
+		const key = new Currency({
+			metal: this.currentKey
+		}).toValue(this.currentKey); // get value in scrap 
+		const metal = Currency.toRefined(normalPrice % key);
+		const keys = Math.floor(normalPrice / key);
+		return new Currency({keys, metal}).toString();
 	}
 }
 /**
@@ -183,17 +209,16 @@ class profitTracker {
 class itemTracker {
 	/**
 	 * 
-	 * @param {Boolean} toKeys 
 	 * @param {Number} start 
 	 * @param {Number} interval 
 	 * @param {Number} end 
+	 * @param {Number} currentKey current key value
 	 */
-	constructor(toKeys, start, interval, end) {
-		this.toKeys = toKeys;
+	constructor(start, interval, end, currentKey) {
 		this.itemStock = {};
 		this.overItems = {}; // items sold before being bought
 		this.itemPricePlot = {};
-		this.profitTrack = new profitTracker(start, interval, end);
+		this.profitTrack = new profitTracker(start, interval, end, currentKey);
 	}
 
 	/**
@@ -272,18 +297,7 @@ class itemTracker {
 	 * @return {Number} converted
 	 */
 	convert(prices, keyPrice) {
-		if (this.toKeys) {
-			const item = new Currency({
-				metal: prices.metal,
-				keys: prices.keys
-			}).toValue(keyPrice); // get value in scrap 
-			const key = new Currency({
-				metal: keyPrice
-			}).toValue(keyPrice); // get value in scrap 
-			return item / key;
-		} else {
-			const converted = new Currency(prices).toValue(keyPrice);
-			return converted;
-		}
+		const converted = new Currency(prices).toValue(keyPrice);
+		return converted;
 	}
 }

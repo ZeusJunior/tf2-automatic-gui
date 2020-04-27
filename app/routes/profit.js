@@ -13,7 +13,7 @@ router.get('/', (req, res) => {
 			return;
 		}
 
-		profit.get(req.query.toKeys==='true', Number(req.query.start), Number(req.query.interval), Number(req.query.end))
+		profit.get(Number(req.query.start), Number(req.query.interval), Number(req.query.end))
 			.then((data) => {
 				res.json({
 					success: 1,

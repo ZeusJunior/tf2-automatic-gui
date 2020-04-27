@@ -4,6 +4,7 @@ const app = new Vue({
 	el: '#app',
 	data: {
 		toKeys: false,
+		plotData: {},
 		profit: {
 			profitTotal: 0,
 			profitTimed: 0,
@@ -47,46 +48,51 @@ const app = new Vue({
 		closeMessage: function() {
 			this.msg.enabled = false;
 		},
-		refresh: function() {
+		refresh: async function() {
 			this.sendMessage('primary', 'Loading');
 			start = moment(this.start).unix();
 			end = moment(this.end).unix();
-			$.ajax({
-				type: 'GET',
-				url: '/profit',
-				data: {
-					
-					start: start,
-					interval: Number(this.interval),
-					end: end,
-					json: true,
-					toKeys: this.toKeys
-				},
-				success: function(data, status) {
-					if (data.success == 0) {
-						app.sendMessage('danger', 'Failed: Missing polldata.json');
-						return;
+			let resp;
+			try {
+				resp = await axios({
+					method: 'get',
+					url: '/profit',
+					params: {
+						start: start,
+						interval: Number(this.interval),
+						end: end,
+						json: true,
+						toKeys: this.toKeys
 					}
-					app.sendMessage('success', 'Loaded successfully');
-					app.profit.profitTotal = data.data.profitTotal;
-					app.profit.profitTimed = data.data.profitTimed;
-					app.profit.numberOfTrades = data.data.numberOfTrades;
-					app.profit.overpriceProfit = data.data.overpriceProfit;
-					chart.data.datasets[0].data = []; // clear chart before reload
-					chart.data.labels = [];
-					data.data.profitPlot.forEach((element) => {
-						chart.data.labels.push(moment.unix(element.time).format('ddd D. M. Y H:mm:ss'));
-						if (!app.toKeys) {
-							chart.data.datasets[0].data.push(element.profit.toFixed(1));
-						} else {
-							chart.data.datasets[0].data.push(element.profit);
-						}
-					});
-					chart.update();
-				},
-				dataType: 'json',
-				traditional: true
-			});
+				});
+			} catch (err) {
+				if (err.response) {
+					app.sendMessage('danger', JSON.stringify(err.response.data));
+				}
+			}
+			this.plotData = resp.data.data;
+			if (resp.data.success == 0) {
+				this.sendMessage('danger', 'Failed: Missing polldata.json');
+				return;
+			}
+			this.plotData = resp.data.data;
+			this.sendMessage('success', 'Loaded successfully');
+			this.profit.profitTotal = this.plotData.profitTotal;
+			this.profit.profitTimed = this.plotData.profitTimed;
+			this.profit.numberOfTrades = this.plotData.numberOfTrades;
+			this.profit.overpriceProfit = this.plotData.overpriceProfit;
+			chart.data.datasets[0].data = []; // clear chart before reload
+			chart.data.labels = [];
+			for (let i = 0; i < this.plotData.profitPlot.length; i++) {
+				const element = this.plotData.profitPlot[i];
+				chart.data.labels.push(moment.unix(element.time).format('ddd D. M. Y H:mm:ss'));
+				if (!this.toKeys) {
+					chart.data.datasets[0].data.push(element.profit.toFixed(1));
+				} else {
+					chart.data.datasets[0].data.push(element.profit);
+				}
+			}
+			chart.update();
 		}
 	},
 	created() {
@@ -124,7 +130,12 @@ const app = new Vue({
 						display: true
 					}]
 				},
-				aspectRatio: 3
+				aspectRatio: 3,
+				tooltips: {
+					callbacks: {
+						label: (item) => `${app.plotData.profitPlot[item.index].formated}`
+					}
+				}
 			}
 		});
 	}
