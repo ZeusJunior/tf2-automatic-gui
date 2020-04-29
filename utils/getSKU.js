@@ -1,5 +1,5 @@
-const Schema = require('../app/schema.js');
-const { wear, wears, quality, qualities, effect, effects, killstreak, killstreaks, skin, skins } = require('../app/data.js');
+const Schema = require('../app/schema');
+const { wear, wears, quality, qualities, effect, effects, killstreak, killstreaks, skin, skins } = require('../app/data');
 const SKU = require('tf2-sku');
 const fixItem = require('../utils/fixItem');
 

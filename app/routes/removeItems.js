@@ -8,10 +8,14 @@ router.post('/', async (req, res) => {
 	pricelist
 		.removeItems(items)
 		.then((removed) => {
-			const amountRemoved = removed === false ? 0 : removed;
-
+			const amountRemoved = (removed === false) ? 0 : removed;
+			const message = `Sucessfully removed ${amountRemoved} ${amountRemoved == 1 ? 'item' : 'items'}`;
 			res.json({
-				removed: amountRemoved
+				status: 1,
+				msg: {
+					type: 'success',
+					message: message
+				}
 			});
 		})	.catch((err) => {
 			throw err;

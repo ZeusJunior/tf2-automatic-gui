@@ -1,5 +1,4 @@
 node_modules
-/config/schema.json
-/config/config.json
-/config/pricelist.json
-/config/polldata.json
+config
+!/config/template.config.json
+.vscode

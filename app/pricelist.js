@@ -151,6 +151,7 @@ pricelist.changeSingleItem = function(item) {
 		.then((pricelist) => {
 			pricelist.forEach((pricedItem) => {
 				if (item.sku === pricedItem.sku) {
+					pricedItem.enabled = item.enabled;
 					pricedItem.buy = item.buy;
 					pricedItem.sell = item.sell;
 					pricedItem.intent = item.intent;
@@ -184,7 +185,7 @@ pricelist.removeItems = async function(items) {
 };
 
 /**
- * Remove items from the pricelist
+ * Add items to pricelist
  * @param {Array} items - Array of item objects to add
  * @return {int} - Amount of items that were already in the pricelist
  */

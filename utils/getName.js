@@ -1,5 +1,5 @@
-const Schema = require('../app/schema.js');
-const data = require('../app/data.js');
+const Schema = require('../app/schema');
+const data = require('../app/data');
 const SKU = require('tf2-sku');
 
 module.exports = getName;

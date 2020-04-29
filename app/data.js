@@ -1121,3 +1121,45 @@ exports.wear = {
 	'(Well-Worn)': 4,
 	'(Battle Scarred)': 5
 };
+exports.ETradeOfferState = {
+	Invalid: 1,
+	Active: 2, // This trade offer has been sent, neither party has acted on it yet.
+	Accepted: 3, // The trade offer was accepted by the recipient and items were exchanged.
+	Countered: 4, // The recipient made a counter offer
+	Expired: 5, // The trade offer was not accepted before the expiration date
+	Canceled: 6, // The sender cancelled the offer
+	Declined: 7, // The recipient declined the offer
+	InvalidItems: 8, // Some of the items in the offer are no longer available (indicated by the missing flag in the output)
+	CreatedNeedsConfirmation: 9, // The offer hasn't been sent yet and is awaiting further confirmation
+	CanceledBySecondFactor: 10, // Either party canceled the offer via email/mobile confirmation
+	InEscrow: 11, // The trade has been placed on hold
+
+	1: 'Invalid',
+	2: 'Active',
+	3: 'Accepted',
+	4: 'Countered',
+	5: 'Expired',
+	6: 'Canceled',
+	7: 'Declined',
+	8: 'InvalidItems',
+	9: 'CreatedNeedsConfirmation',
+	10: 'CanceledBySecondFactor',
+	11: 'InEscrow'
+};
+exports.qualityColors = {
+	0: '#B2B2B2',
+	1: '#4D7455',
+	2: '#8D834B',
+	3: '#476291',
+	4: '#70550F',
+	5: '#8650AC',
+	6: '#FFD700',
+	7: '#70B04A',
+	8: '#A50F79',
+	9: '#70B04A',
+	11: '#CF6A32',
+	12: '#8650AC',
+	13: '#38F3AB',
+	14: '#AA0000',
+	15: '#FAFAFA'
+};
