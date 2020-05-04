@@ -4,7 +4,7 @@ new Vue({
 		tradeList: [],
 		toShow: 50,
 		search: '',
-		order: 0,
+		order: 1,
 		acceptedOnly: 0
 	},
 	methods: {
