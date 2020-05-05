@@ -9,6 +9,8 @@
 	position: relative;
 }
 .info {
+    position:relative;
+    z-index: 1000;
 	width: 100%;
 	height: 100%;
 	visibility: hidden;
@@ -88,9 +90,23 @@
     margin-top: 5px;
 }
 
-.icon-stack {
+.ks {
     bottom: 2px;
     left: 2px;
     position: absolute;
     z-index: 2;
+}
+
+.intent-symbol {
+    top: 2px;
+    left: 2px;
+    position: absolute;
+    z-index: 2;
+}
+.autoprice-symbol {
+    top: 2px;
+    right: 2px;
+    position: absolute;
+    z-index: 2;
+    color: #29a30e;
 }
