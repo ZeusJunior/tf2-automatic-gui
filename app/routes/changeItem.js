@@ -5,12 +5,12 @@ const pricelist = require('../pricelist');
 
 router.post('/', (req, res) => {
 	const { sku, intent, autoprice, min, max, sellkeys, sellmetal, buykeys, buymetal, enabled} = req.body;
-	if (parseInt(max) <= parseInt(min)) {
+	if (parseInt(max) < parseInt(min)) {
 		res.json({
 			success: 0,
 			msg: {
 				type: 'warning',
-				message: 'The maximum stock must be atleast one higher than the minimum'
+				message: 'Maximum stock can\'t be smaller than the minimum'
 			}
 		});
 		return;
