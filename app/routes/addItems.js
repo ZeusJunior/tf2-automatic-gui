@@ -6,12 +6,12 @@ const getPluralOrSingularString = require('../../utils/getPluralOrSingularString
 router.post('/', (req, res) => {
 	const input = req.body.input.split(/\r?\n/);
 
-	if (req.body.max - req.body.min < 1) {
+	if (req.body.max - req.body.min < 0) {
 		res.json({
 			success: 0,
 			msg: {
 				type: 'warning',
-				message: 'The maximum stock must be atleast one higher than the minimum'
+				message: 'Maximum stock can\'t be smaller than the minimum'
 			}
 		});
 		return;

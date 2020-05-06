@@ -18,12 +18,12 @@ router.post('/', (req, res) => {
 		return;
 	}
 
-	if (parseInt(max) <= parseInt(min)) {
+	if (parseInt(max) < parseInt(min)) {
 		res.json({
 			success: 0,
 			msg: {
 				type: 'warning',
-				message: 'The maximum stock must be atleast one higher than the minimum'
+				message: 'Maximum stock can\'t be smaller than the minimum'
 			}
 		});
 		return;
