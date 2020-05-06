@@ -1,6 +1,6 @@
 const Schema = require('../app/schema');
 const SKU = require('tf2-sku');
-const { qualityColors} = require('../app/data');
+const { qualityColors, paintCanColors} = require('../app/data');
 
 /**
  * 
@@ -9,17 +9,18 @@ const { qualityColors} = require('../app/data');
  */
 function getImageFromSKU(sku) {
 	const item = SKU.fromString(sku);
-	const found = Schema.getItemBySKU(sku);
+	const found = {};
+	Object.assign(found, Schema.getItemBySKU(sku)); // this is here to copy object instead of copying reference to object in schema
 	if (!found) {
 		console.log('Item with defindex ' + defindex + ' is not in schema');
 		return;
 	}
-	if (item.paintkit !== null ) {
-		const link = `https://scrap.tf/img/items/warpaint/${encodeURIComponent(found.item_name)}_${item.paintkit}_${item.wear}_${item.festive===true?1:0}.png`;
-		return {small: link, large: link};
+	if ((Object.keys(paintCanColors).indexOf(sku)) > -1) {
+		found.image_url = found.image_url_large = `https://backpack.tf/images/440/cans/Paint_Can_${paintCanColors[sku]}.png`;
+	} else if (item.paintkit !== null ) {
+		found.image_url = found.image_url_large = `https://scrap.tf/img/items/warpaint/${encodeURIComponent(found.item_name)}_${item.paintkit}_${item.wear}_${item.festive===true?1:0}.png`;
 	} else if (item.australium === true) {
-		const link = `https://scrap.tf/img/items/440/${found.defindex}-gold.png`;
-		return {small: link, large: link};
+		found.image_url = found.image_url_large = `https://scrap.tf/img/items/440/${found.defindex}-gold.png`;
 	}
 	return {small: found.image_url, large: found.image_url_large};
 };
@@ -38,7 +39,7 @@ exports.getImageStyle = function getImageStyle(sku) {
 		'KS',
 		'SPEC KS',
 		'PRO KS'
-	]
+	];
 	return {
 		quality_color: qualityColors[item.quality],
 		border_color: (item.quality2 != null) ? qualityColors[item.quality2] : '#000000',

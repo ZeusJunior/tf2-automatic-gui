@@ -1163,3 +1163,35 @@ exports.qualityColors = {
 	14: '#AA0000',
 	15: '#FAFAFA'
 };
+
+exports.paintCanColors = {
+	'5052;6': '2f4f4f', // A Color Similar to Slate
+	'5031;6': '7d4071', // A Deep Commitment to Purple
+	'5040;6': '141414', // A Distinctive Lack of Hue
+	'5076;6': 'bcddb3', // A Mann's Mint
+	'5077;6': '2d2d24', // After Eight
+	'5038;6': '7e7e7e', // Aged Moustache Grey
+	'5063;6': '654740', // An Air of Debonair
+	'5039;6': 'e6e6e6', // An Extraordinary Abundance of Tinge
+	'5037;6': 'e7b53b', // Australium Gold
+	'5062;6': '3b1f23', // Balaclavas Are Forever
+	'5030;6': 'd8bed8', // Color No. 216-190-216
+	'5065;6': 'c36c2d', // Cream Spirit
+	'5056;6': 'e9967a', // Dark Salmon Injustice
+	'5053;6': '808000', // Drably Olive
+	'5027;6': '729e42', // Indubitably Green
+	'5032;6': 'cf7336', // Mann Co. Orange
+	'5033;6': 'a57545', // Muskelmannbraun
+	'5029;6': '51384a', // Noble Hatter's Violet
+	'5060;6': '483838', // Operator's Overalls
+	'5034;6': 'c5af91', // Peculiarly Drab Tincture
+	'5051;6': 'ff69b4', // Pink as Hell
+	'5035;6': '694d3a', // Radigan Conagher Brown
+	'5046;6': 'b8383b', // Team Spirit
+	'5054;6': '32cd32', // The Bitter Taste of Defeat and Lime
+	'5055;6': 'f0e68c', // The Color of a Gentlemann's Business Pants
+	'5064;6': '803020', // The Value of Teamwork
+	'5061;6': 'a89a8c', // Waterlogged Lab Coat
+	'5036;6': '7c6c57', // Ye Olde Rustic Colour
+	'5028;6': '424f3b' // Zepheniah's Greed
+};
