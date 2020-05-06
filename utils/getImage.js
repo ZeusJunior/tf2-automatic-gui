@@ -21,7 +21,7 @@ function getImageFromSKU(sku) {
 		const link = `https://scrap.tf/img/items/440/${found.defindex}-gold.png`;
 		return {small: link, large: link};
 	}
-	return {small: found.image_url, large: found.image_url_large};
+	return {small: found.image_url, large: found.image_url_large, effect: item.effect? `https://backpack.tf/images/440/particles/${item.effect}_188x188.png` : ''};
 };
 exports.getImageFromSKU = getImageFromSKU;
 
@@ -38,13 +38,14 @@ exports.getImageStyle = function getImageStyle(sku) {
 		'KS',
 		'SPEC KS',
 		'PRO KS'
-	]
+	];
 	return {
 		quality_color: qualityColors[item.quality],
 		border_color: (item.quality2 != null) ? qualityColors[item.quality2] : '#000000',
 		craftable: item.craftable,
 		image_small: img.small,
 		image_large: img.large,
+		effect: img.effect,
 		killstreak: ks[item.killstreak]
 	};
 };
