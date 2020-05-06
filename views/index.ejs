@@ -161,6 +161,36 @@
 							</div>
 							<div class="form-row">
 								<div class="col">
+									  <div class="pretty p-switch p-fill">
+										<input type="checkbox" name="autoprice" v-model="bulk.autoprice"/>
+										<div class="state p-success">
+											<label>Autoprice</label>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="form-row" v-if="!bulk.autoprice&&(bulk.intent!=0)">
+								<div class="col">
+									<label>Sell keys</label>
+									<input type="number" class="form-control" name="sellkeys" min="0" placeholder="Keys" v-model="bulk.sell.keys">
+								</div>
+								<div class="col">
+									<label>Sell metal</label>
+									<input type="number" class="form-control" name="sellmetal" min="0" placeholder="Metal" step="any" v-model="bulk.sell.metal">
+								</div>
+								</div>
+								<div class="form-row" v-if="!bulk.autoprice&&(bulk.intent!=1)">
+								<div class="col">
+									<label>Buy keys</label>
+									<input type="number" class="form-control" name="buykeys" min="0" placeholder="Keys" v-model="bulk.buy.keys">
+								</div>
+								<div class="col">
+									<label >Buy metal</label>
+									<input type="number" class="form-control" name="buymetal" min="0" placeholder="Metal" step="any" v-model="bulk.buy.metal">
+								</div>
+							</div>
+							<div class="form-row">
+								<div class="col">
 								  	<label for="intent">Intent</label>
 								  	<select name="intent" class="form-control" id="intent" v-model="bulk.intent">
 										<option selected="selected" value="2">Bank (buy and sell)</option>
