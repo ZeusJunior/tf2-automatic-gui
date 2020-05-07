@@ -17,6 +17,16 @@ router.post('/', (req, res) => {
 		return;
 	}
 
+	if (req.body.max - req.body.min < 1) {
+		res.json({
+			success: 0,
+			msg: {
+				type: 'warning',
+				message: 'The maximum stock must be atleast one higher than the minimum'
+			}
+		});
+		return;
+	}
 	input.forEach(function(item) {
 		if (item.includes('classifieds')) {
 			res.json({
@@ -30,11 +40,47 @@ router.post('/', (req, res) => {
 		}
 	});
 
+	if (!req.body.autoprice) {
+		sellvalues = { keys: parseInt(req.body.sell_keys), metal: parseInt(req.body.sell_metal)};
+		buyvalues = { keys: parseInt(req.body.buy_keys), metal: parseInt(req.body.buy_metal)};
+	
+		// lower sell keys
+		if (sellvalues.keys < buyvalues.keys && req.body.intent != 0) {
+			res.json({
+				success: 0,
+				msg: {
+					type: 'warning',
+					message: 'The sell price must be higher than the buy price'
+				}
+			});
+			return;
+		}
+		// Same amount of keys, lower or equal sell metal
+		if (sellvalues.keys === buyvalues.keys && sellvalues.metal <= buyvalues.metal && req.body.intent != 0) {
+			res.json({
+				success: 0,
+				msg: {
+					type: 'warning',
+					message: 'The sell price must be higher than the buy price'
+				}
+			});
+			return;
+		}
+	}
 	pricelist
 		.addItems(input, {
 			intent: parseInt(req.body.intent),
 			min: parseInt(req.body.min),
-			max: parseInt(req.body.max)
+			max: parseInt(req.body.max),
+			autoprice: req.body.autoprice,
+			buy: {
+				keys: parseInt(req.body.buy_keys),
+				metal: parseInt(req.body.buy_metal)
+			},
+			sell: {
+				keys: parseInt(req.body.sell_keys),
+				metal: parseInt(req.body.sell_metal)
+			}
 		})
 		.then(({ itemsAdded, failedItems, itemsFailed, alreadyAdded }) => {
 			let message = `${itemsAdded} item${getPluralOrSingularString(itemsAdded)} added,

@@ -36,7 +36,16 @@ const app = new Vue({
 			input: '',
 			intent: 2,
 			min: 0,
-			max: 1
+			max: 1,
+			autoprice: true,
+			buy: {
+				keys: 0,
+				metal: 0
+			},
+			sell: {
+				keys: 0,
+				metal: 0
+			}
 		},
 		pricelist: [],
 		msg: {
@@ -58,7 +67,16 @@ const app = new Vue({
 				input: '',
 				intent: 2,
 				min: 0,
-				max: 1
+				max: 1,
+				autoprice: true,
+				buy: {
+					keys: 0,
+					metal: 0
+				},
+				sell: {
+					keys: 0,
+					metal: 0
+				}
 			};
 		},
 		itemClick: function(item, e) {
@@ -170,21 +188,24 @@ const app = new Vue({
 				input: bulk.input,
 				intent: bulk.intent,
 				min: bulk.min,
-				max: bulk.max
+				max: bulk.max,
+				autoprice: bulk.autoprice,
+				buy_keys: bulk.buy.keys,
+				buy_metal: bulk.buy.metal,
+				sell_keys: bulk.sell.keys,
+				sell_metal: bulk.sell.metal
 			};
 			app.sendMessage('secondary', 'Bulk add started, it might take a while.');
 			$('#bulkModal').modal('hide');
-			$.ajax({
-				type: 'POST',
+			axios({
+				method: 'POST',
 				url: '/addItems',
-				data: postData,
-				success: function(data, status) {
-					app.sendMessage(data.msg.type, data.msg.message);
+				data: postData
+			})
+				.then((resp)=>{
+					app.sendMessage(resp.data.msg.type, resp.data.msg.message);
 					app.loadItems();
-				},
-				dataType: 'json',
-				traditional: true
-			});
+				});
 		},
 		removeItems: function() {
 			$('#areYouSure').modal('hide');
