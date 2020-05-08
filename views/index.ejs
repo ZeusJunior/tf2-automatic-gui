@@ -307,7 +307,7 @@
 				
 					<tr class="item item-list m-1" v-for="item in pricelistSorted" :key="item.sku" @click="itemClick(item, $event)">
 						<td>
-							<a :href="item.statslink" target="_blank">{{item.sku}}</a>
+							<a :href="item.statslink" target="_blank" v-on:click.stop="">{{item.sku}}</a>
 						</td>
 						<td>
 							<b :class='{disabled: !item.autoprice}' class="autoprice-symbol">
