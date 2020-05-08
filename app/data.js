@@ -59,7 +59,10 @@ exports.killstreaks = [
 exports.killstreak = {
 	'Professional Killstreak': 3,
 	'Specialized Killstreak': 2,
-	'Killstreak': 1
+	'Killstreak': 1,
+	'3': 'Professional Killstreak',
+	'2': 'Specialized Killstreak',
+	'1': 'Killstreak'
 };
 
 exports.effects = [
@@ -1119,7 +1122,12 @@ exports.wear = {
 	'(Minimal Wear)': 2,
 	'(Field-Tested)': 3,
 	'(Well-Worn)': 4,
-	'(Battle Scarred)': 5
+	'(Battle Scarred)': 5,
+	'1': '(Factory New)',
+	'2': '(Minimal Wear)',
+	'3': '(Field-Tested)',
+	'4': '(Well-Worn)',
+	'5': '(Battle Scarred)'
 };
 exports.ETradeOfferState = {
 	Invalid: 1,
