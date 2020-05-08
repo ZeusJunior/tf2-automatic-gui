@@ -103,12 +103,18 @@
     position: absolute;
     z-index: 2;
 }
-.autoprice-symbol {
+.item-grid .autoprice-symbol {
     top: 2px;
     right: 2px;
     position: absolute;
     z-index: 2;
     color: #29a30e;
+}
+.item-list .autoprice-symbol {
+    color: #29a30e;
+}
+.item-list .autoprice-symbol.disabled {
+    color: #cccccc;
 }
 .btn.active {
     background-color: #666;
