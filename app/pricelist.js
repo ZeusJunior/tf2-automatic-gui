@@ -97,7 +97,8 @@ pricelist.addItems = async function(search, options) {
 				};
 				// Add item to items array, these will be used to update the pricelist and remove from skus array
 				items.push(listing);
-				skus.splice(skus.indexOf(sku), 1);
+				skus.splice(i, 1);
+				i--;
 				itemsAdded++;
 			}
 		}
