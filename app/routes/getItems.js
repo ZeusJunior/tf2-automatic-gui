@@ -67,8 +67,8 @@ function servePricelist(keyPrice, pricelist, res) {
 			keys: item.sell.keys
 		}).toValue(keyPrice); // convert sell price to scrap with actual key value to scrap for sorting purposes
 		item.sell.string = new Currency({
-			metal: item.buy.metal,
-			keys: item.buy.keys
+			metal: item.sell.metal,
+			keys: item.sell.keys
 		}).toString();
 		item.style = getImage.getImageStyle(item.sku);
 	}
