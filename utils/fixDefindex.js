@@ -75,7 +75,7 @@ function fixWarPaintDefindex({ item }) {
 	const gameItems = schema.raw.items_game.items;
 	
 	_.forOwn(gameItems, (gameItem, defindex) => {
-		if (!paintKits.hasOwnProperty(defindex)) {
+		if (!Object.prototype.hasOwnProperty.call(gameItems, defindex)) {
 			return;
 		}
 
