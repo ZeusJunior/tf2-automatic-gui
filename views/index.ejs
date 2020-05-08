@@ -13,7 +13,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 	<!-- development version, includes helpful console warnings -->
 	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-	<script src="https://unpkg.com/vue-async-computed"></script>
+	<script src="https://unpkg.com/vue-async-computed@3.8.2"></script>
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
 <body>
@@ -233,7 +233,13 @@
 					<option value=1>Sell price</option>
 					<option value=2>Buy price</option>
 				</select>
-				<button type="button" class="btn btn-primary" @click="sort.asc = !sort.asc">{{sort.asc?'ascending':'descending'}}</button>
+				<button type="button" class="btn btn-primary p-1" @click="sort.asc = !sort.asc"> <img :src="'/images/' + (sort.asc?'ascending':'descending') + '.svg'" :alt="sort.asc?'ascending':'descending'" height="24px"></button>
+			</li>
+			<li class="nav-item">
+				<div class="btn-group">
+					<button type="button" class="btn border-right" :class="{'active': list}" @click="list=true"><img src="/images/list.svg" alt="list"></button>
+					<button type="button" class="btn" :class="{'active': !list}" @click="list=false"><img src="/images/grid.svg" alt="grid"></button>
+				</div>
 			</li>
 			<li class="nav-item">
 				<input class="form-control mr-sm-2" id="searchPricelist" type="search" placeholder="Search" aria-label="Search" autocomplete="off" v-model="searchPricelist">
@@ -251,7 +257,7 @@
 			</span>
 		</div>
 		
-		<div class="d-flex mt-3 flex justify-content-center flex-wrap" id="pricelist">
+		<div v-if="!list" class="d-flex mt-3 flex justify-content-center flex-wrap" id="pricelist">
 			<div class="item m-1" v-for="item in pricelistSorted" :key="item.sku" :style="{ backgroundImage: `url( ${item.style.image_small} ), url( ${item.style.effect} )`, backgroundColor: item.style.quality_color, borderStyle: item.style.craftable? false : 'dashed', opacity: item.enabled?1:0.5, borderColor: item.style.border_color}" @click="itemClick(item, $event)">
 				<div class="info text-center font-weight-bold" v-if="!multiSelect.list.includes(item.sku)">
 					{{item.name}}
@@ -280,6 +286,55 @@
 					$
 				</b>
 			</div>
+		</div>
+		<div v-else class="d-flex mt-3 flex justify-content-center flex-wrap" id="pricelist">
+
+			<table class="table table-hover">
+				<thead>
+				  <tr>
+					<th scope="col">SKU</th>
+					<th></th>
+					<th scope="col">Name</th>
+					<th scope="col">Intent</th>
+					<th scope="col">Buy price</th>
+					<th scope="col">Sell price</th>
+					<th scope="col">Minimum stock</th>
+					<th scope="col">Maximum stock</th>
+				  </tr>
+				</thead>
+				  <tbody>
+				
+					<tr class="item item-list m-1" v-for="item in pricelistSorted" :key="item.sku" @click="itemClick(item, $event)">
+						<td>
+							<a :href="item.statslink" target="_blank">{{item.sku}}</a>
+						</td>
+						<td :src="item.style.img_small" width="64px" height="64px" style="background-size: contain;" :style="{ backgroundImage: `url( ${item.style.image_small} ), url( ${item.style.effect} )`, backgroundColor: item.style.quality_color, borderStyle: item.style.craftable? false : 'dashed', opacity: item.enabled?1:0.5, borderColor: item.style.border_color}"> 
+							<svg class="bi bi-check item-check" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" v-if="multiSelect.list.includes(item.sku)">
+								<path fill-rule="evenodd" d="M13.854 3.646a.5.5 0 010 .708l-7 7a.5.5 0 01-.708 0l-3.5-3.5a.5.5 0 11.708-.708L6.5 10.293l6.646-6.647a.5.5 0 01.708 0z" clip-rule="evenodd"/>
+							</svg>
+						</td>
+						<td>{{item.name}}</td>
+						<td>{{item.intent == 2 ? "Bank" : item.intent == 1 ? "Sell" : "buy"}}</td>
+						<td >{{item.buy.string}}</td>
+						<td >{{item.sell.string}}</td>
+						<td>{{item.min}}</td>
+						<td>{{item.max}}</td>
+					</tr>
+				  
+				  </tbody>
+				  <tfoot>
+					<tr>
+					  <th scope="col">SKU</th>
+					  <th></th>
+					  <th scope="col">Name</th>
+					  <th scope="col">Intent</th>
+					  <th scope="col">Buy price</th>
+					  <th scope="col">Sell price</th>
+					  <th scope="col">Minimum stock</th>
+					  <th scope="col">Maximum stock</th>
+					</tr>
+				  </tfoot>
+			  </table>
 		</div>
 	</div>
 	<button onclick="topFunction()" id="scrollBtn" title="Go to top">Top</button>

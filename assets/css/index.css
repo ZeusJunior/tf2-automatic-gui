@@ -28,7 +28,7 @@
 .item-check {
 	width: 100%;
 	height: 100%;
-	background-color:rgba(255, 255, 255, 0.7);
+    background-color:rgba(255, 255, 255, 0.7);
 }
 
 .search-dropdown{
@@ -109,4 +109,12 @@
     position: absolute;
     z-index: 2;
     color: #29a30e;
+}
+.btn.active {
+    background-color: #666;
+    color: white;
+}
+.item-list{
+    width: 100%; 
+    height: 64px;
 }

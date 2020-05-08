@@ -57,7 +57,8 @@ const app = new Vue({
 		sort: {
 			type: 0,
 			asc: true
-		}
+		},
+		list: false
 	},
 	methods: {
 		addSingle: function() {
