@@ -47,10 +47,10 @@ function getSKU(search) {
 		
 		item.craftable = searchParts[4] === 'Craftable' ? true : false;
 
-		if (quality == 'Strange Unusual') {
+		if (urlQuality == 'Strange Unusual') {
 			item.quality = 5;
 			item.quality2 = 11;
-		} else if (quality == 'Strange Haunted') {
+		} else if (urlQuality == 'Strange Haunted') {
 			item.quality = 13;
 			item.quality2 = 11;
 		} else {
