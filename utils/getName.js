@@ -16,8 +16,8 @@ function getName(item, proper = true) {
 		item = SKU.fromString(item);
 	}
 
-	const schemaItem = getItemByDefindex(item.defindex);
-	if (schemaItem === null) {
+	const schemaItem = Schema.getItemByDefindex(item.defindex);
+	if (!schemaItem) {
 		return null;
 	}
 
@@ -54,7 +54,7 @@ function getName(item, proper = true) {
 	}
 
 	if (item.target) {
-		name += getItemByDefindex(item.target).item_name + ' ';
+		name += Schema.getItemByDefindex(item.target).item_name + ' ';
 	}
 
 	if (item.outputQuality && item.outputQuality !== 6) {
@@ -62,7 +62,7 @@ function getName(item, proper = true) {
 	}
 
 	if (item.output) {
-		name += getItemByDefindex(item.output).item_name + ' ';
+		name += Schema.getItemByDefindex(item.output).item_name + ' ';
 	}
 
 	if (item.australium === true) {
@@ -88,29 +88,4 @@ function getName(item, proper = true) {
 	}
 
 	return name;
-}
-
-
-/**
- * Gets the full schema item
- * @param {int} defindex 
- * @return {Object} schemaItem
- */
-function getItemByDefindex(defindex) {
-	const schema = Schema.get();
-	
-	if (!schema) {
-		return null;
-	}
-	
-	const { items } = schema.raw.schema;
-
-	for (let i = 0; i < items.length; i++) {
-		const item = items[i];
-		if (item.defindex === defindex) {
-			return item;
-		}
-	}
-
-	return null;
 }
