@@ -4,6 +4,7 @@ const paths = require('../../resources/paths');
 const fs = require('fs-extra');
 const getName = require('../../utils/getName');
 const getImage = require('../../utils/getImage');
+const getStatsLink = require('../../utils/getStatsLink');
 const axios = require('axios');
 const Currency = require('tf2-currencies');
 
@@ -52,6 +53,7 @@ function servePricelist(keyPrice, pricelist, res) {
 		if (!item.name) {
 			item.name = getName(item.sku);
 		}
+		item.statslink = getStatsLink(item.sku);
 		item.buy.total = new Currency({
 			metal: item.buy.metal,
 			keys: item.buy.keys

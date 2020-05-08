@@ -51,7 +51,7 @@
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h5 class="modal-title" id="priceModalLabel">{{modal.edit ? `Edit item ${modal.item.sku}` : 'Add item'}}</h5>
+						<h5 class="modal-title" id="priceModalLabel">{{modal.edit ? `Edit item ` : 'Add item'}}<a v-if="modal.edit" :href="modal.item.statslink" target="_blank">{{modal.item.sku}}</a></h5>
 						<button class="close" data-dismiss="modal" aria-label="Close">
 							<span aria-hidden="true">&times;</span>
 						</button>

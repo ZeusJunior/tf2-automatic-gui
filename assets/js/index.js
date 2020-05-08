@@ -1,5 +1,6 @@
 const itemTemplate = {
 	name: '',
+	statslink: '',
 	autoprice: true,
 	sku: '',
 	enabled: true,
@@ -90,6 +91,7 @@ const app = new Vue({
 			} else {
 				this.modal.item= {
 					name: item.name,
+					statslink: item.statslink,
 					autoprice: item.autoprice,
 					sku: item.sku,
 					enabled: item.enabled,
