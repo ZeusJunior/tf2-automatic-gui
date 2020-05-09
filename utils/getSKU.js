@@ -1,5 +1,5 @@
-const Schema = require('../app/schema.js');
-const { wear, wears, quality, qualities, effect, effects, killstreak, killstreaks, skin, skins } = require('../app/data.js');
+const Schema = require('../app/schema');
+const { wear, wears, quality, qualities, effect, effects, killstreak, killstreaks, skin, skins } = require('../app/data');
 const SKU = require('tf2-sku');
 const fixItem = require('../utils/fixItem');
 
@@ -47,10 +47,10 @@ function getSKU(search) {
 		
 		item.craftable = searchParts[4] === 'Craftable' ? true : false;
 
-		if (quality == 'Strange Unusual') {
+		if (urlQuality == 'Strange Unusual') {
 			item.quality = 5;
 			item.quality2 = 11;
-		} else if (quality == 'Strange Haunted') {
+		} else if (urlQuality == 'Strange Haunted') {
 			item.quality = 13;
 			item.quality2 = 11;
 		} else {

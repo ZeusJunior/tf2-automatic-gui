@@ -59,7 +59,10 @@ exports.killstreaks = [
 exports.killstreak = {
 	'Professional Killstreak': 3,
 	'Specialized Killstreak': 2,
-	'Killstreak': 1
+	'Killstreak': 1,
+	'3': 'Professional Killstreak',
+	'2': 'Specialized Killstreak',
+	'1': 'Killstreak'
 };
 
 exports.effects = [
@@ -1119,5 +1122,84 @@ exports.wear = {
 	'(Minimal Wear)': 2,
 	'(Field-Tested)': 3,
 	'(Well-Worn)': 4,
-	'(Battle Scarred)': 5
+	'(Battle Scarred)': 5,
+	'1': '(Factory New)',
+	'2': '(Minimal Wear)',
+	'3': '(Field-Tested)',
+	'4': '(Well-Worn)',
+	'5': '(Battle Scarred)'
+};
+exports.ETradeOfferState = {
+	Invalid: 1,
+	Active: 2, // This trade offer has been sent, neither party has acted on it yet.
+	Accepted: 3, // The trade offer was accepted by the recipient and items were exchanged.
+	Countered: 4, // The recipient made a counter offer
+	Expired: 5, // The trade offer was not accepted before the expiration date
+	Canceled: 6, // The sender cancelled the offer
+	Declined: 7, // The recipient declined the offer
+	InvalidItems: 8, // Some of the items in the offer are no longer available (indicated by the missing flag in the output)
+	CreatedNeedsConfirmation: 9, // The offer hasn't been sent yet and is awaiting further confirmation
+	CanceledBySecondFactor: 10, // Either party canceled the offer via email/mobile confirmation
+	InEscrow: 11, // The trade has been placed on hold
+
+	1: 'Invalid',
+	2: 'Active',
+	3: 'Accepted',
+	4: 'Countered',
+	5: 'Expired',
+	6: 'Canceled',
+	7: 'Declined',
+	8: 'InvalidItems',
+	9: 'CreatedNeedsConfirmation',
+	10: 'CanceledBySecondFactor',
+	11: 'InEscrow'
+};
+exports.qualityColors = {
+	0: '#B2B2B2',
+	1: '#4D7455',
+	2: '#8D834B',
+	3: '#476291',
+	4: '#70550F',
+	5: '#8650AC',
+	6: '#FFD700',
+	7: '#70B04A',
+	8: '#A50F79',
+	9: '#70B04A',
+	11: '#CF6A32',
+	12: '#8650AC',
+	13: '#38F3AB',
+	14: '#AA0000',
+	15: '#FAFAFA'
+};
+
+exports.paintCanColors = {
+	'5052;6': '2f4f4f', // A Color Similar to Slate
+	'5031;6': '7d4071', // A Deep Commitment to Purple
+	'5040;6': '141414', // A Distinctive Lack of Hue
+	'5076;6': 'bcddb3', // A Mann's Mint
+	'5077;6': '2d2d24', // After Eight
+	'5038;6': '7e7e7e', // Aged Moustache Grey
+	'5063;6': '654740', // An Air of Debonair
+	'5039;6': 'e6e6e6', // An Extraordinary Abundance of Tinge
+	'5037;6': 'e7b53b', // Australium Gold
+	'5062;6': '3b1f23', // Balaclavas Are Forever
+	'5030;6': 'd8bed8', // Color No. 216-190-216
+	'5065;6': 'c36c2d', // Cream Spirit
+	'5056;6': 'e9967a', // Dark Salmon Injustice
+	'5053;6': '808000', // Drably Olive
+	'5027;6': '729e42', // Indubitably Green
+	'5032;6': 'cf7336', // Mann Co. Orange
+	'5033;6': 'a57545', // Muskelmannbraun
+	'5029;6': '51384a', // Noble Hatter's Violet
+	'5060;6': '483838', // Operator's Overalls
+	'5034;6': 'c5af91', // Peculiarly Drab Tincture
+	'5051;6': 'ff69b4', // Pink as Hell
+	'5035;6': '694d3a', // Radigan Conagher Brown
+	'5046;6': 'b8383b', // Team Spirit
+	'5054;6': '32cd32', // The Bitter Taste of Defeat and Lime
+	'5055;6': 'f0e68c', // The Color of a Gentlemann's Business Pants
+	'5064;6': '803020', // The Value of Teamwork
+	'5061;6': 'a89a8c', // Waterlogged Lab Coat
+	'5036;6': '7c6c57', // Ye Olde Rustic Colour
+	'5028;6': '424f3b' // Zepheniah's Greed
 };

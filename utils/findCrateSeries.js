@@ -1,4 +1,6 @@
-module.exports = function({ item, items, schemaItem }) {
+const Schema = require('./../app/schema');
+
+module.exports = function({ item, schemaItem }) {
 	if (!isCrate(schemaItem)) {
 		return;
 	}
@@ -14,8 +16,10 @@ module.exports = function({ item, items, schemaItem }) {
 		return;
 	}
 
-	const itemsGameItem = items[item.defindex];
+	
+	const itemsGameItem = Schema.getItemByDefindex(item.defindex);
 
+	
 	if (itemsGameItem.static_attrs && itemsGameItem.static_attrs['set supply crate series'] !== undefined) {
 		const seriesAttribute = itemsGameItem.static_attrs['set supply crate series'];
 

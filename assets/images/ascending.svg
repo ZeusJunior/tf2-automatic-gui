@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 512 512" xml:space="preserve">
+<g>
+	<g>
+		<rect x="2.344" y="480" width="384" height="32"/>
+		<rect x="2.344" y="384" width="320" height="32"/>
+		<rect x="2.344" y="288" width="256" height="32"/>
+		<rect x="2.344" y="192" width="192" height="32"/>
+		<rect x="2.344" y="96" width="128" height="32"/>
+		<rect x="2.344" width="64" height="32"/>
+		<polygon points="487.032,428.688 466.344,449.376 466.344,128 434.344,128 434.344,449.376 413.656,428.688 391.032,451.312      450.344,510.624 509.656,451.312    "/>
+		<rect x="434.344" y="64" width="32" height="32"/>
+		<rect x="434.344" width="32" height="32"/>
+	</g>
+</g>
+</svg>

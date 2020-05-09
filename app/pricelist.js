@@ -6,7 +6,7 @@ const paths = require('../resources/paths');
 
 
 const pricelist = module.exports;
-
+ 
 
 pricelist.addItems = async function(search, options) {
 	let skus = [];
@@ -28,96 +28,108 @@ pricelist.addItems = async function(search, options) {
 		}
 	}
 
-	return getAllPrices()
-		.then(async (prices) => {
-			console.log('Got all prices, continuing...');
-
-			for (let i = 0; i < prices.length; i++) {
-				if (search.indexOf(prices[i].name) > -1) {
-					skus.push(prices[i].sku);
-					search.splice(search.indexOf(prices[i].name), 1);
-				}
+	if (options.autoprice) {
+		const prices = await getAllPrices();
+		console.log('Got all prices, continuing...');
+		for (let i = 0; i < prices.length; i++) {
+			if (search.indexOf(prices[i].name) > -1) {
+				skus.push(prices[i].sku);
+				search.splice(search.indexOf(prices[i].name), 1);
 			}
+		}
 
-			const generatedSkus = search.map((item) => getSKU(item));
-			skus = skus.concat(generatedSkus);
+		const generatedSkus = search.map((item) => getSKU(item));
+		skus = skus.concat(generatedSkus);
 
-			const start = new Date();
-
-			for (let i = 0; i < skus.length; i++) {
-				if (skus[i] === false) {
-					skus.splice(skus.indexOf(skus[i]), 1);
-					itemsFailed++;
-					i--;
-				}
+		for (let i = 0; i < skus.length; i++) {
+			if (skus[i] === false) {
+				skus.splice(skus.indexOf(skus[i]), 1);
+				itemsFailed++;
+				i--;
 			}
+		}
 
-			for (let i = 0; i < prices.length; i++) {
-				const { sku, name, buy, sell, time } = prices[i];
+		for (let i = 0; i < prices.length; i++) {
+			const { sku, name, buy, sell, time } = prices[i];
+			
+			if (skus.indexOf(sku) > -1) {
+				if (buy === null || sell === null) {
+					continue;
+				}
 				
-				if (skus.indexOf(sku) > -1) {
-					if (buy === null || sell === null) {
-						continue;
-					}
-					
-					const listing = {
-						sku,
-						enabled: true,
-						autoprice: true,
-						max: options.max,
-						min: options.min,
-						intent: options.intent,
-						name: '',
-						buy: {},
-						sell: {},
-						time: 0
-					};
-					listing.name = name;
-					listing.buy = buy;
-					listing.sell = sell;
-					listing.time = time;
-
-					// Add item to items array, these will be used to update the pricelist and remove from skus array
-					items.push(listing);
-					skus.splice(skus.indexOf(sku), 1);
-					itemsAdded++;
-				}
-
-				if (i == prices.length - 1) { // Done looping
-					const end = new Date() - start;
-					
-					console.info('Execution time: %dms', end);
-					
-					itemsFailed += skus.length; // items that succeeded get removed from skus 
-					failedItems = skus.map((sku) => getName(sku)); // so all thats left in skus is failed items. 
-
-					if (itemsAdded > 0) {
-						try {
-							const result = await addItemsToPricelist(items);
-
-							if (result > 0) {
-								itemsAdded -= result;
-							}
-
-							return {
-								itemsAdded: itemsAdded,
-								itemsFailed: itemsFailed,
-								alreadyAdded: result,
-								failedItems: failedItems
-							};
-						} catch (err) {
-							return Promise.reject(err);
-						}
-					} ;
-					
-					return {
-						itemsAdded: itemsAdded,
-						itemsFailed: itemsFailed,
-						failedItems: failedItems
-					};
-				}
+				const listing = {
+					sku,
+					enabled: true,
+					autoprice: true,
+					max: options.max,
+					min: options.min,
+					intent: options.intent,
+					name: name,
+					buy: buy,
+					sell: sell,
+					time: time
+				};
+				// Add item to items array, these will be used to update the pricelist and remove from skus array
+				items.push(listing);
+				skus.splice(skus.indexOf(sku), 1);
+				itemsAdded++;
 			}
-		});
+		}
+	} else {
+		const skus = search.map((item) => getSKU(item));
+		for (let i = 0; i < skus.length; i++) {
+			const sku = skus[i];
+			if (sku === false) {
+				skus.splice(skus.indexOf(sku), 1);
+				itemsFailed++;
+				i--;
+			} else {
+				const listing = {
+					sku,
+					enabled: true,
+					autoprice: false,
+					max: options.max,
+					min: options.min,
+					intent: options.intent,
+					buy: options.buy,
+					sell: options.sell,
+					time: 0
+				};
+				// Add item to items array, these will be used to update the pricelist and remove from skus array
+				items.push(listing);
+				skus.splice(i, 1);
+				i--;
+				itemsAdded++;
+			}
+		}
+	}
+	itemsFailed += skus.length; // items that succeeded get removed from skus 
+	failedItems = skus.map((sku) => getName(sku)); // so all thats left in skus is failed items. 
+
+	if (itemsAdded > 0) {
+		try {
+			const result = await addItemsToPricelist(items);
+
+			if (result > 0) {
+				itemsAdded -= result;
+			}
+
+			return {
+				itemsAdded: itemsAdded,
+				itemsFailed: itemsFailed,
+				alreadyAdded: result,
+				failedItems: failedItems
+			};
+		} catch (err) {
+			return Promise.reject(err);
+		}
+	}
+	
+	return {
+		itemsAdded: itemsAdded,
+		itemsFailed: itemsFailed,
+		failedItems: failedItems
+	};
 };
 
 pricelist.addSingleItem = function(search, { autoprice, max, min, intent, buy, sell }) {
@@ -151,6 +163,7 @@ pricelist.changeSingleItem = function(item) {
 		.then((pricelist) => {
 			pricelist.forEach((pricedItem) => {
 				if (item.sku === pricedItem.sku) {
+					pricedItem.enabled = item.enabled;
 					pricedItem.buy = item.buy;
 					pricedItem.sell = item.sell;
 					pricedItem.intent = item.intent;
@@ -184,7 +197,7 @@ pricelist.removeItems = async function(items) {
 };
 
 /**
- * Remove items from the pricelist
+ * Add items to pricelist
  * @param {Array} items - Array of item objects to add
  * @return {int} - Amount of items that were already in the pricelist
  */
