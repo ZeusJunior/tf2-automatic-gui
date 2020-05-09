@@ -94,16 +94,6 @@
 								</div>
 							</div>
 						  </div>
-						  <div class="form-row" v-if="modal.item.enabled&&(modal.item.intent!=0)">
-							<div class="col">
-							  <label>Sell keys {{(autopriceCalc.sell.keys===null||modal.item.autoprice)?'':' A: ' + autopriceCalc.sell.keys}}</label>
-							  <input type="number" class="form-control" id="sellkeys" name="sellkeys" min="0" placeholder="Keys" required :disabled="modal.item.autoprice" v-model="modal.item.sell.keys">
-							</div>
-							<div class="col">
-							  <label>Sell metal {{(autopriceCalc.sell.metal===null||modal.item.autoprice)?'':' A: ' + autopriceCalc.sell.metal}}</label>
-							  <input type="number" class="form-control" id="sellmetal" name="sellmetal" min="0" placeholder="Metal" step="any" required :disabled="modal.item.autoprice" v-model="modal.item.sell.metal">
-							</div>
-						  </div>
 						  <div class="form-row" v-if="modal.item.enabled&&(modal.item.intent!=1)">
 							<div class="col">
 							  <label>Buy keys {{(autopriceCalc.buy.keys===null||modal.item.autoprice)?'':' A: ' + autopriceCalc.buy.keys}}</label>
@@ -112,6 +102,16 @@
 							<div class="col">
 							  <label >Buy metal {{(autopriceCalc.buy.metal===null||modal.item.autoprice)?'':' A: ' + autopriceCalc.buy.metal}}</label>
 							  <input type="number" class="form-control" id="buymetal" name="buymetal" min="0" placeholder="Metal" step="any" required :disabled="modal.item.autoprice" v-model="modal.item.buy.metal">
+							</div>
+						  </div>
+						  <div class="form-row" v-if="modal.item.enabled&&(modal.item.intent!=0)">
+							<div class="col">
+							  <label>Sell keys {{(autopriceCalc.sell.keys===null||modal.item.autoprice)?'':' A: ' + autopriceCalc.sell.keys}}</label>
+							  <input type="number" class="form-control" id="sellkeys" name="sellkeys" min="0" placeholder="Keys" required :disabled="modal.item.autoprice" v-model="modal.item.sell.keys">
+							</div>
+							<div class="col">
+							  <label>Sell metal {{(autopriceCalc.sell.metal===null||modal.item.autoprice)?'':' A: ' + autopriceCalc.sell.metal}}</label>
+							  <input type="number" class="form-control" id="sellmetal" name="sellmetal" min="0" placeholder="Metal" step="any" required :disabled="modal.item.autoprice" v-model="modal.item.sell.metal">
 							</div>
 						  </div>
 						  <div class="form-row" v-if="modal.item.enabled">
@@ -169,6 +169,16 @@
 									</div>
 								</div>
 							</div>
+							<div class="form-row" v-if="!bulk.autoprice&&(bulk.intent!=1)">
+								<div class="col">
+									<label>Buy keys</label>
+									<input type="number" class="form-control" name="buykeys" min="0" placeholder="Keys" v-model="bulk.buy.keys">
+								</div>
+								<div class="col">
+									<label >Buy metal</label>
+									<input type="number" class="form-control" name="buymetal" min="0" placeholder="Metal" step="any" v-model="bulk.buy.metal">
+								</div>
+							</div>
 							<div class="form-row" v-if="!bulk.autoprice&&(bulk.intent!=0)">
 								<div class="col">
 									<label>Sell keys</label>
@@ -177,16 +187,6 @@
 								<div class="col">
 									<label>Sell metal</label>
 									<input type="number" class="form-control" name="sellmetal" min="0" placeholder="Metal" step="any" v-model="bulk.sell.metal">
-								</div>
-								</div>
-								<div class="form-row" v-if="!bulk.autoprice&&(bulk.intent!=1)">
-								<div class="col">
-									<label>Buy keys</label>
-									<input type="number" class="form-control" name="buykeys" min="0" placeholder="Keys" v-model="bulk.buy.keys">
-								</div>
-								<div class="col">
-									<label >Buy metal</label>
-									<input type="number" class="form-control" name="buymetal" min="0" placeholder="Metal" step="any" v-model="bulk.buy.metal">
 								</div>
 							</div>
 							<div class="form-row">
