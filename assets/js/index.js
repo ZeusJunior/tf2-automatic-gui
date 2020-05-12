@@ -316,6 +316,9 @@ const app = new Vue({
 				case 2: // buy price
 					return a.buy.total - b.buy.total;
 					break;
+				case 3: // buy price
+					return a.intent - b.intent;
+					break;
 				}
 			});
 		}
