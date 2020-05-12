@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Unofficial tf2-automatic GUI</title>
+</head>
+<body>
+	<%= require('html-loader!./parts/navbar.html')%> 
+	<div class="container-fluid mt-3" id="app">
+		<msg ref="msg"></msg>
+		<div>
+			<div>
+				Profit total: {{profit.profitTotal}}
+			</div>
+			<div>
+				Profit in timeframe: {{profit.profitTimed}}
+			</div>
+			<div>
+				Number of trades: {{profit.numberOfTrades}}.
+			</div>
+			<div>
+				Profit made from overprice: {{profit.overpriceProfit}}
+			</div>
+			
+		</div>
+     	<label for="start" >start</label>
+		<input type="datetime-local" name="start" id="startTime" v-model="start" @blur="refresh()">
+		<label for="end">end</label>
+		<input type="datetime-local" name="end" id="endTime" v-model="end" @blur="refresh()">
+		<label for="interval">interval</label>
+		<select name="interval" id="interval" v-model="interval" @change="refresh()">
+			<option value="3600">1 Hour</option>
+			<option value="14400">4 Hour</option>
+			<option value="43200">12 Hour</option>
+		</select>
+		<div class="chart-container" style="position: relative">
+			<canvas id="myChart"></canvas>
+		</div>
+  	</div>
+</body>
+</html>

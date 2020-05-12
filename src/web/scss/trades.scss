@@ -1,0 +1,28 @@
+@import 'bootstrap';
+@import '~pretty-checkbox/src/pretty-checkbox.scss';
+@import './scrollButton.scss';
+
+.trade {
+	background-color: #1b86ce;
+}
+.trade.declined {
+	opacity: 0.7;
+}
+.container-fluid {
+	max-width:1170px;
+ }
+ .item-list {
+	margin-bottom: 4px;
+	display: block;
+ }
+ 
+ a.steam-profile{
+	color:black !important ;
+  }
+
+.icon-stack {
+    bottom: 2px;
+    left: 2px;
+    position: absolute;
+    z-index: 2;
+}

@@ -1,6 +1,7 @@
 node_modules/*
 views/*
 config/*
+dist/*
 *.bat
 *.md
 *.txt

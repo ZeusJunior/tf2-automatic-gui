@@ -1,4 +1,4 @@
 node_modules
-config
-!/config/template.config.json
+dist
 .vscode
+data/*
