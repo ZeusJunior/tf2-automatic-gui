@@ -14,16 +14,9 @@ router.get('/', (req, res) => {
 			return;
 		}
 	
-		trades.get()
-			.then((data) => {
-				res.render('trades', {
-					data: data,
-					polldata: true
-				});
-			})
-			.catch((err) => {
-				throw err;
-			});
+		res.render('trades', {
+			polldata: true
+		});
 	} else {
 		if (!fs.existsSync(paths.files.polldata)) {
 			res.json({
@@ -32,7 +25,7 @@ router.get('/', (req, res) => {
 			return;
 		}
 	
-		trades.get()
+		trades.get(Number(req.query.first), Number(req.query.count), Number(req.query.dir)==1)
 			.then((data) => {
 				res.json({
 					success: 1,
