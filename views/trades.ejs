@@ -49,32 +49,36 @@
       <div class="mt-3" id="tradeList">
         <div class="p-2 rounded border m-2 trade" v-for="trade in sortedTrades" :key="trade.id" :class="trade.accepted? '': 'declined'">
           <div>
-            {{trade.datetime}}: Trade <b>#{{trade.id}}</b> with <a :href="'https://steamcommunity.com/profiles/' + trade.partner"  target="_blank" class="steam-profile">{{trade.partner}}.</a> {{trade.accepted? '': ` Trade unsuccessfull, reason: ${trade.lastState}.`}}
+            {{trade.datetime}}: Trade <b>#{{trade.id}}</b> with <a :href="'https://steamcommunity.com/profiles/' + trade.partner"  target="_blank" class="steam-profile">{{trade.partner}}.</a>
+            {{trade.accepted? `Profit: ${trade.profit}`: ` Trade unsuccessfull, reason: ${trade.lastState}.`}}
           </div>
           <div class="float-right">{{trade.datetime}}</div>
           <div class="row">
             <div class="col item-list">
               <div>Our: {{trade.hasOwnProperty('value')? `${trade.value.our.keys} keys, ${trade.value.our.metal} metal`: ''}}</div>
-              <div class="item m-1 float-left" v-for="item in trade.items.our" :key="item.sku" :style="{ backgroundImage: `url(` + item.style.image_small + `)`, backgroundColor: item.style.quality_color, borderStyle: item.style.craftable? false : 'dashed',  borderColor: item.style.border_color}">
+              <div class="item m-1 float-left" v-for="item in trade.items.our" :key="item.sku" :style="{ backgroundImage: `url(` + items[item.sku].style.image_small + `)`, backgroundColor: items[item.sku].style.quality_color, borderStyle: items[item.sku].style.craftable? false : 'dashed',  borderColor: items[item.sku].style.border_color}">
                 <div class="info text-center font-weight-bold">
-                  {{item.name}}
-                </div>
-                <div class="item-count">
-                  <b>{{item.amount}}X</b>
-                </div>
-              </div>
-            </div>
-            <div class="col item-list">
-              <div>Their: {{trade.hasOwnProperty('value')? `${trade.value.their.keys} keys, ${trade.value.their.metal} metal`: ''}}</div>
-              <div class="item m-1 float-left" v-for="item in trade.items.their" :key="item.sku" :style="{ backgroundImage: `url(` + item.style.image_small + `)`, backgroundColor: item.style.quality_color, borderStyle: item.style.craftable? false : 'dashed', borderColor: item.style.border_color}">
-                <div class="info text-center font-weight-bold">
-                  {{item.name}}
+                  {{items[item.sku].name}}
                 </div>
                 <div class="item-count">
                   <b>{{item.amount}}X</b>
                 </div>
                 <div class="icon-stack">
-                  <b>{{item.style.killstreak}}</b>
+                  <b>{{items[item.sku].style.killstreak}}</b>
+                </div>
+              </div>
+            </div>
+            <div class="col item-list">
+              <div>Their: {{trade.hasOwnProperty('value')? `${trade.value.their.keys} keys, ${trade.value.their.metal} metal`: ''}}</div>
+              <div class="item m-1 float-left" v-for="item in trade.items.their" :key="item.sku" :style="{ backgroundImage: `url(` + items[item.sku].style.image_small + `)`, backgroundColor: items[item.sku].style.quality_color, borderStyle: items[item.sku].style.craftable? false : 'dashed', borderColor: items[item.sku].style.border_color}">
+                <div class="info text-center font-weight-bold">
+                  {{items[item.sku].name}}
+                </div>
+                <div class="item-count">
+                  <b>{{item.amount}}X</b>
+                </div>
+                <div class="icon-stack">
+                  <b>{{items[item.sku].style.killstreak}}</b>
                 </div>
               </div>
             </div>

@@ -2,6 +2,7 @@ new Vue({
 	el: '#app',
 	data: {
 		tradeList: [],
+		items: [],
 		toShow: 50,
 		search: '',
 		order: 1,
@@ -14,7 +15,8 @@ new Vue({
 					return response.json();
 				})
 				.then((data) => {
-					this.tradeList = data.data;
+					this.tradeList = data.data.trades;
+					this.items = data.data.items;
 				})
 				.catch((error) => {
 					console.error('Error:', error);
