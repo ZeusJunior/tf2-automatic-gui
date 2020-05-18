@@ -125,6 +125,7 @@ exports.get = async function get(start, interval, end, enableTrades) {
 	const returnObj = {
 		profitTotal: tracker.profitTrack.getFormated(tracker.profitTrack.profit),
 		profitTimed: tracker.profitTrack.getFormated(tracker.profitTrack.profitTimed),
+		profitPlot: tracker.profitTrack.profitPlot,
 		numberOfTrades: iter,
 		overpriceProfit: tracker.profitTrack.getFormated(overpriceProfit),
 		keyValue: keyVal
