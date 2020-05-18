@@ -20,6 +20,7 @@ exports.get = async function(first, count, descending) {
 		ret.id = key;
 		return ret;
 	});
+	const tradeCount = tradeList.length;
 	tradeList = tradeList.sort((a, b)=>{
 		a = a.finishTimestamp;
 		b = b.finishTimestamp;
@@ -85,7 +86,8 @@ exports.get = async function(first, count, descending) {
 	});
 	return {
 		trades,
-		items
+		items,
+		tradeCount
 	};
 };
 

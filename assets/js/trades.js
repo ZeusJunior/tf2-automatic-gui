@@ -8,7 +8,8 @@ new Vue({
 		toShow: 50,
 		search: '',
 		order: 1,
-		acceptedOnly: 0
+		acceptedOnly: 0,
+		tradeCount: 0
 	},
 	methods: {
 		loadTrades: function(first=0, count=50, order=1) {
@@ -18,6 +19,7 @@ new Vue({
 					return response.json();
 				})
 				.then((data) => {
+					this.tradeCount = data.data.tradeCount;
 					if (first === 0) {
 						this.tradeList = data.data.trades;
 						this.items = data.data.items;
@@ -49,7 +51,7 @@ new Vue({
 		scroll() {
 			window.onscroll = () => {
 				const bottomOfWindow = Math.max(window.pageYOffset, document.documentElement.scrollTop, document.body.scrollTop) + window.innerHeight === document.documentElement.offsetHeight;
-				if (bottomOfWindow&&!loadLock) {
+				if (bottomOfWindow&&!loadLock&&toShow < this.tradeCount) {
 					const nuberToAdd = 50;
 					this.loadTrades((this.toShow), nuberToAdd, this.order);
 					this.toShow += nuberToAdd;
