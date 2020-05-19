@@ -99,7 +99,7 @@ const app = new Vue({
 				metal: this.plotData.keyValue
 			}).toValue(this.plotData.keyValue); // get value in scrap 
 			const metal = Currencies.toRefined(scrapVal % key);
-			const keys = Math.floor(scrapVal / key);
+			const keys = scrapVal>0 ? Math.floor(scrapVal / key) : Math.ceil(scrapVal / key);
 			return new Currencies({keys, metal}).toString();
 		}
 	},
