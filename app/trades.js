@@ -11,8 +11,10 @@ const profit = require('./profit');
  * @param {Number} first index of first trade to be included in results
  * @param {Number} count how many trades to include in results, set to -1 to return all
  * @param {Boolean} descending sort
+ * @param {String} search string to search listings for
  */
-exports.get = async function(first, count, descending) {
+exports.get = async function(first, count, descending, search) {
+	search = search.trim().toLowerCase();
 	const polldata = await fs.readJSON(paths.files.polldata);
 	const profitData = (await profit.get(undefined, undefined, undefined, true)).tradeProfits;
 	let tradeList = Object.keys(polldata.offerData).map((key)=>{
@@ -35,6 +37,18 @@ exports.get = async function(first, count, descending) {
 		}
 
 		return a - b;
+	});
+	tradeList = tradeList.filter((offer)=>{
+		let offerSearchResults = false;
+		if (Object.prototype.hasOwnProperty.call(offer, 'dict')) {
+			offerSearchResults = Object.keys(offer.dict.our).reduce((accumulator, item)=>{
+				return accumulator || getName(item).toLowerCase().indexOf(search) > -1;
+			}, false);
+			offerSearchResults |= Object.keys(offer.dict.our).reduce((accumulator, item)=>{
+				return accumulator || getName(item).toLowerCase().indexOf(search) > -1;
+			}, false);
+		}
+		return offer.id.indexOf(search) > -1 || offerSearchResults;
 	});
 	if (count != -1) tradeList = tradeList.slice(first, first + count);
 	const items = {};
