@@ -56,16 +56,19 @@ exports.get = async function(first, count, descending) {
 		else if (typeof polldata.received[offer.id] != 'undefined') ret.lastState = data.ETradeOfferState[polldata.received[offer.id]];
 
 		if (Object.prototype.hasOwnProperty.call(offer, 'dict')) {
-			if (Object.keys(offer.dict.our).length > 0) tradeSide(`our`);
-			if (Object.keys(offer.dict.their).length > 0) tradeSide(`their`);
+			if (Object.keys(offer.dict.our).length > 0) tradeSide('our');
+			if (Object.keys(offer.dict.their).length > 0) tradeSide('their');
 		}
 
 		return ret;
 
 		function tradeSide(side) {
-			Object.keys(offer.dict[side]).forEach((k) => {
+			Object.keys(offer.dict[side]).forEach((k)=>{
 				if (!Object.prototype.hasOwnProperty.call(items, k)) items[k] = createTradeItem(k);
-				ret.items[side].push({ sku: k, amount: offer.dict[side][k] });
+				ret.items[side].push({
+					 	sku: k,
+						amount: offer.dict[side][k]
+					});
 			});
 		}
 	});
