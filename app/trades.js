@@ -63,7 +63,7 @@ exports.get = async function(first, count, descending) {
 		return ret;
 
 		function tradeSide(side) {
-			Object.keys(offer.dict[side]).forEach((k)=>{
+			Object.keys(offer.dict[side]).forEach((k) => {
 				if (!Object.prototype.hasOwnProperty.call(items, k)) items[k] = createTradeItem(k);
 				ret.items[side].push({
 					 	sku: k,
