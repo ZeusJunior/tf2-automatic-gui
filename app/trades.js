@@ -55,10 +55,11 @@ exports.get = async function(first, count, descending) {
 		if (typeof polldata.sent[offer.id] != 'undefined') ret.lastState = data.ETradeOfferState[polldata.sent[offer.id]];
 		else if (typeof polldata.received[offer.id] != 'undefined') ret.lastState = data.ETradeOfferState[polldata.received[offer.id]];
 
-		if (!Object.prototype.hasOwnProperty.call(offer, 'dict')) return ret;
+		if (Object.prototype.hasOwnProperty.call(offer, 'dict')) {
+			if (Object.keys(offer.dict.our).length > 0) tradeSide(`our`);
+			if (Object.keys(offer.dict.their).length > 0) tradeSide(`their`);
+		}
 
-		if (Object.keys(offer.dict.our).length > 0) tradeSide(`our`);
-		if (Object.keys(offer.dict.their).length > 0) tradeSide(`their`);
 		return ret;
 
 		function tradeSide(side) {
