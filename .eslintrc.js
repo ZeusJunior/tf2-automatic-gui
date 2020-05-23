@@ -33,6 +33,7 @@ module.exports = {
 		}],
 		"object-curly-spacing": ["error", "always"],
         "new-cap": 0,
-        "no-useless-catch": "error"
+		"no-useless-catch": "error",
+		"arrow-spacing": 2
 	}
 };

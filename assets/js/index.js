@@ -205,7 +205,7 @@ const app = new Vue({
 				url: '/addItems',
 				data: postData
 			})
-				.then((resp)=>{
+				.then((resp) => {
 					app.sendMessage(resp.data.msg.type, resp.data.msg.message);
 					app.loadItems();
 				});

@@ -24,7 +24,7 @@ exports.get = async function get(start, interval, end, enableTrades) {
 		}
 	);
 	const keyVal = response.data.sell.metal;
-	const trades = Object.keys(polldata.offerData).map((key)=>{
+	const trades = Object.keys(polldata.offerData).map((key) => {
 		const ret = polldata.offerData[key];
 		ret.time = polldata.timestamps[key];
 		ret.id = key;
@@ -34,7 +34,7 @@ exports.get = async function get(start, interval, end, enableTrades) {
 
 	const tracker = new itemTracker(start, interval, end, keyVal);
 
-	trades.sort((a, b)=>{
+	trades.sort((a, b) => {
 		a = a.time;
 		b = b.time;
 
