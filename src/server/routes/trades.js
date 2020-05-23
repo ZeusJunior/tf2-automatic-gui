@@ -7,18 +7,7 @@ const path = require('path');
 
 router.get('/', (req, res) => {
 	if (req.query.json!='true') {
-		if (!fs.existsSync(paths.files.polldata)) {
-			res.sendFile(path.join(__dirname, '../../../dist/html/trades.html'));
-			return;
-		}
-	
-		trades.get()
-			.then((data) => {
-				res.sendFile(path.join(__dirname, '../../../dist/html/trades.html'));
-			})
-			.catch((err) => {
-				throw err;
-			});
+		res.sendFile(path.join(__dirname, '../../../dist/html/trades.html'));
 	} else {
 		if (!fs.existsSync(paths.files.polldata)) {
 			res.json({
@@ -27,7 +16,7 @@ router.get('/', (req, res) => {
 			return;
 		}
 	
-		trades.get(Number(req.query.first), Number(req.query.count), Number(req.query.dir)==1)
+		trades.get(Number(req.query.first), Number(req.query.count), Number(req.query.dir)==1, req.query.search)
 			.then((data) => {
 				res.json({
 					success: 1,
