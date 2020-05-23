@@ -76,13 +76,17 @@ exports.get = async function(first, count, descending, search) {
 
 		return ret;
 
+		/**
+		 * Get items from one side of a trade
+		 * @param {'our'|'their'} side 
+		 */
 		function tradeSide(side) {
 			Object.keys(offer.dict[side]).forEach((k) => {
 				if (!Object.prototype.hasOwnProperty.call(items, k)) items[k] = createTradeItem(k);
 				ret.items[side].push({
-					 	sku: k,
-						amount: offer.dict[side][k]
-					});
+					sku: k,
+					amount: offer.dict[side][k]
+				});
 			});
 		}
 	});
