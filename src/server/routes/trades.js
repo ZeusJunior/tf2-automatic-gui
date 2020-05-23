@@ -27,7 +27,7 @@ router.get('/', (req, res) => {
 			return;
 		}
 	
-		trades.get()
+		trades.get(Number(req.query.first), Number(req.query.count), Number(req.query.dir)==1)
 			.then((data) => {
 				res.json({
 					success: 1,

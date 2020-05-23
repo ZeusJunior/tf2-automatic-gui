@@ -6,20 +6,45 @@ const moment = require('moment');
 const getImage = require('../utils/getImage');
 const profit = require('./profit');
 
-
-exports.get = async function() {
+/**
+ * 
+ * @param {Number} first index of first trade to be included in results
+ * @param {Number} count how many trades to include in results, set to -1 to return all
+ * @param {Boolean} descending sort
+ */
+exports.get = async function(first, count, descending) {
 	const polldata = await fs.readJSON(paths.files.polldata);
 	const profitData = (await profit.get(undefined, undefined, undefined, true)).tradeProfits;
+	let tradeList = Object.keys(polldata.offerData).map((key)=>{
+		const ret = polldata.offerData[key];
+		ret.id = key;
+		return ret;
+	});
+	tradeList = tradeList.sort((a, b)=>{
+		a = a.finishTimestamp;
+		b = b.finishTimestamp;
+
+		// check for undefined time, sort those at the end
+		if ( (!a || isNaN(a)) && !(!b || isNaN(b))) return 1;
+		if ( !(!a || isNaN(a)) && (!b || isNaN(b))) return -1;
+		if ( (!a || isNaN(a)) && (!b || isNaN(b))) return 0;
+
+		if (descending) {
+			b = [a, a = b][0];
+		}
+
+		return a - b;
+	});
+	if (count != -1) tradeList = tradeList.slice(first, first + count);
 	const items = {};
-	const trades = Object.keys(polldata.offerData).map((key)=>{
-		const offer = polldata.offerData[key];
+	const trades = tradeList.map((offer)=>{
 		const ret = {
-			id: key,
+			id: offer.id,
 			items: {
 				our: [],
 				their: []
 			},
-			profit: Object.prototype.hasOwnProperty.call(profitData, key)?profitData[key]: '',
+			profit: Object.prototype.hasOwnProperty.call(profitData, offer.id)?profitData[offer.id]: '',
 			partner: offer.partner,
 			accepted: offer.accepted,
 			time: offer.finishTimestamp,
@@ -27,10 +52,10 @@ exports.get = async function() {
 			value: offer.value,
 			accepted: offer.handledByUs === true && offer.isAccepted === true
 		};
-		if (typeof polldata.sent[key] != 'undefined') {
-			ret.lastState = data.ETradeOfferState[polldata.sent[key]];
-		} else if (typeof polldata.received[key] != 'undefined') {
-			ret.lastState = data.ETradeOfferState[polldata.received[key]];
+		if (typeof polldata.sent[offer.id] != 'undefined') {
+			ret.lastState = data.ETradeOfferState[polldata.sent[offer.id]];
+		} else if (typeof polldata.received[offer.id] != 'undefined') {
+			ret.lastState = data.ETradeOfferState[polldata.received[offer.id]];
 		}
 		if (Object.prototype.hasOwnProperty.call(offer, 'dict')) {
 			if (Object.keys(offer.dict.our).length > 0) {

@@ -12,6 +12,8 @@ import msg from './components/msg.vue';
 // scroll button
 import './js/scrollButton';
 
+let loadLock = false; // to prevent multiple requests from being fired while waiting for one to return
+
 new Vue({
 	el: '#app',
 	components: {
@@ -27,19 +29,41 @@ new Vue({
 		acceptedOnly: 0
 	},
 	methods: {
-		loadTrades: function() {
-			fetch('/trades?json=true')
+		loadTrades: function(first=0, count=50, order=1) {
+			loadLock=true;
+			fetch(`/trades?json=true&first=${first}&count=${count}&dir=${order}`)
 				.then((response) => {
 					return response.json();
 				})
 				.then((data) => {
 					if (data.success) {
-						this.tradeList = data.data.trades;
-						this.items = data.data.items;
+						if (first === 0) {
+							this.tradeList = data.data.trades;
+							this.items = data.data.items;
+						} else { // we are just adding items
+							this.tradeList = this.tradeList.concat(data.data.trades);
+							this.items = Object.assign(this.items, data.data.items);
+							this.filteredTrades = this.filteredTrades.sort((a, b) => {
+								a = a.time;
+								b = b.time;
+	
+								// check for undefined time, sort those at the end
+								if ( (!a || isNaN(a)) && !(!b || isNaN(b))) return 1;
+								if ( !(!a || isNaN(a)) && (!b || isNaN(b))) return -1;
+								if ( (!a || isNaN(a)) && (!b || isNaN(b))) return 0;
+	
+								if (this.order != 0) {
+									b = [a, a = b][0];
+								}
+	
+								return a - b;
+							});
+						}
 					} else {
 						this.tradeList = [];
 						this.$refs.msg.sendMessage('danger', 'Polldata is missing');
 					}
+					loadLock = false;
 				})
 				.catch((error) => {
 					this.$refs.msg.sendMessage('danger', error);
@@ -48,10 +72,17 @@ new Vue({
 		scroll() {
 			window.onscroll = () => {
 				const bottomOfWindow = Math.max(window.pageYOffset, document.documentElement.scrollTop, document.body.scrollTop) + window.innerHeight === document.documentElement.offsetHeight;
-				if (bottomOfWindow) {
-					this.toShow += 25;
+				if (bottomOfWindow&&!loadLock) {
+					const nuberToAdd = 50;
+					this.loadTrades((this.toShow), nuberToAdd, this.order);
+					this.toShow += nuberToAdd;
 				}
 			};
+		}
+	},
+	watch: {
+		order: function() {
+			this.loadTrades(0, this.toShow, this.order);
 		}
 	},
 	computed: {
@@ -59,27 +90,10 @@ new Vue({
 			return this.tradeList.filter((trade) => {
 				return ( (trade.id.indexOf(this.search.toLowerCase()) > -1) || (String(trade.partner).indexOf(this.search.toLowerCase()) > -1) ) && (trade.accepted || !this.acceptedOnly);
 			});
-		},
-		sortedTrades() {
-			return this.filteredTrades.sort((a, b) => {
-				a = a.time;
-				b = b.time;
-
-				// check for undefined time, sort those at the end
-				if ( (!a || isNaN(a)) && !(!b || isNaN(b))) return 1;
-				if ( !(!a || isNaN(a)) && (!b || isNaN(b))) return -1;
-				if ( (!a || isNaN(a)) && (!b || isNaN(b))) return 0;
-
-				if (this.order != 0) {
-					b = [a, a = b][0];
-				}
-				
-				return a - b;
-			}).slice(0, this.toShow);
 		}
 	},
 	created() {
-		this.loadTrades();
+		this.loadTrades(0, this.toShow, this.order);
 	},
 	mounted() {
 		this.scroll();
