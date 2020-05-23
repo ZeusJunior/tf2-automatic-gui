@@ -1,7 +1,8 @@
 {
-  "name": "express-test",
-  "version": "0.0.0",
-  "private": true,
+  "name": "tf2-automatic-gui",
+  "version": "2.1.0",
+  "description": "An interface to easily manage your tf2-automatic bot",
+  "main": "./src/server/index.js",
   "scripts": {
     "build": "webpack --config ./config/build/webpack.prod.js",
     "build-stats": "webpack --config ./config/build/webpack.prod.js --profile --json > ./data/stats.json",
@@ -12,6 +13,16 @@
     "stats": "webpack-bundle-analyzer ./data/stats.json",
     "lint": "eslint \"**/*.js\""
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZeusJunior/tf2-automatic-gui.git"
+  },
+  "author": "Zeus_Junior/76561198144346135",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ZeusJunior/tf2-automatic-gui/issues"
+  },
+  "homepage": "https://github.com/ZeusJunior/tf2-automatic-gui#readme",
   "dependencies": {
     "chart.js": "^2.9.3",
     "cookie-parser": "~1.4.4",
