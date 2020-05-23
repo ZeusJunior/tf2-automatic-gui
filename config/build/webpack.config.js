@@ -53,7 +53,7 @@ module.exports = {
 	plugins: [
 		new VueLoaderPlugin(),
 		new MomentLocalesPlugin({
-            localesToKeep: ['es'],
+            localesToKeep: ['en'],
         }),
 	]
   };

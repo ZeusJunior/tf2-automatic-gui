@@ -7,54 +7,7 @@
 </head>
 <body>
 	<%= require('html-loader!./parts/navbar.html')%> 
-  	<div class="container-fluid pt-4 pb-4 bg-light border border-top-0 rounded-bottom" id="app">
-		<msg ref="msg"></msg>
-		<div style="text-align: center;">
-			<h1>Trades</h1>
-		</div>
-		<div class="row">
-			<div class="col">
-				<input class="form-control mr-sm-2" id="searchPricelist" type="search" placeholder="Search for trade or partner ID" aria-label="Search" autocomplete="off" v-model="search">
-			</div>
-			<div class="col">
-				<select name="intent" class="form-control" id="order" v-model="order">
-					<option value="1">newest to old</option>
-					<option value="0">oldest to new</option>
-				</select>
-				<label for="order">Sort trades by time</label>
-			</div>
-			<div class="col">
-				<div class="pretty p-switch p-fill">
-					<input type="checkbox" name="acceptedOnly" id="acceptedOnly" v-model="acceptedOnly"/>
-					<div class="state p-success">
-					<label>Accepted only</label>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="mt-3" id="tradeList">
-			<div class="p-2 rounded border m-2 trade" v-for="trade in tradeList" :key="trade.id" :class="trade.accepted? '': 'declined'">
-				<div>
-					{{trade.datetime}}: Trade <b>#{{trade.id}}</b> with <a :href="'https://steamcommunity.com/profiles/' + trade.partner"  target="_blank" class="steam-profile">{{trade.partner}}.</a>
-            		{{trade.accepted? `Profit: ${trade.profit}`: ` Trade unsuccessfull, reason: ${trade.lastState}.`}}
-				</div>
-			<div class="float-right">{{trade.datetime}}</div>
-				<div class="row">
-					<div class="col item-list">
-						<div>Our: {{trade.hasOwnProperty('value')? `${trade.value.our.keys} keys, ${trade.value.our.metal} metal`: ''}}</div>
-						<item-grid v-for="item in trade.items.our" :key="item.sku" :item="Object.assign({}, item, items[item.sku])" :selected="false"></item-grid>
-					</div>
-					<div class="col item-list">
-						<div>Their: {{trade.hasOwnProperty('value')? `${trade.value.their.keys} keys, ${trade.value.their.metal} metal`: ''}}</div>
-						<item-grid v-for="item in trade.items.their" :key="item.sku" :item="Object.assign({}, item, items[item.sku])" :selected="false"></item-grid>
-					</div>
-				</div>
-			</div>
-			<button class="p-2" v-if="tradeList.length >= toShow" @click="toShow+=25">
-				Show More
-			</button>
-		</div>
-	</div>
+  	<div id="app"></div>
 	<%= require('html-loader!./parts/topButton.html')%> 
 </body>
 </html>
