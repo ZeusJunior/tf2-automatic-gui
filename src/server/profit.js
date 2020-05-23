@@ -286,9 +286,8 @@ class itemTracker {
 		if (Object.prototype.hasOwnProperty.call(this.itemStock, sku)) { // have we bought this item already
 			if (this.itemStock[sku].count >= itemCount) {
 				this.itemStock[sku].count -= itemCount;
-				itemProfit += (this.convert(prices, rate) - this.itemStock[sku].price) * itemCount;
 				this.profitTrack.countProfit( (this.convert(prices, rate) - this.itemStock[sku].price) * itemCount, time);
-				return;
+				return (this.convert(prices, rate) - this.itemStock[sku].price) * itemCount;
 			} else {
 				itemProfit += (this.convert(prices, rate) - this.itemStock[sku].price) * this.itemStock[sku].count;
 				this.profitTrack.countProfit( (this.convert(prices, rate) - this.itemStock[sku].price) * this.itemStock[sku].count, time);
