@@ -91,7 +91,7 @@ const app = new Vue({
 		/**
 		 * Converts scrap to string - just some copypasta from tf2-currencies
 		 * @param {Number} scrapVal 
-		 * @return {String} formated currency
+		 * @return {String} formatted currency
 		 */
 		currencyString: function(scrapVal) {
 			if (!this.plotData.keyValue) this.plotData.keyValue = 1;
@@ -145,7 +145,7 @@ const app = new Vue({
 				aspectRatio: 3,
 				tooltips: {
 					callbacks: {
-						label: (item) => `${app.plotData.profitPlot[item.index].formated}`
+						label: (item) => `${app.plotData.profitPlot[item.index].formatted}`
 					}
 				}
 			}
