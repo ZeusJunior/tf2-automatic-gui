@@ -35,17 +35,18 @@
 		<div class="mt-3" id="tradeList">
 			<div class="p-2 rounded border m-2 trade" v-for="trade in sortedTrades" :key="trade.id" :class="trade.accepted? '': 'declined'">
 				<div>
-					{{trade.datetime}}: Trade <b>#{{trade.id}}</b> with <a :href="'https://steamcommunity.com/profiles/' + trade.partner"  target="_blank" class="steam-profile">{{trade.partner}}.</a> {{trade.accepted? '': ` Trade unsuccessfull, reason: ${trade.lastState}.`}}
+					{{trade.datetime}}: Trade <b>#{{trade.id}}</b> with <a :href="'https://steamcommunity.com/profiles/' + trade.partner"  target="_blank" class="steam-profile">{{trade.partner}}.</a>
+            		{{trade.accepted? `Profit: ${trade.profit}`: ` Trade unsuccessfull, reason: ${trade.lastState}.`}}
 				</div>
 			<div class="float-right">{{trade.datetime}}</div>
 				<div class="row">
 					<div class="col item-list">
 						<div>Our: {{trade.hasOwnProperty('value')? `${trade.value.our.keys} keys, ${trade.value.our.metal} metal`: ''}}</div>
-						<item-grid v-for="item in trade.items.our" :key="item.sku" :item="item" :selected="false"></item-grid>
+						<item-grid v-for="item in trade.items.our" :key="item.sku" :item="Object.assign({}, item, items[item.sku])" :selected="false"></item-grid>
 					</div>
 					<div class="col item-list">
 						<div>Their: {{trade.hasOwnProperty('value')? `${trade.value.their.keys} keys, ${trade.value.their.metal} metal`: ''}}</div>
-						<item-grid v-for="item in trade.items.their" :key="item.sku" :item="item" :selected="false"></item-grid>
+						<item-grid v-for="item in trade.items.their" :key="item.sku" :item="Object.assign({}, item, items[item.sku])" :selected="false"></item-grid>
 					</div>
 				</div>
 			</div>

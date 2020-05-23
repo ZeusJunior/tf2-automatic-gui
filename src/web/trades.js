@@ -20,6 +20,7 @@ new Vue({
 	},
 	data: {
 		tradeList: [],
+		items: [],
 		toShow: 50,
 		search: '',
 		order: 1,
@@ -32,8 +33,10 @@ new Vue({
 					return response.json();
 				})
 				.then((data) => {
-					if (data.success) this.tradeList = data.data;
-					else {
+					if (data.success) {
+						this.tradeList = data.data.trades;
+						this.items = data.data.items;
+					} else {
 						this.tradeList = [];
 						this.$refs.msg.sendMessage('danger', 'Polldata is missing');
 					}
