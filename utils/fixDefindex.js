@@ -1,4 +1,4 @@
-const defindexes = require('../resources/defindexes');
+const { defindexes } = require('../app/data');
 const _ = require('lodash');
 const Schema = require('../app/schema');
 

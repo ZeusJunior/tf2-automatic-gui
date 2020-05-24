@@ -2,7 +2,7 @@ const axios = require('axios');
 const fs = require('fs-extra');
 const getSKU = require('../utils/getSKU');
 const getName = require('../utils/getName');
-const paths = require('../resources/paths');
+const paths = require('../config/paths');
 
 
 const pricelist = module.exports;

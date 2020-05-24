@@ -1203,3 +1203,8 @@ exports.paintCanColors = {
 	'5036;6': '7c6c57', // Ye Olde Rustic Colour
 	'5028;6': '424f3b' // Zepheniah's Greed
 };
+
+exports.defindexes = {
+	'Mann Co. Supply Crate Key': 5021,
+	'Lugermorph': 160
+};

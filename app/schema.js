@@ -1,7 +1,7 @@
 const fs = require('fs-extra');
 const axios = require('axios');
 const SKU = require('tf2-sku');
-const paths = require('../resources/paths');
+const paths = require('../config/paths');
 
 
 let schema;

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const trades = require('../trades');
 const fs = require('fs-extra');
-const paths = require('../../resources/paths');
+const paths = require('../../config/paths');
 
 router.get('/', (req, res) => {
 	if (req.query.json!='true') {

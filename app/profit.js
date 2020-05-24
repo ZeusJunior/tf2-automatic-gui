@@ -1,5 +1,5 @@
 const fs = require('fs-extra');
-const paths = require('../resources/paths');
+const paths = require('../config/paths');
 const Currency = require('tf2-currencies');
 const axios = require('axios');
 

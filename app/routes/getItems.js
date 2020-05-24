@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const paths = require('../../resources/paths');
+const paths = require('../../config/paths');
 const fs = require('fs-extra');
 const getName = require('../../utils/getName');
 const getImage = require('../../utils/getImage');
