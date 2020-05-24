@@ -15,7 +15,8 @@ router.get('/', (req, res) => {
 		}
 	
 		res.render('trades', {
-			polldata: true
+			polldata: true,
+			user: req.user
 		});
 	} else {
 		if (!fs.existsSync(paths.files.polldata)) {

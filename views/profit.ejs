@@ -21,7 +21,7 @@
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
 <body>
-	<%- include("partials/navbar") %>
+	<%- include("partials/navbar", {user: user}); %>
 	<div class="container-fluid mt-3" id="app">
 		<div v-if="msg.enabled" class="alert" :class="['alert-' + msg.type]" role="alert">
 			{{msg.text}}

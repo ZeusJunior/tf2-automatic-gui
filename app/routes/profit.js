@@ -24,7 +24,7 @@ router.get('/', (req, res) => {
 				throw err;
 			});
 	} else {
-		res.render('profit');
+		res.render('profit', { user: req.user });
 	}
 });
 

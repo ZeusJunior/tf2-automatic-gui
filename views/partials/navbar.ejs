@@ -19,6 +19,16 @@
             <li class="nav-item">
                 <a href="https://github.com/ZeusJunior/tf2-automatic-gui/wiki" target="_blank" class="nav-link">Guide</a>
             </li>
-        </ul>                
+        </ul>
+        <ul class="nav navbar-nav justify-content-start">
+            <li class="nav-item d-inline">
+                <div class="d-inline">
+                    <%-user.displayName%>
+                    <img src="<%-user._json.avatar%>" alt="">
+                </div>
+                
+                <a href="/logout" class="nav-link d-inline">Logout</a>
+            </li>
+        </ul>     
     </div>
 </nav>

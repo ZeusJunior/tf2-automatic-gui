@@ -16,7 +16,7 @@
 </head>
 <body>
 
-  <%- include("partials/navbar") %>
+  <%- include("partials/navbar", {user: user}); %>
   <div class="container-fluid pt-4 pb-4 bg-light border border-top-0 rounded-bottom" id="app">
     <% if(!polldata) {  %> 
       <div style="text-align: center;">
