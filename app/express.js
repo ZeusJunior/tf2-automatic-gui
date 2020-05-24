@@ -9,6 +9,8 @@ const session = require('express-session');
 const SteamStrategy = require('passport-steam').Strategy;
 const ip = require('ip');
 
+const port = process.env.PORT ? process.env.PORT : 3000;
+
 // Maybe just require in the app.use instead of vars
 const index = require('./routes/index');
 const removeItems = require('./routes/removeItems');
@@ -32,8 +34,8 @@ passport.deserializeUser(function(obj, done) {
 });
 
 passport.use(new SteamStrategy({
-	returnURL: process.env.VPS == 'true' ? 'http://' + ip.address() + ':3000/auth/steam/return' : 'http://127.0.0.1:3000/auth/steam/return',
-	realm: process.env.VPS == 'true' ? 'http://' + ip.address() + ':3000/' : 'http://127.0.0.1:3000/',
+	returnURL: process.env.VPS == 'true' ? 'http://' + ip.address() + `:${port}/auth/steam/return` : `http://127.0.0.1::${port}/auth/steam/return`,
+	realm: process.env.VPS == 'true' ? 'http://' + ip.address() + `:${port}/` : `http://127.0.0.1::${port}/`,
 	apiKey: process.env.API_KEY
 },
 function(identifier, profile, done) {
