@@ -78,7 +78,7 @@ app
 		secret: 'your secret',
 		name: 'name of session id',
 		resave: true,
-		saveUninitialized: true}))
+		saveUninitialized: true }))
 // Initialize Passport!  Also use passport.session() middleware, to support
 // persistent login sessions (recommended).
 	.use(passport.initialize())
