@@ -31,11 +31,6 @@ passport.deserializeUser(function(obj, done) {
 	done(null, obj);
 });
 
-const admins = [
-	'76561198162885342',
-	'76561198144346135'
-];
-
 passport.use(new SteamStrategy({
 	returnURL: process.env.VPS == 'true' ? 'http://' + ip.address() + ':3000/auth/steam/return' : 'http://127.0.0.1:3000/auth/steam/return',
 	realm: process.env.VPS == 'true' ? 'http://' + ip.address() + ':3000/' : 'http://127.0.0.1:3000/',
@@ -72,7 +67,7 @@ if (process.env.VPS == 'true') { // Running on vps, require a login
 			return next();
 		}
 		if (req.user) { // Is logged in
-			if (admins.indexOf(req.user.id) > -1) { // Is an admin, continue
+			if (process.env.ADMINS.indexOf(req.user.id) > -1) { // Is an admin, continue
 				return next();
 			}
 			res.status(401);
