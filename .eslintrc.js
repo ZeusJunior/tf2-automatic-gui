@@ -19,7 +19,9 @@ module.exports = {
 		"no-tabs": 0,
 		"max-len": 0,
 		"linebreak-style": 0,
-		"quote-props": ["warn", "consistent-as-needed", {"numbers": false}],
+		"quote-props": ["warn", "consistent-as-needed", {
+			"numbers": false
+		}],
 		"no-trailing-spaces": ["error", {
 			"skipBlankLines": true,
 			"ignoreComments": true
@@ -32,6 +34,9 @@ module.exports = {
 			"asyncArrow": "always"
 		}],
 		"object-curly-spacing": ["error", "always"],
+		"object-property-newline": ["error", {
+			"allowAllPropertiesOnSameLine": false
+		}],
         "new-cap": 0,
 		"no-useless-catch": "error",
 		"arrow-spacing": 2,

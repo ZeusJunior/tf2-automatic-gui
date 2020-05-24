@@ -1129,6 +1129,7 @@ exports.wear = {
 	'4': '(Well-Worn)',
 	'5': '(Battle Scarred)'
 };
+
 exports.ETradeOfferState = {
 	Invalid: 1,
 	Active: 2, // This trade offer has been sent, neither party has acted on it yet.
@@ -1154,6 +1155,7 @@ exports.ETradeOfferState = {
 	10: 'CanceledBySecondFactor',
 	11: 'InEscrow'
 };
+
 exports.qualityColors = {
 	0: '#B2B2B2',
 	1: '#4D7455',
