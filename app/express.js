@@ -41,13 +41,9 @@ passport.use(new SteamStrategy({
 	apiKey: process.env.API_KEY
 },
 function(identifier, profile, done) {
-	if (admins.indexOf(profile.id) > -1) {
-		profile.identifier = identifier;
-		console.log(profile);
-		return done(null, profile);
-	} else {
-		return done(null, null);
-	}
+	// Always return profile, dont want constant logins if not an admin
+	profile.identifier = identifier;
+	return done(null, profile);
 }
 ));
 
@@ -64,24 +60,36 @@ app
 		name: 'name of session id',
 		resave: true,
 		saveUninitialized: true }))
-// Initialize Passport!  Also use passport.session() middleware, to support
-// persistent login sessions (recommended).
 	.use(passport.initialize())
 	.use(passport.session())
-	.use(express.static(__dirname + '/../../public'));
+	.use(express.static(__dirname + '/../../public'))
+	// Ensure user is authenticated and an admin. Use it side wide
+	.use((req, res, next) => {
+		if (req.originalUrl.startsWith('/auth/steam')) { // Trying to log in, continue
+			return next();
+		}
+		if (req.user) { // Is logged in
+			if (admins.indexOf(req.user.id) > -1) { // Is an admin, continue
+				return next();
+			}
+			
+			return res.send('No');
+		}
+		res.redirect('/auth/steam');
+	});
 
 app
-	.use('/', ensureAuthenticated, index)
-	.use('/removeItems', ensureAuthenticated, removeItems)
-	.use('/clearPricelist', ensureAuthenticated, clearPricelist)
-	.use('/addItem', ensureAuthenticated, addItem)
-	.use('/addItems', ensureAuthenticated, addItems)
-	.use('/trades', ensureAuthenticated, trades)
-	.use('/changeItem', ensureAuthenticated, changeItem)
-	.use('/search', ensureAuthenticated, search)
-	.use('/getItems', ensureAuthenticated, getItems)
-	.use('/profit', ensureAuthenticated, profit)
-	.use('/autoprice', ensureAuthenticated, autoprice)
+	.use('/', index)
+	.use('/removeItems', removeItems)
+	.use('/clearPricelist', clearPricelist)
+	.use('/addItem', addItem)
+	.use('/addItems', addItems)
+	.use('/trades', trades)
+	.use('/changeItem', changeItem)
+	.use('/search', search)
+	.use('/getItems', getItems)
+	.use('/profit', profit)
+	.use('/autoprice', autoprice)
 	.use('/auth', authRoutes);
 	
 app.get('/logout', function(req, res) {
@@ -90,17 +98,3 @@ app.get('/logout', function(req, res) {
 });
 
 module.exports = app;
-
-/**
- * Ensures that user is logged in
- * @param {Object} req 
- * @param {Object} res 
- * @param {Object} next 
- * @return {Object} next
- */
-function ensureAuthenticated(req, res, next) {
-	if (req.user) {
-		return next();
-	}
-	res.redirect('/auth/steam');
-}
