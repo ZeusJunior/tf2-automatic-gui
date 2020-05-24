@@ -274,25 +274,11 @@ function getAllPrices() {
 		json: true
 	};
 
-	if (fs.existsSync(paths.files.config)) {
-		const config = fs.readJSONSync(paths.files.config);
-		
-		if (config.pricesApiToken) {
-			options.headers = {
-				Authorization: 'Token ' + config.pricesApiToken
-			};
-		}
-	}
-
 	const start = new Date();
 
 	return axios(options)
 		.then(({ data }) => {
 			if (!data.success) {
-				if (data.message === 'Unauthorized') {
-					throw new Error('Your prices.tf api token is incorrect. Join the discord here https://discord.tf2automatic.com/ and request one from Nick. Or leave it blank in the config.');
-				}
-
 				throw new Error('Couldn\'t get all prices from pricestf: ' + data.message);
 			}
 
