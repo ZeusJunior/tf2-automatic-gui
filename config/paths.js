@@ -1,7 +1,7 @@
 const path = require('path');
 
 const folders = {
-	data: process.env.BOT_DATA_FOLDER
+	data: process.env.VPS == 'true' ? process.env.BOT_DATA_FOLDER : './config'
 };
 
 const files = {

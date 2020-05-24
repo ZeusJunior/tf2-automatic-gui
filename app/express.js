@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const passport = require('passport');
 const session = require('express-session');
 const SteamStrategy = require('passport-steam').Strategy;
+const ip = require('ip');
 
 // Maybe just require in the app.use instead of vars
 const index = require('./routes/index');
@@ -36,8 +37,8 @@ const admins = [
 ];
 
 passport.use(new SteamStrategy({
-	returnURL: process.env.PRODUCTION == 'true' ? 'http://server.ip/auth/steam/return' : 'http://127.0.0.1:3000/auth/steam/return',
-	realm: process.env.PRODUCTION == 'true' ? 'http://server.ip/' : 'http://127.0.0.1:3000/',
+	returnURL: process.env.VPS == 'true' ? 'http://' + ip.address() + ':3000/auth/steam/return' : 'http://127.0.0.1:3000/auth/steam/return',
+	realm: process.env.VPS == 'true' ? 'http://' + ip.address() + ':3000/' : 'http://127.0.0.1:3000/',
 	apiKey: process.env.API_KEY
 },
 function(identifier, profile, done) {
@@ -62,9 +63,11 @@ app
 		saveUninitialized: true }))
 	.use(passport.initialize())
 	.use(passport.session())
-	.use(express.static(__dirname + '/../../public'))
+	.use(express.static(__dirname + '/../../public'));
+
+if (process.env.VPS == 'true') { // Running on vps, require a login
 	// Ensure user is authenticated and an admin. Use it side wide
-	.use((req, res, next) => {
+	app.use((req, res, next) => {
 		if (req.originalUrl.startsWith('/auth/steam')) { // Trying to log in, continue
 			return next();
 		}
@@ -77,6 +80,7 @@ app
 		}
 		res.redirect('/auth/steam');
 	});
+}
 
 app
 	.use('/', index)
