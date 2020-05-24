@@ -5,3 +5,4 @@ data/*
 config/config json
 
 !/data/mkdir
+.env
