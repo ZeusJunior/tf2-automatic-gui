@@ -16,8 +16,15 @@ router.post('/', (req, res) => {
 		return;
 	}
 
-	const sellvalues = new Currency({ keys: sellkeys, metal: sellmetal }).toJSON();
-	const buyvalues = new Currency({ keys: buykeys, metal: buymetal }).toJSON();
+	const sellvalues = new Currency({
+		keys: sellkeys,
+		metal: sellmetal
+	}).toJSON();
+
+	const buyvalues = new Currency({
+		keys: buykeys,
+		metal: buymetal
+	}).toJSON();
 
 	// lower sell keys
 	if (!autoprice) {
