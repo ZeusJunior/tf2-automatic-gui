@@ -1,7 +1,7 @@
 node_modules
-config
-
-!/config/template.config.json
-!/config/paths.js
+data/*
 
 .vscode
+config/config json
+
+!/data/mkdir
