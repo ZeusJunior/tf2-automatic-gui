@@ -17,13 +17,13 @@ exports.get = async function(first, count, descending, search) {
 	search = search.trim().toLowerCase();
 	const polldata = await fs.readJSON(paths.files.polldata);
 	const profitData = (await profit.get(undefined, undefined, undefined, true)).tradeProfits;
-	let tradeList = Object.keys(polldata.offerData).map((key)=>{
+	let tradeList = Object.keys(polldata.offerData).map((key) => {
 		const ret = polldata.offerData[key];
 		ret.id = key;
 		return ret;
 	});
 	const tradeCount = tradeList.length;
-	tradeList = tradeList.sort((a, b)=>{
+	tradeList = tradeList.sort((a, b) => {
 		a = a.finishTimestamp;
 		b = b.finishTimestamp;
 
@@ -36,13 +36,13 @@ exports.get = async function(first, count, descending, search) {
 
 		return a - b;
 	});
-	tradeList = tradeList.filter((offer)=>{
+	tradeList = tradeList.filter((offer) => {
 		let offerSearchResults = false;
 		if (Object.prototype.hasOwnProperty.call(offer, 'dict')) {
-			offerSearchResults = Object.keys(offer.dict.our).reduce((accumulator, item)=>{
+			offerSearchResults = Object.keys(offer.dict.our).reduce((accumulator, item) => {
 				return accumulator || getName(item).toLowerCase().indexOf(search) > -1;
 			}, false);
-			offerSearchResults |= Object.keys(offer.dict.our).reduce((accumulator, item)=>{
+			offerSearchResults |= Object.keys(offer.dict.our).reduce((accumulator, item) => {
 				return accumulator || getName(item).toLowerCase().indexOf(search) > -1;
 			}, false);
 		}
@@ -50,7 +50,7 @@ exports.get = async function(first, count, descending, search) {
 	});
 	if (count != -1) tradeList = tradeList.slice(first, first + count);
 	const items = {};
-	const trades = tradeList.map((offer)=>{
+	const trades = tradeList.map((offer) => {
 		const ret = {
 			id: offer.id,
 			items: {
@@ -76,13 +76,17 @@ exports.get = async function(first, count, descending, search) {
 
 		return ret;
 
+		/**
+		 * Get items from one side of a trade
+		 * @param {'our'|'their'} side 
+		 */
 		function tradeSide(side) {
 			Object.keys(offer.dict[side]).forEach((k) => {
 				if (!Object.prototype.hasOwnProperty.call(items, k)) items[k] = createTradeItem(k);
 				ret.items[side].push({
-					 	sku: k,
-						amount: offer.dict[side][k]
-					});
+					sku: k,
+					amount: offer.dict[side][k]
+				});
 			});
 		}
 	});

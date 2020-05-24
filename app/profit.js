@@ -24,7 +24,7 @@ exports.get = async function get(start, interval, end, enableTrades) {
 		}
 	);
 	const keyVal = response.data.sell.metal;
-	const trades = Object.keys(polldata.offerData).map((key)=>{
+	const trades = Object.keys(polldata.offerData).map((key) => {
 		const ret = polldata.offerData[key];
 		ret.time = polldata.timestamps[key];
 		ret.id = key;
@@ -34,7 +34,7 @@ exports.get = async function get(start, interval, end, enableTrades) {
 
 	const tracker = new itemTracker(start, interval, end, keyVal);
 
-	trades.sort((a, b)=>{
+	trades.sort((a, b) => {
 		a = a.time;
 		b = b.time;
 
@@ -211,7 +211,7 @@ class profitTracker {
 		}).toValue(this.currentKey); // get value in scrap 
 		const metal = Currency.toRefined(normalPrice % key);
 		const keys = normalPrice>0 ? Math.floor(normalPrice / key) : Math.ceil(normalPrice / key);
-		return new Currency({keys, metal}).toString();
+		return new Currency({ keys, metal }).toString();
 	}
 }
 /**
