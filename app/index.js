@@ -4,7 +4,7 @@ const fs = require('fs-extra');
 const Schema = require('./schema');
 const app = require('./express');
 
-const paths = require('../resources/paths');
+const paths = require('../config/paths');
 
 console.log('tf2-automatic-gui v' + require(paths.files.package).version + ' is starting...');
 
@@ -18,7 +18,6 @@ Schema.init()
 	.then(() => {
 		app.listen(3000, function() {
 			console.log('listening on port 3000');
-			require('open')('http://localhost:3000/');
 		});
 	})
 	.catch((err) => {
