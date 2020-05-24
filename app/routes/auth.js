@@ -3,7 +3,7 @@ const router = express.Router();
 const passport = require('passport');
 
 // GET /auth/steam and GET /auth/steam/return
-app.get(/^\/auth\/steam(\/return)?$/, passport.authenticate('steam', {
+router.get(/^\/auth\/steam(\/return)?$/, passport.authenticate('steam', {
 	failureRedirect: '/'
 }),
 (req, res) => {
