@@ -14,9 +14,4 @@ passport.authenticate('steam', {
 	res.redirect('/');
 });
 
-router.get('/logout', (req, res) => {
-	req.logout();
-	res.redirect('/');
-});
-
 module.exports = router;
