@@ -72,8 +72,8 @@ app
 			if (admins.indexOf(req.user.id) > -1) { // Is an admin, continue
 				return next();
 			}
-			
-			return res.send('No');
+			res.status(401);
+			return res.render('no', { user: req.user });
 		}
 		res.redirect('/auth/steam');
 	});
