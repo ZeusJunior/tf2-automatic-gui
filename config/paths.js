@@ -1,13 +1,15 @@
+const path = require('path');
+
 const folders = {
 	config: './config',
-	data: './data'
+	data: process.env.BOT_DATA_FOLDER
 };
 
 const files = {
-	config: `${folders.config}/config.json`,
-	pricelist: `${folders.data}/pricelist.json`,
-	schema: `${folders.data}/schema.json`,
-	polldata: `${folders.data}/polldata.json`,
+	config: path.join(folders.config, '/config.json'),
+	pricelist: path.join(folders.data, '/pricelist.json'),
+	schema: path.join(folders.data, '/schema.json'),
+	polldata: path.join(folders.data, '/polldata.json'),
 	package: '../package.json'
 };
 
