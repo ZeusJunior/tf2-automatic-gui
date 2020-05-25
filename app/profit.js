@@ -7,7 +7,7 @@ const axios = require('axios');
 /**
  * @param {Number} start time to start plot
  * @param {Number} interval time interval to plot, set to -1 or undefined to disable profit plot
- * @param {Number} end time to end plot, set to -1 to disale profit timed and plot or undefined to disable just plot
+ * @param {Number} end time to end plot, set to -1 to disable profit timed and plot or undefined to disable just plot
  * @param {Boolean} enableTrades enable return of profit data for each trade
  * @return {Object}
  */
@@ -38,10 +38,10 @@ exports.get = async function get(start, interval, end, enableTrades) {
 		a = a.time;
 		b = b.time;
 
-		// check for undefined time, sort those at the beggining, they will be skipped
-		if ( (!a || isNaN(a)) && !(!b || isNaN(b))) return -1;
-		if ( !(!a || isNaN(a)) && (!b || isNaN(b))) return 1;
-		if ( (!a || isNaN(a)) && (!b || isNaN(b))) return 0;
+		// check for undefined time, sort those at the beginning, they will be skipped
+		if ((!a || isNaN(a)) && !(!b || isNaN(b))) return -1;
+		if (!(!a || isNaN(a)) && (!b || isNaN(b))) return 1;
+		if ((!a || isNaN(a)) && (!b || isNaN(b))) return 0;
 		return a - b;
 	});
 
@@ -50,75 +50,50 @@ exports.get = async function get(start, interval, end, enableTrades) {
 	let iter = 0; // to keep track of how many trades are accepted
 	for (let i = 0; i < trades.length; i++) { // TODO: ADMIN TRADES
 		const trade = trades[i];
-		if (!(trade.handledByUs === true && trade.isAccepted === true)) {
-			continue;// trade was not accepted, go to next trade
-		}
+		if (!(trade.handledByUs === true && trade.isAccepted === true)) continue;	// trade was not accepted, go to next trade
 
 		let tradeProfit = 0;
 
 		iter++;
 		let isGift = false;
-		if (!Object.prototype.hasOwnProperty.call(trade, 'dict')) {
-			continue;// trade has no items ?
+		if (!Object.prototype.hasOwnProperty.call(trade, 'dict')) continue;	// trade has no items ?
+
+		if (typeof Object.keys(trade.dict.our).length == 'undefined') isGift = true;// no items on our side, so it is probably gift 
+		else if (Object.keys(trade.dict.our).length != 0) { // trade is not a gift
+			if (!Object.prototype.hasOwnProperty.call(trade, 'value')) continue; // trade is missing value object
+			if (!(Object.keys(trade.prices).length > 0)) continue; // have no prices, broken, skip
 		}
-		if (typeof Object.keys(trade.dict.our).length == 'undefined') {
-			isGift = true;// no items on our side, so it is probably gift
-		} else if (Object.keys(trade.dict.our).length != 0) { // trade is not a gift
-			if (!Object.prototype.hasOwnProperty.call(trade, 'value')) {
-				continue; // trade is missing value object
-			}
-			if (!(Object.keys(trade.prices).length > 0)) {
-				continue; // have no prices, broken, skip
-			}
-		} else {
-			isGift = true; // no items on our side, so it is probably gift
-		}
-		if (typeof trade.value === 'undefined') {
-			trade.value = {};
-		}
-		if (typeof trade.value.rate === 'undefined') {
-			if (!Object.prototype.hasOwnProperty.call(trade, 'value')) trade.value = {}; // in case it was gift
-			trade.value.rate = keyVal;// set key value to current value if it is not defined
-		}
+		else isGift = true; // no items on our side, so it is probably gift
+
+		if (typeof trade.value === 'undefined') trade.value = {};
+		if (typeof trade.value.rate === 'undefined') trade.value = { rate: keyVal }; // set key value to current value if it is not defined
+
 		for (sku in trade.dict.their) { // items bought
-			if (Object.prototype.hasOwnProperty.call(trade.dict.their, sku)) {
-				const itemCount = trade.dict.their[sku];
+			if (!Object.prototype.hasOwnProperty.call(trade.dict.their, sku)) continue;
+			if (sku === '5000;6' || sku === '5002;6' || sku === '5001;6' || sku === '5021;6') continue;	// if it is not currency
 
-				if (sku !== '5000;6' && sku !== '5002;6' && sku !== '5001;6' && sku !== '5021;6') { // if it is not currency
-					if (isGift) {
-						if (!Object.prototype.hasOwnProperty.call(trade, 'prices')) trade.prices = {};
-						trade.prices[sku] = { // set price to 0 because it's a gift
-							buy: {
-								metal: 0,
-								keys: 0
-							}
-						};
-					} else if (!Object.prototype.hasOwnProperty.call(trade.prices, sku)) {
-						continue; // item is not in pricelist, so we will just skip it
-					}
-					const prices = trade.prices[sku].buy;
+			if (isGift) trade.prices = { [sku]: { buy: { metal: 0, keys: 0 } } };	// set price to 0 because it's a gift
+			else if (!Object.prototype.hasOwnProperty.call(trade.prices, sku)) continue;	// item is not in pricelist, so we will just skip it
 
-					tradeProfit += tracker.boughtItem(itemCount, sku, prices, trade.value.rate, trade.time);
-				}
-			}
+			const itemCount = trade.dict.their[sku];
+			const prices = trade.prices[sku].buy;
+			tradeProfit += tracker.boughtItem(itemCount, sku, prices, trade.value.rate, trade.time);
 		}
 
 		for (sku in trade.dict.our) {
-			if (Object.prototype.hasOwnProperty.call(trade.dict.our, sku)) {
-				const itemCount = trade.dict.our[sku];
-				if (sku !== '5000;6' && sku !== '5002;6' && sku !== '5001;6' && sku !== '5021;6') {
-					if (!Object.prototype.hasOwnProperty.call(trade.prices, sku)) {
-						continue; // item is not in pricelist, so we will just skip it
-					}
-					const prices = trade.prices[sku].sell;
-					tradeProfit += tracker.soldItem(itemCount, sku, prices, trade.value.rate, trade.time);
-				}
-			}
+			if (!Object.prototype.hasOwnProperty.call(trade.dict.our, sku)) continue;
+			if (sku === '5000;6' || sku === '5002;6' || sku === '5001;6' || sku === '5021;6') continue;
+			if (!Object.prototype.hasOwnProperty.call(trade.prices, sku)) continue; // item is not in pricelist, so we will just skip it
+
+			const itemCount = trade.dict.our[sku];
+			const prices = trade.prices[sku].sell;
+			tradeProfit += tracker.soldItem(itemCount, sku, prices, trade.value.rate, trade.time);
 		}
+
 		if (!isGift) { // calculate overprice profit
 			tradeProfit += tracker.convert(trade.value.their, trade.value.rate) - tracker.convert(trade.value.our, trade.value.rate);
 			overpriceProfit += tracker.convert(trade.value.their, trade.value.rate) - tracker.convert(trade.value.our, trade.value.rate);
-			tracker.profitTrack.countProfit( tracker.convert(trade.value.their, trade.value.rate) - tracker.convert(trade.value.our, trade.value.rate), trade.time);
+			tracker.profitTrack.countProfit(tracker.convert(trade.value.their, trade.value.rate) - tracker.convert(trade.value.our, trade.value.rate), trade.time);
 		}
 		tradeProfits[trade.id] = tracker.profitTrack.getFormatted(tradeProfit);
 	}
@@ -148,7 +123,7 @@ class profitTracker {
 	constructor(start, interval, end, currentKey) {
 		this.start = Number(typeof start != 'undefined' ? start : -1);
 		this.interval = Number(typeof interval != 'undefined' ? interval : -1);
-		this.end = Number(typeof end != 'undefined' ? end : Math.floor(Date.now()/1000));
+		this.end = Number(typeof end != 'undefined' ? end : Math.floor(Date.now() / 1000));
 		this.lastTradeTime = -1;
 		this.currentKey = currentKey;
 		this.tempProfit = 0;
@@ -172,13 +147,13 @@ class profitTracker {
 				const thisTradePlotBlock = Math.floor((time - this.start) / this.interval);
 				if (lastTradePlotBlock != thisTradePlotBlock && this.lastTradeTime !== -1) { // last block is done so we will push it to plot
 					this.profitPlot.push({
-						time: lastTradePlotBlock*this.interval + this.start,
+						time: lastTradePlotBlock * this.interval + this.start,
 						profit: this.tempProfit,
 						formatted: this.getFormatted(this.tempProfit)
 					});
-					for (let i = lastTradePlotBlock+1; i < thisTradePlotBlock; i++) { // create block even if no trades happend
+					for (let i = lastTradePlotBlock + 1; i < thisTradePlotBlock; i++) { // create block even if no trades happened
 						this.profitPlot.push({
-							time: i*this.interval + this.start,
+							time: i * this.interval + this.start,
 							profit: 0,
 							formatted: this.getFormatted(0)
 						});
@@ -192,7 +167,7 @@ class profitTracker {
 		} else if (this.lastTradeTime < this.end && this.tempProfit !== 0 && this.interval > 0) { // push last trade block to plot if plot is being created
 			const lastTradePlotBlock = Math.floor((this.lastTradeTime - this.start) / this.interval);
 			this.profitPlot.push({
-				time: lastTradePlotBlock*this.interval + this.start,
+				time: lastTradePlotBlock * this.interval + this.start,
 				profit: this.tempProfit,
 				formatted: this.getFormatted(this.tempProfit)
 			});
@@ -210,7 +185,7 @@ class profitTracker {
 			metal: this.currentKey
 		}).toValue(this.currentKey); // get value in scrap 
 		const metal = Currency.toRefined(normalPrice % key);
-		const keys = normalPrice>0 ? Math.floor(normalPrice / key) : Math.ceil(normalPrice / key);
+		const keys = normalPrice > 0 ? Math.floor(normalPrice / key) : Math.ceil(normalPrice / key);
 		return new Currency({
 			keys,
 			metal
