@@ -39,9 +39,9 @@ exports.get = async function get(start, interval, end, enableTrades) {
 		b = b.time;
 
 		// check for undefined time, sort those at the beginning, they will be skipped
-		if ((!a || isNaN(a)) && !(!b || isNaN(b))) return -1;
-		if (!(!a || isNaN(a)) && (!b || isNaN(b))) return 1;
-		if ((!a || isNaN(a)) && (!b || isNaN(b))) return 0;
+		if (  (!a || isNaN(a)) && !(!b || isNaN(b)) ) return -1;
+		if ( !(!a || isNaN(a)) &&  (!b || isNaN(b)) ) return 1;
+		if (  (!a || isNaN(a)) &&  (!b || isNaN(b)) ) return 0;
 		return a - b;
 	});
 
