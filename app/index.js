@@ -5,7 +5,7 @@ require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const fs = require('fs-extra');
 const Schema = require('./schema');
 const app = require('./express');
-const port = process.env.PORT ? process.env.PORT : 3000;
+let port = process.env.PORT ? process.env.PORT : 3000;
 
 const paths = require('../config/paths');
 
@@ -16,10 +16,14 @@ if (!fs.existsSync(paths.files.pricelist)) {
 	throw new Error('Missing pricelist - Please put your pricelist file in the config folder');
 }
 
+if (isNaN(+port)) {
+	console.log(`WARNING: You've set port to a non-number, resetting to port 3000.`);
+	port = 3000;
+}
 
 Schema.init()
 	.then(() => {
-		app.listen(port, function() {
+		app.listen(+port, function() {
 			console.log(`listening on port ${port}`);
 		});
 	})
