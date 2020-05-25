@@ -5,7 +5,7 @@ require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const fs = require('fs-extra');
 const Schema = require('./schema');
 const app = require('./express');
-const port = process.env.PORT ? process.env.PORT : 3000;
+const port = process.env.PORT ? +process.env.PORT : 3000;
 
 const paths = require('../config/paths');
 
