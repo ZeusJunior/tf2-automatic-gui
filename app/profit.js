@@ -7,7 +7,7 @@ const axios = require('axios');
 /**
  * @param {Number} start time to start plot
  * @param {Number} interval time interval to plot, set to -1 or undefined to disable profit plot
- * @param {Number} end time to end plot, set to -1 to disale profit timed and plot or undefined to disable just plot
+ * @param {Number} end time to end plot, set to -1 to disable profit timed and plot or undefined to disable just plot
  * @param {Boolean} enableTrades enable return of profit data for each trade
  * @return {Object}
  */
@@ -38,7 +38,7 @@ exports.get = async function get(start, interval, end, enableTrades) {
 		a = a.time;
 		b = b.time;
 
-		// check for undefined time, sort those at the beggining, they will be skipped
+		// check for undefined time, sort those at the beginning, they will be skipped
 		if ( (!a || isNaN(a)) && !(!b || isNaN(b))) return -1;
 		if ( !(!a || isNaN(a)) && (!b || isNaN(b))) return 1;
 		if ( (!a || isNaN(a)) && (!b || isNaN(b))) return 0;
@@ -157,7 +157,7 @@ class profitTracker {
 	constructor(start, interval, end, currentKey) {
 		this.start = Number(typeof start != 'undefined' ? start : -1);
 		this.interval = Number(typeof interval != 'undefined' ? interval : -1);
-		this.end = Number(typeof end != 'undefined' ? end : Math.floor(Date.now()/1000));
+		this.end = Number(typeof end != 'undefined' ? end : Math.floor(Date.now() / 1000));
 		this.lastTradeTime = -1;
 		this.currentKey = currentKey;
 		this.tempProfit = 0;
@@ -181,13 +181,13 @@ class profitTracker {
 				const thisTradePlotBlock = Math.floor((time - this.start) / this.interval);
 				if (lastTradePlotBlock != thisTradePlotBlock && this.lastTradeTime !== -1) { // last block is done so we will push it to plot
 					this.profitPlot.push({
-						time: lastTradePlotBlock*this.interval + this.start,
+						time: lastTradePlotBlock * this.interval + this.start,
 						profit: this.tempProfit,
 						formatted: this.getFormatted(this.tempProfit)
 					});
-					for (let i = lastTradePlotBlock+1; i < thisTradePlotBlock; i++) { // create block even if no trades happend
+					for (let i = lastTradePlotBlock + 1; i < thisTradePlotBlock; i++) { // create block even if no trades happened
 						this.profitPlot.push({
-							time: i*this.interval + this.start,
+							time: i * this.interval + this.start,
 							profit: 0,
 							formatted: this.getFormatted(0)
 						});
@@ -201,7 +201,7 @@ class profitTracker {
 		} else if (this.lastTradeTime < this.end && this.tempProfit !== 0 && this.interval > 0) { // push last trade block to plot if plot is being created
 			const lastTradePlotBlock = Math.floor((this.lastTradeTime - this.start) / this.interval);
 			this.profitPlot.push({
-				time: lastTradePlotBlock*this.interval + this.start,
+				time: lastTradePlotBlock * this.interval + this.start,
 				profit: this.tempProfit,
 				formatted: this.getFormatted(this.tempProfit)
 			});
@@ -219,7 +219,7 @@ class profitTracker {
 			metal: this.currentKey
 		}).toValue(this.currentKey); // get value in scrap 
 		const metal = Currency.toRefined(normalPrice % key);
-		const keys = normalPrice>0 ? Math.floor(normalPrice / key) : Math.ceil(normalPrice / key);
+		const keys = normalPrice > 0 ? Math.floor(normalPrice / key) : Math.ceil(normalPrice / key);
 		return new Currency({
 			keys,
 			metal
