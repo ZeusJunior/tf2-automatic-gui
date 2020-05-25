@@ -94,7 +94,9 @@ const app = new Vue({
 		 * @return {String} formatted currency
 		 */
 		currencyString: function(scrapVal) {
-			if (!this.plotData.keyValue) this.plotData.keyValue = 1;
+			if (!this.plotData.keyValue) {
+				this.plotData.keyValue = 1;
+			}
 			const key = new Currencies({
 				metal: this.plotData.keyValue
 			}).toValue(this.plotData.keyValue); // get value in scrap 

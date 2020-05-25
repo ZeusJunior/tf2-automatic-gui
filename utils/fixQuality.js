@@ -1,6 +1,9 @@
 module.exports = function({ item }) {
-	if (hasEffect(item)) fixUnusualQuality(item);
-	else if (isPaintKit(item)) fixPaintKitQuality(item);
+	if (hasEffect(item)) {
+		fixUnusualQuality(item);
+	} else if (isPaintKit(item)) {
+		fixPaintKitQuality(item);
+	}
 };
 
 // eslint-disable-next-line require-jsdoc

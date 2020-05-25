@@ -4,10 +4,15 @@ const Schema = require('../app/schema');
 
 
 module.exports = function(itemInfo) {
-	if (isStockWeapon(itemInfo.schemaItem)) fixStockWeaponDefindex(itemInfo);
-	else if (isFixablePromo(isPromotedItem(itemInfo.schemaItem), itemInfo.item)) fixPromoDefindex(itemInfo);
-	else if (hasPaintKit(itemInfo.item) && hasAttributesAndIsNotDecorated(itemInfo)) fixWarPaintDefindex(itemInfo);
-	else fixExceptionsDefindex(itemInfo);
+	if (isStockWeapon(itemInfo.schemaItem)) {
+		fixStockWeaponDefindex(itemInfo);
+	} else if (isFixablePromo(isPromotedItem(itemInfo.schemaItem), itemInfo.item)) {
+		fixPromoDefindex(itemInfo);
+	} else if (hasPaintKit(itemInfo.item) && hasAttributesAndIsNotDecorated(itemInfo)) {
+		fixWarPaintDefindex(itemInfo);
+	} else {
+		fixExceptionsDefindex(itemInfo);
+	}
 };
 
 // eslint-disable-next-line require-jsdoc
@@ -36,8 +41,11 @@ function isUpgradableStockWeapon(schemaItem, itemFromSchema) {
 
 // eslint-disable-next-line require-jsdoc
 function fixExceptionsDefindex({ item, schemaItem }) {
-	if (schemaItem.item_name === 'Mann Co. Supply Crate Key') item.defindex = defindexes['Mann Co. Supply Crate Key'];
-	else if (schemaItem.item_name === 'Lugermorph') item.defindex = defindexes['Lugermorph'];
+	if (schemaItem.item_name === 'Mann Co. Supply Crate Key') {
+		item.defindex = defindexes['Mann Co. Supply Crate Key'];
+	} else if (schemaItem.item_name === 'Lugermorph') {
+		item.defindex = defindexes['Lugermorph'];
+	}
 }
 
 // eslint-disable-next-line require-jsdoc

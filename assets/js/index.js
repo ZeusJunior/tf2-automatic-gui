@@ -62,7 +62,9 @@ const app = new Vue({
 	},
 	methods: {
 		addSingle: function() {
-			if (this.modal.edit) this.resetModal();
+			if (this.modal.edit) {
+				this.resetModal();
+			}
 		},
 		bulkClear: function() {
 			this.bulk = {
@@ -157,7 +159,10 @@ const app = new Vue({
 			
 			app.sendMessage(res.data.msg.type, res.data.msg.message);
 			if (fromModal ) {
-				if (res.data.msg == 'success') this.resetModal();
+				if (res.data.msg == 'success') {
+					this.resetModal();
+				}
+
 				app.loadItems();
 			}
 		},

@@ -77,7 +77,10 @@ exports.get = async function get(start, interval, end, enableTrades) {
 			trade.value = {};
 		}
 		if (typeof trade.value.rate === 'undefined') {
-			if (!Object.prototype.hasOwnProperty.call(trade, 'value')) trade.value = {}; // in case it was gift
+			if (!Object.prototype.hasOwnProperty.call(trade, 'value')) {
+				trade.value = {}; // in case it was gift
+			}
+
 			trade.value.rate = keyVal;// set key value to current value if it is not defined
 		}
 		for (sku in trade.dict.their) { // items bought
@@ -86,7 +89,10 @@ exports.get = async function get(start, interval, end, enableTrades) {
 
 				if (sku !== '5000;6' && sku !== '5002;6' && sku !== '5001;6' && sku !== '5021;6') { // if it is not currency
 					if (isGift) {
-						if (!Object.prototype.hasOwnProperty.call(trade, 'prices')) trade.prices = {};
+						if (!Object.prototype.hasOwnProperty.call(trade, 'prices')) {
+							trade.prices = {};
+						}
+
 						trade.prices[sku] = { // set price to 0 because it's a gift
 							buy: {
 								metal: 0,
@@ -130,7 +136,10 @@ exports.get = async function get(start, interval, end, enableTrades) {
 		overpriceProfit: tracker.profitTrack.getFormatted(overpriceProfit),
 		keyValue: keyVal
 	};
-	if (enableTrades) returnObj['tradeProfits'] = tradeProfits;
+	if (enableTrades) {
+		returnObj['tradeProfits'] = tradeProfits;
+	}
+	
 	return returnObj;
 };
 

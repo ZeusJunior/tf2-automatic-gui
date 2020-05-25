@@ -32,7 +32,9 @@ exports.get = async function(first, count, descending, search) {
 		if ( !(!a || isNaN(a)) && (!b || isNaN(b))) return -1;
 		if ( (!a || isNaN(a)) && (!b || isNaN(b))) return 0;
 
-		if (descending) b = [a, a = b][0];
+		if (descending) {
+			b = [a, a = b][0];
+		}
 
 		return a - b;
 	});
@@ -48,7 +50,9 @@ exports.get = async function(first, count, descending, search) {
 		}
 		return offer.id.indexOf(search) > -1 || offerSearchResults;
 	});
-	if (count != -1) tradeList = tradeList.slice(first, first + count);
+	if (count != -1) {
+		tradeList = tradeList.slice(first, first + count);
+	}
 	const items = {};
 	const trades = tradeList.map((offer) => {
 		const ret = {
@@ -66,12 +70,19 @@ exports.get = async function(first, count, descending, search) {
 			accepted: offer.handledByUs === true && offer.isAccepted === true
 		};
 
-		if (typeof polldata.sent[offer.id] != 'undefined') ret.lastState = data.ETradeOfferState[polldata.sent[offer.id]];
-		else if (typeof polldata.received[offer.id] != 'undefined') ret.lastState = data.ETradeOfferState[polldata.received[offer.id]];
+		if (typeof polldata.sent[offer.id] != 'undefined') {
+			ret.lastState = data.ETradeOfferState[polldata.sent[offer.id]];
+		} else if (typeof polldata.received[offer.id] != 'undefined') {
+			ret.lastState = data.ETradeOfferState[polldata.received[offer.id]];
+		}
 
 		if (Object.prototype.hasOwnProperty.call(offer, 'dict')) {
-			if (Object.keys(offer.dict.our).length > 0) tradeSide('our');
-			if (Object.keys(offer.dict.their).length > 0) tradeSide('their');
+			if (Object.keys(offer.dict.our).length > 0) {
+				tradeSide('our');
+			}
+			if (Object.keys(offer.dict.their).length > 0) {
+				tradeSide('their');
+			}
 		}
 
 		return ret;
@@ -82,7 +93,9 @@ exports.get = async function(first, count, descending, search) {
 		 */
 		function tradeSide(side) {
 			Object.keys(offer.dict[side]).forEach((k) => {
-				if (!Object.prototype.hasOwnProperty.call(items, k)) items[k] = createTradeItem(k);
+				if (!Object.prototype.hasOwnProperty.call(items, k)) {
+					items[k] = createTradeItem(k);
+				}
 				ret.items[side].push({
 					sku: k,
 					amount: offer.dict[side][k]

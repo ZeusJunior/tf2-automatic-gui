@@ -33,11 +33,12 @@ module.exports = {
 			"named": "never",
 			"asyncArrow": "always"
 		}],
+		"curly": ["warn", "all"], // May be ignored if its a single line statement with an immediate return / continue / break. Otherwise follow this rule.
 		"object-curly-spacing": ["error", "always"],
 		"object-property-newline": ["error", {
 			"allowAllPropertiesOnSameLine": false
 		}],
-        "new-cap": 0,
+		"new-cap": 0,
 		"no-useless-catch": "error",
 		"arrow-spacing": 2,
 		"camelcase": "error"
