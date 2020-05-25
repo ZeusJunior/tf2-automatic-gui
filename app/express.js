@@ -7,7 +7,6 @@ const bodyParser = require('body-parser');
 const passport = require('passport');
 const session = require('express-session');
 const SteamStrategy = require('passport-steam').Strategy;
-const ip = require('ip');
 
 let port = process.env.PORT ? process.env.PORT : 3000;
 
@@ -37,17 +36,31 @@ passport.deserializeUser(function(obj, done) {
 	done(null, obj);
 });
 
-passport.use(new SteamStrategy({
-	returnURL: process.env.VPS == 'true' ? 'http://' + ip.address() + `:${port}/auth/steam/return` : `http://127.0.0.1:${port}/auth/steam/return`,
-	realm: process.env.VPS == 'true' ? 'http://' + ip.address() + `:${port}/` : `http://127.0.0.1:${port}/`,
-	apiKey: process.env.API_KEY
-},
-function(identifier, profile, done) {
-	// Always return profile, dont want constant logins if not an admin
-	profile.identifier = identifier;
-	return done(null, profile);
-}
-));
+const publicIp = require('public-ip');
+
+(async () => {
+	let ip = '';
+	if (process.env.VPS == 'true') {
+		try {
+			ip = await publicIp.v4();
+		} catch (err) {
+			console.log('ipV4 unavaliable, cant run');
+			process.exit(1);
+		}
+	}
+
+	passport.use(new SteamStrategy({
+		returnURL: process.env.VPS == 'true' ? `http://${ip}:${port}/auth/steam/return` : `http://127.0.0.1:${port}/auth/steam/return`,
+		realm: process.env.VPS == 'true' ? `http://${ip}:${port}/` : `http://127.0.0.1:${port}/`,
+		apiKey: process.env.API_KEY
+	},
+	function(identifier, profile, done) {
+		// Always return profile, dont want constant logins if not an admin
+		profile.identifier = identifier;
+		return done(null, profile);
+	}
+	));
+})();
 
 app
 	.use(express.static(path.join(__dirname, '../assets')))
