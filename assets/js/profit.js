@@ -86,6 +86,9 @@ const app = new Vue({
 				chart.data.labels.push(moment.unix(element.time).format('ddd D. M. Y H:mm:ss'));
 				chart.data.datasets[0].data.push(element.profit);
 			}
+
+			// This to set negative values to red:
+			chart.data.datasets[0].backgroundColor = chart.data.datasets[0].data.map((value) => value < 0 ? 'rgb(255, 0, 71)' : 'rgb(71, 255, 0)'); // Red, Green
 			chart.update();
 		},
 		/**
