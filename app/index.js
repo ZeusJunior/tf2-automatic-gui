@@ -23,9 +23,7 @@ if (isNaN(+port)) {
 
 Schema.init()
 	.then(() => {
-		app.listen(+port, function() {
-			console.log(`listening on port ${port}`);
-		});
+		app.listen(+port);
 	})
 	.catch((err) => {
 		throw err;

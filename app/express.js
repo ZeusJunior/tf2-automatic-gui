@@ -44,11 +44,11 @@ const publicIp = require('public-ip');
 		try {
 			ip = await publicIp.v4();
 		} catch (err) {
-			console.log('ipV4 unavaliable, cant run');
+			console.log('ipV4 unavailable, cant run');
 			process.exit(1);
 		}
 	}
-
+	console.log( 'app is available at: ' + (process.env.VPS == 'true' ? `http://${ip}:${port}/` : `http://127.0.0.1:${port}/`) );
 	passport.use(new SteamStrategy({
 		returnURL: process.env.VPS == 'true' ? `http://${ip}:${port}/auth/steam/return` : `http://127.0.0.1:${port}/auth/steam/return`,
 		realm: process.env.VPS == 'true' ? `http://${ip}:${port}/` : `http://127.0.0.1:${port}/`,
