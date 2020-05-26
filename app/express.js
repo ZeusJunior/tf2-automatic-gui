@@ -39,8 +39,8 @@ passport.deserializeUser(function(obj, done) {
 const publicIp = require('public-ip');
 
 (async () => {
-	let ip = '';
-	if (process.env.VPS == 'true') {
+	let ip = process.env.ADDRESS;
+	if (process.env.VPS == 'true' && !ip) {
 		try {
 			ip = await publicIp.v4();
 		} catch (err) {
