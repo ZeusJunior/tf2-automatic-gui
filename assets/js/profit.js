@@ -79,16 +79,18 @@ const app = new Vue({
 			this.profit.profitTimed = this.plotData.profitTimed;
 			this.profit.numberOfTrades = this.plotData.numberOfTrades;
 			this.profit.overpriceProfit = this.plotData.overpriceProfit;
-			chart.data.datasets[0].data = []; // clear chart before reload
+
+			const dataset = chart.data.datasets[0];
+			dataset.data = []; // clear chart before reload
 			chart.data.labels = [];
 			for (let i = 0; i < this.plotData.profitPlot.length; i++) {
 				const element = this.plotData.profitPlot[i];
 				chart.data.labels.push(moment.unix(element.time).format('ddd D. M. Y H:mm:ss'));
-				chart.data.datasets[0].data.push(element.profit);
+				dataset.data.push(element.profit);
 			}
 
 			// This to set negative values to red:
-			chart.data.datasets[0].backgroundColor = chart.data.datasets[0].data.map((value) => value < 0 ? 'rgb(255, 0, 71)' : 'rgb(71, 255, 0)'); // Red, Green
+			dataset.backgroundColor = dataset.data.map((value) => value < 0 ? 'rgb(255, 0, 71)' : 'rgb(71, 255, 0)'); // Red, Green
 			chart.update();
 		},
 		/**
