@@ -4,7 +4,7 @@ const Currency = require('tf2-currencies');
 const pricelist = require('../pricelist');
 
 router.post('/', (req, res) => {
-	const { sku, intent, autoprice, min, max, sellkeys, sellmetal, buykeys, buymetal, enabled} = req.body;
+	const { sku, intent, autoprice, min, max, sellkeys, sellmetal, buykeys, buymetal, enabled } = req.body;
 	if (parseInt(max) < parseInt(min)) {
 		res.json({
 			success: 0,
@@ -16,8 +16,15 @@ router.post('/', (req, res) => {
 		return;
 	}
 
-	const sellvalues = new Currency({keys: sellkeys, metal: sellmetal}).toJSON();
-	const buyvalues = new Currency({keys: buykeys, metal: buymetal}).toJSON();
+	const sellvalues = new Currency({
+		keys: sellkeys,
+		metal: sellmetal
+	}).toJSON();
+
+	const buyvalues = new Currency({
+		keys: buykeys,
+		metal: buymetal
+	}).toJSON();
 
 	// lower sell keys
 	if (!autoprice) {

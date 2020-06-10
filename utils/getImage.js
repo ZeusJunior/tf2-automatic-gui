@@ -1,6 +1,6 @@
 const Schema = require('../app/schema');
 const SKU = require('tf2-sku');
-const { qualityColors, paintCanColors} = require('../app/data');
+const { qualityColors, paintCanColors } = require('../app/data');
 
 /**
  * 
@@ -22,7 +22,11 @@ function getImageFromSKU(sku) {
 	} else if (item.australium === true) {
 		found.image_url = found.image_url_large = `https://scrap.tf/img/items/440/${found.defindex}-gold.png`;
 	}
-	return {small: found.image_url, large: found.image_url_large, effect: item.effect? `https://backpack.tf/images/440/particles/${item.effect}_188x188.png` : ''};
+	return {
+		small: found.image_url,
+		large: found.image_url_large,
+		effect: item.effect ? `https://backpack.tf/images/440/particles/${item.effect}_188x188.png` : ''
+	};
 };
 exports.getImageFromSKU = getImageFromSKU;
 

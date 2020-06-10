@@ -47,7 +47,7 @@
         </div>
       </div>
       <div class="mt-3" id="tradeList">
-        <div class="p-2 rounded border m-2 trade" v-for="trade in filteredTrades" :key="trade.id" :class="trade.accepted? '': 'declined'">
+        <div class="p-2 rounded border m-2 trade" v-for="trade in tradeList" :key="trade.id" :class="trade.accepted? '': 'declined'">
           <div>
             {{trade.datetime}}: Trade <b>#{{trade.id}}</b> with <a :href="'https://steamcommunity.com/profiles/' + trade.partner"  target="_blank" class="steam-profile">{{trade.partner}}.</a>
             {{trade.accepted? `Profit: ${trade.profit}`: ` Trade unsuccessfull, reason: ${trade.lastState}.`}}
