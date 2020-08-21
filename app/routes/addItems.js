@@ -41,8 +41,15 @@ router.post('/', (req, res) => {
 	});
 
 	if (!req.body.autoprice) {
-		sellvalues = { keys: Number(req.body.sell_keys), metal: Number(req.body.sell_metal)};
-		buyvalues = { keys: Number(req.body.buy_keys), metal: Number(req.body.buy_metal)};
+		sellvalues = {
+			keys: Number(req.body.sell_keys),
+			metal: Number(req.body.sell_metal)
+		};
+
+		buyvalues = {
+			keys: Number(req.body.buy_keys),
+			metal: Number(req.body.buy_metal)
+		};
 	
 		// lower sell keys
 		if (sellvalues.keys < buyvalues.keys && req.body.intent != 0) {

@@ -12,9 +12,9 @@ new Vue({
 		tradeCount: 0
 	},
 	methods: {
-		loadTrades: function(first=0, count=50, order=1) {
+		loadTrades: function(first=0, count=50) {
 			loadLock=true;
-			fetch(`/trades?json=true&first=${first}&count=${count}&dir=${order}`)
+			fetch(`/trades?json=true&first=${first}&count=${count}&dir=${this.order}&search=${encodeURIComponent(this.search)}`)
 				.then((response) => {
 					return response.json();
 				})
@@ -51,9 +51,9 @@ new Vue({
 		scroll() {
 			window.onscroll = () => {
 				const bottomOfWindow = Math.max(window.pageYOffset, document.documentElement.scrollTop, document.body.scrollTop) + window.innerHeight === document.documentElement.offsetHeight;
-				if (bottomOfWindow&&!loadLock&&toShow < this.tradeCount) {
+				if (bottomOfWindow&&!loadLock&& this.toShow < this.tradeCount) {
 					const nuberToAdd = 50;
-					this.loadTrades((this.toShow), nuberToAdd, this.order);
+					this.loadTrades(this.toShow, nuberToAdd);
 					this.toShow += nuberToAdd;
 				}
 			};
@@ -61,18 +61,14 @@ new Vue({
 	},
 	watch: {
 		order: function() {
-			this.loadTrades(0, this.toShow, this.order);
-		}
-	},
-	computed: {
-		filteredTrades() {
-			return this.tradeList.filter((trade) => {
-				return ( (trade.id.indexOf(this.search.toLowerCase()) > -1) || (String(trade.partner).indexOf(this.search.toLowerCase()) > -1) ) && (trade.accepted || !this.acceptedOnly);
-			});
+			this.loadTrades(0, this.toShow);
+		},
+		search: function() {
+			this.loadTrades(0, this.toShow);
 		}
 	},
 	created() {
-		this.loadTrades(0, this.toShow, this.order);
+		this.loadTrades(0, this.toShow);
 	},
 	mounted() {
 		this.scroll();

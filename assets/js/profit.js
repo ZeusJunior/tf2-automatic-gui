@@ -91,7 +91,7 @@ const app = new Vue({
 		/**
 		 * Converts scrap to string - just some copypasta from tf2-currencies
 		 * @param {Number} scrapVal 
-		 * @return {String} formated currency
+		 * @return {String} formatted currency
 		 */
 		currencyString: function(scrapVal) {
 			if (!this.plotData.keyValue) this.plotData.keyValue = 1;
@@ -100,7 +100,10 @@ const app = new Vue({
 			}).toValue(this.plotData.keyValue); // get value in scrap 
 			const metal = Currencies.toRefined(scrapVal % key);
 			const keys = scrapVal>0 ? Math.floor(scrapVal / key) : Math.ceil(scrapVal / key);
-			return new Currencies({keys, metal}).toString();
+			return new Currencies({
+				keys,
+				metal
+			}).toString();
 		}
 	},
 	created() {
@@ -145,7 +148,7 @@ const app = new Vue({
 				aspectRatio: 3,
 				tooltips: {
 					callbacks: {
-						label: (item) => `${app.plotData.profitPlot[item.index].formated}`
+						label: (item) => `${app.plotData.profitPlot[item.index].formatted}`
 					}
 				}
 			}
