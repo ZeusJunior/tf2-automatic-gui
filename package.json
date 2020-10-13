@@ -1,6 +1,6 @@
 {
   "name": "tf2-automatic-gui",
-  "version": "2.2.0",
+  "version": "2.2.2",
   "description": "An interface to easily manage your tf2-automatic bot",
   "main": "app.js",
   "scripts": {
