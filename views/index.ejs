@@ -312,7 +312,7 @@
 				</thead>
 				  <tbody>
 				
-					<tr class="item item-list m-1" v-for="item in pricelistSorted" :key="item.sku" @click="itemClick(item, $event)">
+					<tr class="item item-list m-1" v-for="item in pricelistSorted" :key="item.sku" @mousedown="itemClick(item, $event)" @mouseenter="mouseEntered(item, $event)">
 						<td>
 							<a :href="item.statslink" target="_blank" v-on:click.stop="">{{item.sku}}</a>
 						</td>
