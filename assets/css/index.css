@@ -18,10 +18,6 @@
 	background-color:rgba(255, 255, 255, 0.7);
 	overflow-x: wrap;
 	overflow-y: hidden;
-	-webkit-user-select: none; /* Safari */        
-	-moz-user-select: none; /* Firefox */
-	-ms-user-select: none; /* IE10+/Edge */
-	user-select: none; /* Standard */
 }
 .item:hover .info {
 	visibility: visible;
@@ -96,10 +92,6 @@
     left: 2px;
     position: absolute;
     z-index: 2;
-    -webkit-user-select: none; /* Safari */        
-	-moz-user-select: none; /* Firefox */
-	-ms-user-select: none; /* IE10+/Edge */
-    user-select: none; /* Standard */
 }
 
 .intent-symbol {
@@ -107,10 +99,6 @@
     left: 2px;
     position: absolute;
     z-index: 2;
-    -webkit-user-select: none; /* Safari */        
-	-moz-user-select: none; /* Firefox */
-	-ms-user-select: none; /* IE10+/Edge */
-    user-select: none; /* Standard */
 }
 .item-grid .autoprice-symbol {
     top: 2px;
@@ -118,10 +106,6 @@
     position: absolute;
     z-index: 2;
     color: #29a30e;
-    -webkit-user-select: none; /* Safari */        
-	-moz-user-select: none; /* Firefox */
-	-ms-user-select: none; /* IE10+/Edge */
-    user-select: none; /* Standard */
 }
 .item-list .autoprice-symbol {
     color: #29a30e;
@@ -148,12 +132,15 @@
 	background-color:rgba(255, 255, 255, 0.7);
 	overflow-x: wrap;
 	overflow-y: hidden;
-	-webkit-user-select: none; /* Safari */        
-	-moz-user-select: none; /* Firefox */
-	-ms-user-select: none; /* IE10+/Edge */
-    user-select: none; /* Standard */
     background-color: #666;
 }
 .item:hover .price {
 	visibility: visible;
+}
+
+#pricelist {
+    -webkit-user-select: none; /* Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
 }
