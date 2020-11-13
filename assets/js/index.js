@@ -61,6 +61,16 @@ const app = new Vue({
 		list: false
 	},
 	methods: {
+		mouseEntered: function (item, e) {
+			if (this.multiSelect.enabled && (e.buttons && e.buttons==1) && e.button == 0) {
+				const index = this.multiSelect.list.indexOf(item.sku);
+				if (index == -1) {
+					this.multiSelect.list.push(item.sku);
+				} else {
+					this.multiSelect.list.splice(index, 1);
+				}
+			}
+		},
 		addSingle: function() {
 			if (this.modal.edit) this.resetModal();
 		},
