@@ -25,7 +25,7 @@ function getImageFromSKU(sku) {
 	return {
 		small: found.image_url,
 		large: found.image_url_large,
-		effect: item.effect ? `https://marketplace.tf/images/particles/${item.effect}_188x188.png` : ''
+		effect: item.effect ? `./images/effects/${item.effect}_188x188.png` : ''
 	};
 };
 exports.getImageFromSKU = getImageFromSKU;
