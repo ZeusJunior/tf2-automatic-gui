@@ -261,7 +261,7 @@
 		<div v-if="!list" class="d-flex mt-3 flex justify-content-center flex-wrap" id="pricelist">
 			<div class="item item-grid m-1" v-for="item in pricelistSorted" :key="item.sku" 
 				:style="{ backgroundImage: `url( ${item.style.image_small} ), url( ${item.style.effect} )`, backgroundColor: item.style.quality_color, borderStyle: item.style.craftable? false : 'dashed', opacity: item.enabled?1:0.5, borderColor: item.style.border_color}"
-				@mousedown="itemClick(item, $event)" @mouseenter="mouseEntered(item, $event)">
+				@click="itemClick(item, $event)" @mouseenter="mouseEntered(item, $event)">
 				<div class="info text-center font-weight-bold" v-if="!multiSelect.list.includes(item.sku)">
 					{{item.name}}
 				</div>
