@@ -16,7 +16,7 @@ function getImageFromSKU(sku) {
 		return;
 	}
 	if ((Object.keys(paintCanColors).indexOf(sku)) > -1) {
-		found.image_url = found.image_url_large = `https://backpack.tf/images/440/cans/Paint_Can_${paintCanColors[sku]}.png`;
+		found.image_url = found.image_url_large = `https://steamcommunity-a.akamaihd.net/economy/image/IzMF03bi9WpSBq-S-ekoE33L-iLqGFHVaU25ZzQNQcXdEH9myp0erksICf${paintCanColors[sku]}188x188`;
 	} else if (item.paintkit !== null ) {
 		found.image_url = found.image_url_large = `https://scrap.tf/img/items/warpaint/${encodeURIComponent(found.item_name)}_${item.paintkit}_${item.wear}_${item.festive===true?1:0}.png`;
 	} else if (item.australium === true) {
